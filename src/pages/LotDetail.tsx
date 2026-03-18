@@ -1,10 +1,11 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Heart, Star, MapPin, Package, Truck, Shield, MessageCircle, ShoppingCart, User, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState, useCallback } from "react";
-import { getLotById } from "@/data/mockLots";
+import { useState, useCallback, useMemo } from "react";
+import { getLotById, getSimilarLots } from "@/data/mockLots";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { useCart } from "@/contexts/CartContext";
+import LotCard from "@/components/LotCard";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ const LotDetail = () => {
   const [showAllItems, setShowAllItems] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const images = lot?.images || (lot ? [lot.image] : []);
+  const similarLots = useMemo(() => lot ? getSimilarLots(lot) : [], [lot]);
 
   const prevImage = useCallback(() => setActiveImage((i) => (i === 0 ? images.length - 1 : i - 1)), [images.length]);
   const nextImage = useCallback(() => setActiveImage((i) => (i === images.length - 1 ? 0 : i + 1)), [images.length]);
@@ -250,6 +252,18 @@ const LotDetail = () => {
             ))}
           </div>
         </div>
+
+        {/* Similar lots */}
+        {similarLots.length > 0 && (
+          <div className="mt-8">
+            <h3 className="font-heading font-semibold text-foreground text-sm mb-3">Lots similaires</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {similarLots.map((l) => (
+                <LotCard key={l.id} {...l} />
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Mobile sticky CTA */}
