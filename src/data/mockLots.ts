@@ -191,6 +191,7 @@ export const mockLots: Lot[] = [
   {
     id: "5",
     image: lotClothing,
+    images: [lotClothing, lotSport, lotElectronics, lotBeauty],
     title: "Surplus 1200 t-shirts basiques – Coton bio",
     brand: "H&M",
     price: "4 800 €",
