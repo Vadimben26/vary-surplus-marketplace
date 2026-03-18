@@ -1,5 +1,9 @@
 import lotClothing from "@/assets/lot-clothing.jpg";
 import lotBags from "@/assets/lot-bags.jpg";
+import lotSneakers from "@/assets/lot-sneakers.jpg";
+import lotBeauty from "@/assets/lot-beauty.jpg";
+import lotSport from "@/assets/lot-sport.jpg";
+import lotElectronics from "@/assets/lot-electronics.jpg";
 
 export interface LotItem {
   name: string;
