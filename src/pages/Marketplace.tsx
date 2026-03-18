@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import MarketplaceHeader from "@/components/MarketplaceHeader";
 import BottomNav from "@/components/BottomNav";
 import LotCard from "@/components/LotCard";
+import CategoryBar from "@/components/CategoryBar";
 import { mockLots } from "@/data/mockLots";
 
 const Marketplace = () => {
@@ -11,9 +12,11 @@ const Marketplace = () => {
     style: "",
     search: "",
   });
+  const [activeCategory, setActiveCategory] = useState("");
 
   const filteredLots = useMemo(() => {
     return mockLots.filter((lot) => {
+      if (activeCategory && lot.category !== activeCategory) return false;
       if (filters.search) {
         const q = filters.search.toLowerCase();
         if (!lot.title.toLowerCase().includes(q) && !lot.brand.toLowerCase().includes(q)) return false;
@@ -31,12 +34,15 @@ const Marketplace = () => {
       }
       return true;
     });
-  }, [filters]);
+  }, [filters, activeCategory]);
 
   return (
     <div className="min-h-screen bg-background">
       <MarketplaceHeader filters={filters} onFiltersChange={setFilters} />
-      <main className="px-4 md:px-8 py-6 pb-24 max-w-[1600px] mx-auto">
+      <div className="px-4 md:px-8 max-w-[1600px] mx-auto pt-4">
+        <CategoryBar activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
+      </div>
+      <main className="px-4 md:px-8 py-4 pb-24 max-w-[1600px] mx-auto">
         {filteredLots.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground text-lg">Aucun lot ne correspond à vos filtres.</p>
