@@ -52,10 +52,10 @@ const MarketplaceHeader = () => {
         </div>
 
         {/* Profile */}
-        <button className="flex items-center gap-2 px-4 py-2 rounded-full border border-border hover:shadow-card transition-all bg-card">
+        <Link to="/inscription" className="flex items-center gap-2 px-4 py-2 rounded-full border border-border hover:shadow-card transition-all bg-card">
           <User className="h-5 w-5 text-foreground" />
-          <span className="hidden md:inline text-sm font-medium text-foreground">Mon compte</span>
-        </button>
+          <span className="hidden md:inline text-sm font-medium text-foreground">S'inscrire</span>
+        </Link>
       </div>
 
       {/* Category pills */}
