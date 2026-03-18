@@ -301,10 +301,10 @@ const BuyerRegistration = () => {
                   Vous recevrez un email de confirmation sous 24 à 48h.
                 </p>
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/marketplace")}
                   className="px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary-dark transition-colors"
                 >
-                  Retour à l'accueil
+                  Accéder à la marketplace
                 </button>
               </motion.div>
             )}
