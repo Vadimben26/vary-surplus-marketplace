@@ -660,6 +660,13 @@ export const mockLots: Lot[] = [
       { author: "Bruno M.", rating: 4, date: "23 fév. 2026", comment: "Bon prix pour du Havaianas authentique. Les Brasil Logo sont les plus populaires." },
     ],
   },
+];
+
+export const getSimilarLots = (lot: Lot, count = 4): Lot[] => {
+  return mockLots
+    .filter((l) => l.id !== lot.id && (l.category === lot.category || l.brand === lot.brand))
+    .slice(0, count);
+};
 
 export const getLotById = (id: string): Lot | undefined => {
   return mockLots.find((lot) => lot.id === id);

@@ -1,10 +1,11 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Heart, Star, MapPin, Package, Truck, Shield, MessageCircle, ShoppingCart, User, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState, useCallback } from "react";
-import { getLotById } from "@/data/mockLots";
+import { useState, useCallback, useMemo } from "react";
+import { getLotById, getSimilarLots } from "@/data/mockLots";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { useCart } from "@/contexts/CartContext";
+import LotCard from "@/components/LotCard";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
