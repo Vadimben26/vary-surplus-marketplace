@@ -86,6 +86,7 @@ export const mockLots: Lot[] = [
   {
     id: "2",
     image: lotClothing,
+    images: [lotClothing, lotSneakers, lotSport, lotBags],
     title: "Surplus 800 pièces denim premium – Neufs",
     brand: "Levi's",
     price: "18 400 €",
