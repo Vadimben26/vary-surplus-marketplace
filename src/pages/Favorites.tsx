@@ -13,7 +13,7 @@ const Favorites = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <MarketplaceHeader />
+      <TopNav />
       <main className="px-4 md:px-8 py-8 pb-24 max-w-[1600px] mx-auto">
         <h1 className="font-heading text-2xl font-bold text-foreground mb-6">Vos favoris ({favoriteLots.length})</h1>
 
