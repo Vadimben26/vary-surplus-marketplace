@@ -1,5 +1,9 @@
 import lotClothing from "@/assets/lot-clothing.jpg";
 import lotBags from "@/assets/lot-bags.jpg";
+import lotSneakers from "@/assets/lot-sneakers.jpg";
+import lotBeauty from "@/assets/lot-beauty.jpg";
+import lotSport from "@/assets/lot-sport.jpg";
+import lotElectronics from "@/assets/lot-electronics.jpg";
 
 export interface LotItem {
   name: string;
@@ -25,6 +29,7 @@ export interface Review {
 export interface Lot {
   id: string;
   image: string;
+  images: string[];
   title: string;
   brand: string;
   price: string;
@@ -45,6 +50,7 @@ export const mockLots: Lot[] = [
   {
     id: "1",
     image: lotClothing,
+    images: [lotClothing, lotSport, lotBeauty, lotSneakers],
     title: "Mix 1000 pièces vêtements été – Surplus de marque",
     brand: "Zara",
     price: "6 200 €",
@@ -80,6 +86,7 @@ export const mockLots: Lot[] = [
   {
     id: "2",
     image: lotClothing,
+    images: [lotClothing, lotSneakers, lotSport, lotBags],
     title: "Surplus 800 pièces denim premium – Neufs",
     brand: "Levi's",
     price: "18 400 €",
@@ -115,6 +122,7 @@ export const mockLots: Lot[] = [
   {
     id: "3",
     image: lotBags,
+    images: [lotBags, lotClothing, lotBeauty, lotElectronics],
     title: "Pack 50 sacs à main premium – Cuir véritable",
     brand: "Michael Kors",
     price: "12 000 €",
@@ -147,6 +155,7 @@ export const mockLots: Lot[] = [
   {
     id: "4",
     image: lotClothing,
+    images: [lotClothing, lotBags, lotSport, lotSneakers],
     title: "Lot 600 manteaux hiver – Fin de collection",
     brand: "Tommy Hilfiger",
     price: "24 000 €",
@@ -182,6 +191,7 @@ export const mockLots: Lot[] = [
   {
     id: "5",
     image: lotClothing,
+    images: [lotClothing, lotSport, lotElectronics, lotBeauty],
     title: "Surplus 1200 t-shirts basiques – Coton bio",
     brand: "H&M",
     price: "4 800 €",
@@ -216,6 +226,7 @@ export const mockLots: Lot[] = [
   {
     id: "6",
     image: lotBags,
+    images: [lotBags, lotSneakers, lotClothing, lotElectronics],
     title: "Lot 300 accessoires cuir – Mix portefeuilles et ceintures",
     brand: "Hugo Boss",
     price: "9 600 €",
@@ -249,6 +260,7 @@ export const mockLots: Lot[] = [
   {
     id: "7",
     image: lotClothing,
+    images: [lotClothing, lotBeauty, lotBags, lotSport],
     title: "Pack 500 chemises business – Surplus usine",
     brand: "Ralph Lauren",
     price: "15 000 €",
@@ -284,6 +296,7 @@ export const mockLots: Lot[] = [
   {
     id: "8",
     image: lotClothing,
+    images: [lotClothing, lotBeauty, lotSneakers, lotSport],
     title: "Lot 400 robes été – Collection printemps",
     brand: "Mango",
     price: "8 000 €",

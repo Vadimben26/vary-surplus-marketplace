@@ -1,7 +1,7 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Heart, Star, MapPin, Package, Truck, Shield, MessageCircle, ShoppingCart, User, ChevronDown } from "lucide-react";
+import { ArrowLeft, Heart, Star, MapPin, Package, Truck, Shield, MessageCircle, ShoppingCart, User, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { getLotById } from "@/data/mockLots";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { useCart } from "@/contexts/CartContext";
@@ -16,6 +16,11 @@ const LotDetail = () => {
   const { isInCart, addToCart } = useCart();
   const lot = getLotById(id || "");
   const [showAllItems, setShowAllItems] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
+  const images = lot?.images || (lot ? [lot.image] : []);
+
+  const prevImage = useCallback(() => setActiveImage((i) => (i === 0 ? images.length - 1 : i - 1)), [images.length]);
+  const nextImage = useCallback(() => setActiveImage((i) => (i === images.length - 1 ? 0 : i + 1)), [images.length]);
 
   if (!lot) {
     return (
@@ -62,9 +67,41 @@ const LotDetail = () => {
 
           {/* LEFT: Image + Seller */}
           <div className="md:col-span-4 space-y-3">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="aspect-[4/5] rounded-2xl overflow-hidden bg-muted">
-              <img src={lot.image} alt={lot.title} className="w-full h-full object-cover" />
-            </motion.div>
+            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-muted group">
+              <motion.img
+                key={activeImage}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+                src={images[activeImage]}
+                alt={`${lot.title} - photo ${activeImage + 1}`}
+                className="w-full h-full object-cover"
+              />
+              {images.length > 1 && (
+                <>
+                  <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card">
+                    <ChevronLeft className="h-4 w-4 text-foreground" />
+                  </button>
+                  <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card">
+                    <ChevronRight className="h-4 w-4 text-foreground" />
+                  </button>
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {images.map((_, i) => (
+                      <button key={i} onClick={() => setActiveImage(i)} className={`w-1.5 h-1.5 rounded-full transition-all ${i === activeImage ? "bg-primary w-3" : "bg-card/60"}`} />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            {images.length > 1 && (
+              <div className="flex gap-1.5 mt-2">
+                {images.map((img, i) => (
+                  <button key={i} onClick={() => setActiveImage(i)} className={`flex-1 aspect-square rounded-lg overflow-hidden border-2 transition-all ${i === activeImage ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"}`}>
+                    <img src={img} alt={`Miniature ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
             {/* Seller compact */}
             <div className="flex items-start gap-2.5 p-3 bg-muted rounded-xl">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
