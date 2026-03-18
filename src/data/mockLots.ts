@@ -29,6 +29,7 @@ export interface Review {
 export interface Lot {
   id: string;
   image: string;
+  images: string[];
   title: string;
   brand: string;
   price: string;
