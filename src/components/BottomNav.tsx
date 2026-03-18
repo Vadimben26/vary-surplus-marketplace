@@ -2,6 +2,8 @@ import { Link, useLocation } from "react-router-dom";
 import { Heart, ShoppingCart, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import varyLogo from "@/assets/vary-logo.png";
+import { useFavorites } from "@/contexts/FavoritesContext";
+import { useCart } from "@/contexts/CartContext";
 
 const navItems = [
   { icon: null, label: "Accueil", path: "/marketplace", isLogo: true },
