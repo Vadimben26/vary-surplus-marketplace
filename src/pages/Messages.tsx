@@ -1,6 +1,6 @@
 import { MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import MarketplaceHeader from "@/components/MarketplaceHeader";
+import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 
 const Messages = () => {
