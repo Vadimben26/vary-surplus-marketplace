@@ -260,6 +260,7 @@ export const mockLots: Lot[] = [
   {
     id: "7",
     image: lotClothing,
+    images: [lotClothing, lotBeauty, lotBags, lotSport],
     title: "Pack 500 chemises business – Surplus usine",
     brand: "Ralph Lauren",
     price: "15 000 €",
