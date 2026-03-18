@@ -122,6 +122,7 @@ export const mockLots: Lot[] = [
   {
     id: "3",
     image: lotBags,
+    images: [lotBags, lotClothing, lotBeauty, lotElectronics],
     title: "Pack 50 sacs à main premium – Cuir véritable",
     brand: "Michael Kors",
     price: "12 000 €",
