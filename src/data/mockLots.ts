@@ -226,6 +226,7 @@ export const mockLots: Lot[] = [
   {
     id: "6",
     image: lotBags,
+    images: [lotBags, lotSneakers, lotClothing, lotElectronics],
     title: "Lot 300 accessoires cuir – Mix portefeuilles et ceintures",
     brand: "Hugo Boss",
     price: "9 600 €",
