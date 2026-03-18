@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import varyLogo from "@/assets/vary-logo.png";
 
 const navItems = [
-  { icon: null, label: "Accueil", path: "/", isLogo: true },
+  { icon: null, label: "Accueil", path: "/marketplace", isLogo: true },
   { icon: Heart, label: "Favoris", path: "/favoris", isLogo: false },
   { icon: ShoppingCart, label: "Panier", path: "/panier", isLogo: false },
   { icon: MessageCircle, label: "Messages", path: "/messages", isLogo: false },
@@ -35,13 +35,7 @@ const BottomNav = () => {
                   whileTap={{ scale: 0.9 }}
                 />
               ) : (
-                item.icon && (
-                  <item.icon
-                    className={`h-5 w-5 md:h-6 md:w-6 ${
-                      isActive ? "text-primary" : ""
-                    }`}
-                  />
-                )
+                item.icon && <item.icon className={`h-5 w-5 md:h-6 md:w-6 ${isActive ? "text-primary" : ""}`} />
               )}
               <span className="text-[10px] md:text-xs font-medium">{item.label}</span>
             </Link>
