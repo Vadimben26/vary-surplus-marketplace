@@ -1,7 +1,7 @@
 import { ShoppingCart, Trash2, Truck, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import MarketplaceHeader from "@/components/MarketplaceHeader";
+import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import { useCart } from "@/contexts/CartContext";
 import { mockLots } from "@/data/mockLots";
