@@ -252,6 +252,24 @@ const LotDetail = () => {
         </div>
       </main>
 
+      {/* Mobile sticky CTA */}
+      <div className="fixed bottom-14 left-0 right-0 z-40 md:hidden bg-card/95 backdrop-blur-md border-t border-border px-4 py-3">
+        <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
+          <div>
+            <p className="font-heading font-bold text-foreground text-sm">{total.toLocaleString("fr-FR")} €</p>
+            <p className="text-[10px] text-muted-foreground">Total TTC</p>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={inCart}
+            className={`flex-1 max-w-[200px] py-2.5 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm ${inCart ? "bg-muted text-muted-foreground cursor-default" : "bg-primary text-primary-foreground hover:bg-primary-dark"}`}
+          >
+            <ShoppingCart className="h-4 w-4" />
+            {inCart ? "Dans le panier" : "Ajouter"}
+          </button>
+        </div>
+      </div>
+
       <BottomNav />
     </div>
   );
