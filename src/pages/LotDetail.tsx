@@ -252,6 +252,18 @@ const LotDetail = () => {
             ))}
           </div>
         </div>
+
+        {/* Similar lots */}
+        {similarLots.length > 0 && (
+          <div className="mt-8">
+            <h3 className="font-heading font-semibold text-foreground text-sm mb-3">Lots similaires</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {similarLots.map((l) => (
+                <LotCard key={l.id} {...l} />
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Mobile sticky CTA */}
