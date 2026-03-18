@@ -50,6 +50,7 @@ export const mockLots: Lot[] = [
   {
     id: "1",
     image: lotClothing,
+    images: [lotClothing, lotSport, lotBeauty, lotSneakers],
     title: "Mix 1000 pièces vêtements été – Surplus de marque",
     brand: "Zara",
     price: "6 200 €",
