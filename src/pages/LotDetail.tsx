@@ -43,13 +43,14 @@ const LotDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      {/* Header */}
       <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
-        <div className="flex items-center justify-between px-4 md:px-8 h-16">
+        <div className="flex items-center justify-between px-4 md:px-8 h-14">
           <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <Link to="/marketplace">
-            <img src={varyLogo} alt="Vary" className="h-8 w-auto" />
+            <img src={varyLogo} alt="Vary" className="h-7 w-auto" />
           </Link>
           <button onClick={() => toggleFavorite(lot.id)} className="p-2 rounded-full hover:bg-muted transition-colors">
             <Heart className={`h-5 w-5 ${liked ? "fill-destructive text-destructive" : "text-foreground"}`} />
@@ -57,157 +58,189 @@ const LotDetail = () => {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 md:px-8 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Image */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="aspect-square rounded-2xl overflow-hidden bg-muted">
-            <img src={lot.image} alt={lot.title} className="w-full h-full object-cover" />
+      <main className="max-w-6xl mx-auto px-4 md:px-8 py-4">
+        {/* Top section: 3 columns on desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+          {/* Image — col 1-5 */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="md:col-span-5">
+            <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-muted">
+              <img src={lot.image} alt={lot.title} className="w-full h-full object-cover" />
+            </div>
           </motion.div>
 
-          {/* Details */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+          {/* Details — col 6-8 */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="md:col-span-4 space-y-4">
             <div>
-              <span className="text-sm font-semibold text-primary uppercase tracking-wide">{lot.brand}</span>
-              <div className="flex items-center gap-2 mt-1">
-                <Star className="h-4 w-4 fill-primary text-primary" />
-                <span className="text-sm font-medium text-foreground">{lot.rating.toFixed(1)}</span>
-                {lot.isNew && <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-primary text-primary-foreground">Nouveau</span>}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-primary uppercase tracking-wide">{lot.brand}</span>
+                {lot.isNew && <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-primary text-primary-foreground">Nouveau</span>}
               </div>
-              <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground mt-3">{lot.title}</h1>
+              <h1 className="font-heading text-lg md:text-xl font-bold text-foreground mt-1 leading-tight">{lot.title}</h1>
+              <div className="flex items-center gap-1 mt-1">
+                <Star className="h-3.5 w-3.5 fill-primary text-primary" />
+                <span className="text-xs font-medium text-foreground">{lot.rating.toFixed(1)}</span>
+                <span className="text-xs text-muted-foreground ml-1">· {lot.reviews.length} avis</span>
+              </div>
             </div>
 
-            <p className="text-muted-foreground text-sm leading-relaxed">{lot.description}</p>
+            <p className="text-muted-foreground text-xs leading-relaxed">{lot.description}</p>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-muted rounded-xl p-4">
-                <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                  <Package className="h-4 w-4" />
-                  <span className="text-xs font-medium">Quantité</span>
-                </div>
-                <p className="font-heading font-bold text-foreground">{lot.units} unités</p>
+            {/* Quick stats */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-muted rounded-lg p-2.5 text-center">
+                <Package className="h-3.5 w-3.5 text-muted-foreground mx-auto mb-1" />
+                <p className="font-heading font-bold text-foreground text-xs">{lot.units}</p>
+                <p className="text-[10px] text-muted-foreground">unités</p>
               </div>
-              <div className="bg-muted rounded-xl p-4">
-                <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                  <MapPin className="h-4 w-4" />
-                  <span className="text-xs font-medium">Localisation</span>
-                </div>
-                <p className="font-heading font-bold text-foreground text-sm">{lot.location}</p>
+              <div className="bg-muted rounded-lg p-2.5 text-center">
+                <MapPin className="h-3.5 w-3.5 text-muted-foreground mx-auto mb-1" />
+                <p className="font-heading font-bold text-foreground text-[10px]">{lot.location.split(",")[0]}</p>
+                <p className="text-[10px] text-muted-foreground">{lot.location.split(",")[1]?.trim()}</p>
               </div>
               {lot.sizes && (
-                <div className="bg-muted rounded-xl p-4 col-span-2">
-                  <span className="text-xs font-medium text-muted-foreground">Tailles disponibles</span>
-                  <p className="font-heading font-bold text-foreground">{lot.sizes}</p>
+                <div className="bg-muted rounded-lg p-2.5 text-center">
+                  <span className="text-[10px] text-muted-foreground">Tailles</span>
+                  <p className="font-heading font-bold text-foreground text-xs">{lot.sizes}</p>
                 </div>
               )}
             </div>
 
-            {/* Detailed item breakdown */}
-            <div className="bg-card rounded-2xl border border-border p-6">
-              <h3 className="font-heading font-semibold text-foreground mb-4">Contenu détaillé du lot</h3>
-              <div className="space-y-2">
+            {/* Item breakdown */}
+            <div className="border border-border rounded-xl p-3">
+              <h3 className="font-heading font-semibold text-foreground text-sm mb-2">Contenu du lot</h3>
+              <div className="space-y-0">
                 {displayedItems.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                  <div key={i} className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0">
                     <div>
-                      <p className="text-sm font-medium text-foreground">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">Tailles : {item.size}</p>
+                      <p className="text-xs font-medium text-foreground">{item.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{item.size}</p>
                     </div>
-                    <span className="text-sm font-heading font-bold text-primary">{item.quantity} pcs</span>
+                    <span className="text-xs font-heading font-bold text-primary whitespace-nowrap ml-2">{item.quantity} pcs</span>
                   </div>
                 ))}
               </div>
               {lot.items.length > 4 && (
-                <button onClick={() => setShowAllItems(!showAllItems)} className="flex items-center gap-1 mt-3 text-sm text-primary font-medium hover:underline">
-                  {showAllItems ? "Voir moins" : `Voir tout (${lot.items.length} articles)`}
-                  <ChevronDown className={`h-4 w-4 transition-transform ${showAllItems ? "rotate-180" : ""}`} />
+                <button onClick={() => setShowAllItems(!showAllItems)} className="flex items-center gap-1 mt-2 text-xs text-primary font-medium hover:underline">
+                  {showAllItems ? "Voir moins" : `+${lot.items.length - 4} articles`}
+                  <ChevronDown className={`h-3 w-3 transition-transform ${showAllItems ? "rotate-180" : ""}`} />
                 </button>
               )}
             </div>
 
-            {/* Price breakdown */}
-            <div className="bg-card rounded-2xl border border-border p-6 shadow-card">
-              <h3 className="font-heading font-semibold text-foreground mb-4">Estimation du coût total</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Prix du lot</span>
-                  <span className="text-foreground font-medium">{lot.price}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground flex items-center gap-1"><Truck className="h-3 w-3" /> Livraison estimée</span>
-                  <span className="text-foreground font-medium">{deliveryFee} €</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground flex items-center gap-1"><Shield className="h-3 w-3" /> Commission Vary (5%)</span>
-                  <span className="text-foreground font-medium">{commissionAmount.toLocaleString("fr-FR")} €</span>
-                </div>
-                <div className="border-t border-border pt-3 flex justify-between">
-                  <span className="font-heading font-bold text-foreground">Total estimé</span>
-                  <span className="font-heading font-bold text-primary text-lg">{total.toLocaleString("fr-FR")} €</span>
-                </div>
+            {/* Seller mini */}
+            <div className="flex items-center gap-3 p-3 bg-muted rounded-xl">
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-primary" />
               </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleAddToCart}
-                disabled={inCart}
-                className={`flex-1 py-3 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 ${inCart ? "bg-muted text-muted-foreground cursor-default" : "bg-primary text-primary-foreground hover:bg-primary-dark"}`}
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {inCart ? "Déjà dans le panier" : "Ajouter au panier"}
-              </button>
-              <button className="px-4 py-3 border border-border rounded-xl hover:bg-muted transition-colors">
-                <MessageCircle className="h-5 w-5 text-foreground" />
-              </button>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-bold text-foreground truncate">{lot.seller.name}</p>
+                  <div className="flex items-center gap-0.5">
+                    <Star className="h-3 w-3 fill-primary text-primary" />
+                    <span className="text-[10px] font-medium text-foreground">{lot.seller.rating.toFixed(1)}</span>
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground">{lot.seller.sales} ventes · {lot.seller.location}</p>
+              </div>
             </div>
           </motion.div>
-        </div>
 
-        {/* Seller info */}
-        <div className="mt-12 bg-card rounded-2xl border border-border p-6">
-          <h3 className="font-heading font-semibold text-foreground mb-4">À propos du vendeur</h3>
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <User className="h-6 w-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-1">
-                <h4 className="font-heading font-bold text-foreground">{lot.seller.name}</h4>
-                <div className="flex items-center gap-1">
-                  <Star className="h-3.5 w-3.5 fill-primary text-primary" />
-                  <span className="text-sm font-medium text-foreground">{lot.seller.rating.toFixed(1)}</span>
+          {/* Sticky price panel — col 9-12 */}
+          <div className="md:col-span-3">
+            <div className="md:sticky md:top-20 space-y-4">
+              <div className="bg-card rounded-2xl border border-border p-4 shadow-card">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground text-xs">Prix du lot</span>
+                    <span className="text-foreground font-medium text-xs">{lot.price}</span>
+                  </div>
+                  {lot.pricePerUnit && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground text-xs">Prix unitaire</span>
+                      <span className="text-foreground font-medium text-xs">{lot.pricePerUnit}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground text-xs flex items-center gap-1"><Truck className="h-3 w-3" /> Livraison</span>
+                    <span className="text-foreground font-medium text-xs">{deliveryFee} €</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground text-xs flex items-center gap-1"><Shield className="h-3 w-3" /> Commission (5%)</span>
+                    <span className="text-foreground font-medium text-xs">{commissionAmount.toLocaleString("fr-FR")} €</span>
+                  </div>
+                  <div className="border-t border-border pt-2 flex justify-between">
+                    <span className="font-heading font-bold text-foreground text-sm">Total</span>
+                    <span className="font-heading font-bold text-primary text-lg">{total.toLocaleString("fr-FR")} €</span>
+                  </div>
                 </div>
+
+                <button
+                  onClick={handleAddToCart}
+                  disabled={inCart}
+                  className={`w-full mt-4 py-3 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm ${inCart ? "bg-muted text-muted-foreground cursor-default" : "bg-primary text-primary-foreground hover:bg-primary-dark"}`}
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  {inCart ? "Dans le panier" : "Ajouter au panier"}
+                </button>
+
+                <button className="w-full mt-2 py-2.5 border border-border rounded-xl hover:bg-muted transition-colors flex items-center justify-center gap-2 text-sm text-foreground">
+                  <MessageCircle className="h-4 w-4" />
+                  Contacter le vendeur
+                </button>
               </div>
-              <p className="text-xs text-muted-foreground mb-2">{lot.seller.sales} ventes · {lot.seller.location}</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">{lot.seller.description}</p>
             </div>
           </div>
         </div>
 
-        {/* Reviews */}
-        <div className="mt-8 mb-8">
-          <h3 className="font-heading font-semibold text-foreground mb-4">Avis des acheteurs ({lot.reviews.length})</h3>
-          <div className="space-y-4">
-            {lot.reviews.map((review, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-card rounded-2xl border border-border p-5">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                      <span className="text-xs font-bold text-foreground">{review.author.charAt(0)}</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{review.author}</p>
-                      <p className="text-xs text-muted-foreground">{review.date}</p>
-                    </div>
-                  </div>
+        {/* Bottom sections: Seller detail + Reviews — full width, 2 columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
+          {/* Seller detail */}
+          <div className="bg-card rounded-2xl border border-border p-5">
+            <h3 className="font-heading font-semibold text-foreground text-sm mb-3">À propos du vendeur</h3>
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <User className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <h4 className="font-heading font-bold text-foreground text-sm">{lot.seller.name}</h4>
                   <div className="flex items-center gap-0.5">
-                    {Array.from({ length: 5 }).map((_, j) => (
-                      <Star key={j} className={`h-3.5 w-3.5 ${j < review.rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`} />
-                    ))}
+                    <Star className="h-3 w-3 fill-primary text-primary" />
+                    <span className="text-xs font-medium text-foreground">{lot.seller.rating.toFixed(1)}</span>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
-              </motion.div>
-            ))}
+                <p className="text-[10px] text-muted-foreground mb-1.5">{lot.seller.sales} ventes · {lot.seller.location}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{lot.seller.description}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Reviews */}
+          <div>
+            <h3 className="font-heading font-semibold text-foreground text-sm mb-3">Avis acheteurs ({lot.reviews.length})</h3>
+            <div className="space-y-3">
+              {lot.reviews.map((review, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="bg-card rounded-xl border border-border p-3.5">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                        <span className="text-[10px] font-bold text-foreground">{review.author.charAt(0)}</span>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-foreground">{review.author}</p>
+                        <p className="text-[10px] text-muted-foreground">{review.date}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <Star key={j} className={`h-3 w-3 ${j < review.rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`} />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{review.comment}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </main>
