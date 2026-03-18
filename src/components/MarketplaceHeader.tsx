@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MapPin, SlidersHorizontal, User, Search, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import varyLogo from "@/assets/vary-logo.png";
