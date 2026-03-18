@@ -16,6 +16,11 @@ const LotDetail = () => {
   const { isInCart, addToCart } = useCart();
   const lot = getLotById(id || "");
   const [showAllItems, setShowAllItems] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
+  const images = lot?.images || (lot ? [lot.image] : []);
+
+  const prevImage = useCallback(() => setActiveImage((i) => (i === 0 ? images.length - 1 : i - 1)), [images.length]);
+  const nextImage = useCallback(() => setActiveImage((i) => (i === images.length - 1 ? 0 : i + 1)), [images.length]);
 
   if (!lot) {
     return (
