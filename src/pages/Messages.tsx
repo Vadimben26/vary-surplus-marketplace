@@ -1,12 +1,12 @@
 import { MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import MarketplaceHeader from "@/components/MarketplaceHeader";
+import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 
 const Messages = () => {
   return (
     <div className="min-h-screen bg-background">
-      <MarketplaceHeader />
+      <TopNav />
       <main className="px-4 md:px-8 py-16 pb-24 max-w-[1600px] mx-auto text-center">
         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
           <MessageCircle className="h-8 w-8 text-primary" />

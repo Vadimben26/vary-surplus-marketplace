@@ -1,7 +1,7 @@
 import { ShoppingCart, Trash2, Truck, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import MarketplaceHeader from "@/components/MarketplaceHeader";
+import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import { useCart } from "@/contexts/CartContext";
 import { mockLots } from "@/data/mockLots";
@@ -23,7 +23,7 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <MarketplaceHeader />
+      <TopNav />
       <main className="px-4 md:px-8 py-8 pb-24 max-w-4xl mx-auto">
         <h1 className="font-heading text-2xl font-bold text-foreground mb-6">Votre panier ({cartLots.length})</h1>
 
