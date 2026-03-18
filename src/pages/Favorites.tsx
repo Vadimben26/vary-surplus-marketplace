@@ -1,7 +1,7 @@
 import { Heart, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import MarketplaceHeader from "@/components/MarketplaceHeader";
+import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import LotCard from "@/components/LotCard";
 import { useFavorites } from "@/contexts/FavoritesContext";
