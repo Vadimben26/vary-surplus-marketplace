@@ -1,16 +1,24 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import MarketplaceHeader from "@/components/MarketplaceHeader";
+import BottomNav from "@/components/BottomNav";
+import LotCard from "@/components/LotCard";
+import { mockLots } from "@/data/mockLots";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background">
+      <MarketplaceHeader />
+
+      <main className="px-4 md:px-8 py-6 pb-24 md:pb-6 max-w-[1600px] mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+          {mockLots.map((lot) => (
+            <LotCard key={lot.id} {...lot} />
+          ))}
+        </div>
+      </main>
+
+      <BottomNav />
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
