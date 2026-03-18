@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Upload } from "lucide-react";
+import { CheckCircle2, Upload, Eye, Filter, Globe } from "lucide-react";
 import varyLogo from "@/assets/vary-logo.png";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { setVerified, setUserType } from "@/lib/auth";
+import { setVerified, setUserType, setSellerVisibility } from "@/lib/auth";
 
 const productCategories = [
   "Vêtements casual",
@@ -44,6 +44,27 @@ const referralSources = [
   "Un responsable commercial m'a contacté",
 ];
 
+const visibilityLocations = ["France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique", "Royaume-Uni"];
+const visibilityStoreTypes = [
+  "Magasin physique",
+  "Magasin en ligne",
+  "Revendeur marketplace",
+  "Revendeur réseaux sociaux",
+  "Grossiste / Distributeur",
+];
+const visibilityRevenues = [
+  "Moins de 50.000 €",
+  "50.000 – 200.000 €",
+  "200.000 – 500.000 €",
+  "500.000 – 1M €",
+  "Plus de 1M €",
+];
+const visibilityOrderFrequencies = [
+  "Acheteurs réguliers (commandes mensuelles)",
+  "Acheteurs occasionnels",
+  "Nouveaux acheteurs",
+];
+
 const SellerRegistration = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -71,7 +92,14 @@ const SellerRegistration = () => {
     warehouseLocation: "",
   });
 
-  const totalSteps = 4;
+  // Step 5: Visibility preferences
+  const [visibilityMode, setVisibilityMode] = useState<"all" | "filtered">("all");
+  const [visLocations, setVisLocations] = useState<string[]>([]);
+  const [visStoreTypes, setVisStoreTypes] = useState<string[]>([]);
+  const [visRevenues, setVisRevenues] = useState<string[]>([]);
+  const [visFrequencies, setVisFrequencies] = useState<string[]>([]);
+
+  const totalSteps = 5;
 
   const update = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -86,6 +114,13 @@ const SellerRegistration = () => {
     if (next === totalSteps + 1) {
       setVerified();
       setUserType("seller");
+      setSellerVisibility({
+        mode: visibilityMode,
+        locations: visLocations,
+        storeTypes: visStoreTypes,
+        revenues: visRevenues,
+        frequencies: visFrequencies,
+      });
     }
     setStep(next);
   };
@@ -94,8 +129,12 @@ const SellerRegistration = () => {
   const stepHeader = (
     <div className="mb-6">
       <p className="text-muted-foreground text-sm">Créer un compte</p>
-      <h2 className="font-heading text-xl font-bold text-foreground">Étape {step}</h2>
-      <div className="h-px bg-border mt-3" />
+      <h2 className="font-heading text-xl font-bold text-foreground">Étape {step} / {totalSteps}</h2>
+      <div className="flex gap-1 mt-3">
+        {Array.from({ length: totalSteps }, (_, i) => (
+          <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < step ? "bg-primary" : "bg-border"}`} />
+        ))}
+      </div>
     </div>
   );
 
@@ -329,6 +368,134 @@ const SellerRegistration = () => {
               </motion.div>
             )}
 
+            {/* Step 5: Visibility preferences */}
+            {step === 5 && (
+              <motion.div key="s5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                {stepHeader}
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="font-heading text-lg font-bold text-foreground mb-2 flex items-center gap-2">
+                      <Eye className="h-5 w-5 text-primary" />
+                      Visibilité de vos articles
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Choisissez à quels acheteurs vos lots seront visibles. Vous pouvez modifier ces préférences à tout moment depuis votre tableau de bord.
+                    </p>
+
+                    <div className="space-y-4">
+                      <label
+                        className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          visibilityMode === "all" ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"
+                        }`}
+                        onClick={() => setVisibilityMode("all")}
+                      >
+                        <input type="radio" name="visibility" checked={visibilityMode === "all"} onChange={() => setVisibilityMode("all")} className="accent-primary w-4 h-4 mt-1" />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-4 w-4 text-primary" />
+                            <span className="font-semibold text-foreground">Visible par tous les acheteurs</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">Tous les acheteurs vérifiés sur la plateforme pourront voir et acheter vos lots.</p>
+                        </div>
+                      </label>
+
+                      <label
+                        className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          visibilityMode === "filtered" ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"
+                        }`}
+                        onClick={() => setVisibilityMode("filtered")}
+                      >
+                        <input type="radio" name="visibility" checked={visibilityMode === "filtered"} onChange={() => setVisibilityMode("filtered")} className="accent-primary w-4 h-4 mt-1" />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <Filter className="h-4 w-4 text-primary" />
+                            <span className="font-semibold text-foreground">Filtrer les acheteurs</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">Définissez des critères pour ne montrer vos articles qu'aux acheteurs correspondant à votre cible.</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {visibilityMode === "filtered" && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-6 pl-2 border-l-2 border-primary/20">
+                      {/* Location filter */}
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">📍 Localisation des acheteurs</label>
+                        <p className="text-xs text-muted-foreground mb-2">Sélectionnez les pays dans lesquels vos acheteurs doivent être situés.</p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {visibilityLocations.map((loc) => (
+                            <button
+                              key={loc}
+                              type="button"
+                              onClick={() => toggle(visLocations, setVisLocations, loc)}
+                              className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                                visLocations.includes(loc)
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "bg-card text-foreground border-border hover:border-primary/40"
+                              }`}
+                            >
+                              {loc}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Store type filter */}
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">🏪 Type de magasin</label>
+                        <p className="text-xs text-muted-foreground mb-2">Quel type d'acheteurs souhaitez-vous cibler ?</p>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {visibilityStoreTypes.map((t) => (
+                            <label key={t} className="flex items-center gap-2 cursor-pointer">
+                              <Checkbox checked={visStoreTypes.includes(t)} onCheckedChange={() => toggle(visStoreTypes, setVisStoreTypes, t)} />
+                              <span className="text-sm text-foreground">{t}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Revenue filter */}
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">💰 Chiffre d'affaires minimum de l'acheteur</label>
+                        <p className="text-xs text-muted-foreground mb-2">Ciblez les acheteurs par tranche de CA.</p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {visibilityRevenues.map((r) => (
+                            <button
+                              key={r}
+                              type="button"
+                              onClick={() => toggle(visRevenues, setVisRevenues, r)}
+                              className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                                visRevenues.includes(r)
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "bg-card text-foreground border-border hover:border-primary/40"
+                              }`}
+                            >
+                              {r}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Order frequency filter */}
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">📦 Fréquence d'achat</label>
+                        <p className="text-xs text-muted-foreground mb-2">Préférez-vous des acheteurs réguliers ou êtes-vous ouvert à tous ?</p>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {visibilityOrderFrequencies.map((f) => (
+                            <label key={f} className="flex items-center gap-2 cursor-pointer">
+                              <Checkbox checked={visFrequencies.includes(f)} onCheckedChange={() => toggle(visFrequencies, setVisFrequencies, f)} />
+                              <span className="text-sm text-foreground">{f}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
             {/* Confirmation */}
             {step === totalSteps + 1 && (
               <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="py-12 text-center">
@@ -340,8 +507,8 @@ const SellerRegistration = () => {
                   Notre équipe va vérifier vos informations et vous accompagner dans votre onboarding vendeur.
                 </p>
                 <p className="text-sm text-muted-foreground mb-8">Vous recevrez un email de confirmation sous 24 à 48h.</p>
-                <button onClick={() => navigate("/marketplace")} className="px-8 py-3 bg-foreground text-background font-semibold rounded-md hover:opacity-90 transition-opacity">
-                  Accéder à la marketplace
+                <button onClick={() => navigate("/seller")} className="px-8 py-3 bg-foreground text-background font-semibold rounded-md hover:opacity-90 transition-opacity">
+                  Accéder à mon espace vendeur
                 </button>
               </motion.div>
             )}
