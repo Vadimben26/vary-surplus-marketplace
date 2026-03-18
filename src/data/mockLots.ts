@@ -155,6 +155,7 @@ export const mockLots: Lot[] = [
   {
     id: "4",
     image: lotClothing,
+    images: [lotClothing, lotBags, lotSport, lotSneakers],
     title: "Lot 600 manteaux hiver – Fin de collection",
     brand: "Tommy Hilfiger",
     price: "24 000 €",
