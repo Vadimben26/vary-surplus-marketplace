@@ -63,7 +63,14 @@ const SellerRegistration = () => {
     );
   };
 
-  const nextStep = () => setStep((s) => Math.min(s + 1, totalSteps + 1));
+  const nextStep = () => {
+    const next = Math.min(step + 1, totalSteps + 1);
+    if (next === totalSteps + 1) {
+      setVerified();
+      setUserType("seller");
+    }
+    setStep(next);
+  };
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
   return (
