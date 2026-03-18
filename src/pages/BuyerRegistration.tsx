@@ -6,6 +6,7 @@ import varyLogo from "@/assets/vary-logo.png";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { setVerified, setUserType } from "@/lib/auth";
 
 const storeTypes = [
   "Magasin physique",
@@ -48,7 +49,14 @@ const BuyerRegistration = () => {
     );
   };
 
-  const nextStep = () => setStep((s) => Math.min(s + 1, totalSteps + 1));
+  const nextStep = () => {
+    const next = Math.min(step + 1, totalSteps + 1);
+    if (next === totalSteps + 1) {
+      setVerified();
+      setUserType("buyer");
+    }
+    setStep(next);
+  };
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
   return (
@@ -293,10 +301,10 @@ const BuyerRegistration = () => {
                   Vous recevrez un email de confirmation sous 24 à 48h.
                 </p>
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/marketplace")}
                   className="px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary-dark transition-colors"
                 >
-                  Retour à l'accueil
+                  Accéder à la marketplace
                 </button>
               </motion.div>
             )}

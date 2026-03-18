@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { setVerified, setUserType } from "@/lib/auth";
 
 const productCategories = [
   "Sneakers & Chaussures",
@@ -62,7 +63,14 @@ const SellerRegistration = () => {
     );
   };
 
-  const nextStep = () => setStep((s) => Math.min(s + 1, totalSteps + 1));
+  const nextStep = () => {
+    const next = Math.min(step + 1, totalSteps + 1);
+    if (next === totalSteps + 1) {
+      setVerified();
+      setUserType("seller");
+    }
+    setStep(next);
+  };
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
   return (
@@ -373,10 +381,10 @@ const SellerRegistration = () => {
                   Vous recevrez un email de confirmation sous 24 à 48h.
                 </p>
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/marketplace")}
                   className="px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary-dark transition-colors"
                 >
-                  Retour à l'accueil
+                  Accéder à la marketplace
                 </button>
               </motion.div>
             )}

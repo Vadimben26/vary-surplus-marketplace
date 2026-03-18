@@ -1,20 +1,59 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { MapPin, SlidersHorizontal, User, Search, ChevronDown } from "lucide-react";
-import { motion } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { MapPin, SlidersHorizontal, User, Search, ChevronDown, X, DollarSign, Palette, LogOut } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import varyLogo from "@/assets/vary-logo.png";
+import { logout } from "@/lib/auth";
 
-const categories = ["Tous", "Sneakers", "Vêtements", "Électronique", "Beauté", "Accessoires", "Sport"];
+interface Filters {
+  location: string;
+  priceRange: string;
+  style: string;
+  search: string;
+}
 
-const MarketplaceHeader = () => {
-  const [activeCategory, setActiveCategory] = useState("Tous");
+interface MarketplaceHeaderProps {
+  filters?: Filters;
+  onFiltersChange?: (filters: Filters) => void;
+}
+
+const locations = ["", "France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique"];
+const priceRanges = [
+  { value: "", label: "Tous les prix" },
+  { value: "low", label: "< 5 000 €" },
+  { value: "mid", label: "5 000 – 15 000 €" },
+  { value: "high", label: "> 15 000 €" },
+];
+const styles = ["", "Casual", "Business", "Sport", "Premium", "Denim"];
+
+const MarketplaceHeader = ({ filters, onFiltersChange }: MarketplaceHeaderProps) => {
   const [showFilters, setShowFilters] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const localFilters = filters || { location: "", priceRange: "", style: "", search: "" };
+
+  const updateFilter = (key: keyof Filters, value: string) => {
+    onFiltersChange?.({ ...localFilters, [key]: value });
+  };
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setShowProfileMenu(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/";
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 md:px-8 h-16">
-        <Link to="/" className="flex-shrink-0">
+        <Link to="/marketplace" className="flex-shrink-0">
           <motion.img
             src={varyLogo}
             alt="Vary"
@@ -34,12 +73,14 @@ const MarketplaceHeader = () => {
                 type="text"
                 placeholder="Rechercher un lot, une marque..."
                 className="bg-transparent text-sm outline-none w-full text-foreground placeholder:text-muted-foreground"
+                value={localFilters.search}
+                onChange={(e) => updateFilter("search", e.target.value)}
               />
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2.5 border-r border-border cursor-pointer hover:bg-secondary-light/50 transition-colors">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Localisation</span>
-              <ChevronDown className="h-3 w-3 text-muted-foreground" />
+              {localFilters.search && (
+                <button onClick={() => updateFilter("search", "")}>
+                  <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                </button>
+              )}
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -52,28 +93,99 @@ const MarketplaceHeader = () => {
         </div>
 
         {/* Profile */}
-        <Link to="/inscription" className="flex items-center gap-2 px-4 py-2 rounded-full border border-border hover:shadow-card transition-all bg-card">
-          <User className="h-5 w-5 text-foreground" />
-          <span className="hidden md:inline text-sm font-medium text-foreground">S'inscrire</span>
-        </Link>
+        <div className="relative" ref={profileRef}>
+          <button
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-border hover:shadow-card transition-all bg-card"
+          >
+            <User className="h-5 w-5 text-foreground" />
+            <span className="hidden md:inline text-sm font-medium text-foreground">Mon compte</span>
+          </button>
+          <AnimatePresence>
+            {showProfileMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                className="absolute right-0 top-12 bg-card border border-border rounded-xl shadow-card-hover p-2 min-w-[180px]"
+              >
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Se déconnecter
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
-      {/* Category pills */}
-      <div className="flex items-center gap-2 px-4 md:px-8 py-3 overflow-x-auto scrollbar-hide">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-              activeCategory === cat
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-muted text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
-            }`}
+      {/* Filter panel */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden border-t border-border"
           >
-            {cat}
-          </button>
-        ))}
-      </div>
+            <div className="px-4 md:px-8 py-4 flex flex-wrap gap-4 items-end">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                  <MapPin className="h-3 w-3" /> Localisation
+                </label>
+                <select
+                  className="h-9 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-ring"
+                  value={localFilters.location}
+                  onChange={(e) => updateFilter("location", e.target.value)}
+                >
+                  <option value="">Tous les pays</option>
+                  {locations.filter(Boolean).map((loc) => (
+                    <option key={loc} value={loc}>{loc}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                  <DollarSign className="h-3 w-3" /> Prix
+                </label>
+                <select
+                  className="h-9 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-ring"
+                  value={localFilters.priceRange}
+                  onChange={(e) => updateFilter("priceRange", e.target.value)}
+                >
+                  {priceRanges.map((pr) => (
+                    <option key={pr.value} value={pr.value}>{pr.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                  <Palette className="h-3 w-3" /> Style
+                </label>
+                <select
+                  className="h-9 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-ring"
+                  value={localFilters.style}
+                  onChange={(e) => updateFilter("style", e.target.value)}
+                >
+                  <option value="">Tous les styles</option>
+                  {styles.filter(Boolean).map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => onFiltersChange?.({ location: "", priceRange: "", style: "", search: "" })}
+                className="h-9 px-4 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors font-medium"
+              >
+                Réinitialiser
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile search */}
       <div className="md:hidden px-4 pb-3">
@@ -83,8 +195,12 @@ const MarketplaceHeader = () => {
             type="text"
             placeholder="Rechercher..."
             className="bg-transparent text-sm outline-none w-full text-foreground placeholder:text-muted-foreground"
+            value={localFilters.search}
+            onChange={(e) => updateFilter("search", e.target.value)}
           />
-          <SlidersHorizontal className="h-4 w-4 text-primary ml-2" />
+          <button onClick={() => setShowFilters(!showFilters)}>
+            <SlidersHorizontal className="h-4 w-4 text-primary ml-2" />
+          </button>
         </div>
       </div>
     </header>
