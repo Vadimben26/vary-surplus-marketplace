@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
+import { CartProvider } from "@/contexts/CartContext";
 import { isVerified } from "@/lib/auth";
 import Registration from "./pages/Registration.tsx";
 import BuyerRegistration from "./pages/BuyerRegistration.tsx";
@@ -12,6 +14,7 @@ import LotDetail from "./pages/LotDetail.tsx";
 import Favorites from "./pages/Favorites.tsx";
 import Cart from "./pages/Cart.tsx";
 import Messages from "./pages/Messages.tsx";
+import Profile from "./pages/Profile.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -26,26 +29,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Public: registration */}
-          <Route path="/" element={isVerified() ? <Navigate to="/marketplace" replace /> : <Registration />} />
-          <Route path="/inscription" element={<Registration />} />
-          <Route path="/inscription/acheteur" element={<BuyerRegistration />} />
-          <Route path="/inscription/vendeur" element={<SellerRegistration />} />
+      <FavoritesProvider>
+        <CartProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={isVerified() ? <Navigate to="/marketplace" replace /> : <Registration />} />
+              <Route path="/inscription" element={<Registration />} />
+              <Route path="/inscription/acheteur" element={<BuyerRegistration />} />
+              <Route path="/inscription/vendeur" element={<SellerRegistration />} />
 
-          {/* Protected: marketplace */}
-          <Route path="/marketplace" element={<ProtectedRoute><Marketplace /></ProtectedRoute>} />
-          <Route path="/lot/:id" element={<ProtectedRoute><LotDetail /></ProtectedRoute>} />
-          <Route path="/favoris" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
-          <Route path="/panier" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
-          <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+              <Route path="/marketplace" element={<ProtectedRoute><Marketplace /></ProtectedRoute>} />
+              <Route path="/lot/:id" element={<ProtectedRoute><LotDetail /></ProtectedRoute>} />
+              <Route path="/favoris" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+              <Route path="/panier" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+              <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+              <Route path="/profil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </CartProvider>
+      </FavoritesProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

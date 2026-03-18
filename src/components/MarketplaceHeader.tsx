@@ -109,6 +109,13 @@ const MarketplaceHeader = ({ filters, onFiltersChange }: MarketplaceHeaderProps)
                 exit={{ opacity: 0, y: 8 }}
                 className="absolute right-0 top-12 bg-card border border-border rounded-xl shadow-card-hover p-2 min-w-[180px]"
               >
+                <Link
+                  to="/profil"
+                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
+                >
+                  <User className="h-4 w-4" />
+                  Mon profil
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
