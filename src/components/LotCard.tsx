@@ -1,7 +1,7 @@
 import { Heart, Star, MapPin, Package } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 interface LotCardProps {
   id: string;
@@ -18,19 +18,11 @@ interface LotCardProps {
 }
 
 const LotCard = ({
-  id,
-  image,
-  title,
-  brand,
-  price,
-  pricePerUnit,
-  units,
-  rating,
-  location,
-  isNew,
+  id, image, title, brand, price, pricePerUnit, units, rating, location, isNew,
 }: LotCardProps) => {
-  const [liked, setLiked] = useState(false);
   const navigate = useNavigate();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const liked = isFavorite(id);
 
   return (
     <motion.div
@@ -44,7 +36,7 @@ const LotCard = ({
       <div className="relative aspect-square rounded-xl overflow-hidden bg-muted mb-3">
         <img src={image} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
         <button
-          onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
+          onClick={(e) => { e.stopPropagation(); toggleFavorite(id); }}
           className="absolute top-3 right-3 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
         >
           <Heart className={`h-4 w-4 transition-colors ${liked ? "fill-destructive text-destructive" : "text-foreground"}`} />
