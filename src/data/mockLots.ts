@@ -296,6 +296,7 @@ export const mockLots: Lot[] = [
   {
     id: "8",
     image: lotClothing,
+    images: [lotClothing, lotBeauty, lotSneakers, lotSport],
     title: "Lot 400 robes été – Collection printemps",
     brand: "Mango",
     price: "8 000 €",
