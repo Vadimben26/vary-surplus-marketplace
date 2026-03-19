@@ -61,6 +61,29 @@ const SellerDashboard = () => {
     <div className="min-h-screen bg-background">
       <TopNav />
       <main className="px-4 md:px-8 py-6 pb-24 max-w-[1400px] mx-auto">
+        {/* Dual access banner */}
+        {!canAccessBuyer() && (
+          <div className="mb-6 bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <ShoppingBag className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Vous souhaitez aussi acheter des lots ?</p>
+                <p className="text-xs text-muted-foreground">Demandez l'accès acheteur pour parcourir la marketplace.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                requestDualRole();
+                toast.success("Accès acheteur activé ! L'onglet Acheteur est maintenant disponible.");
+                window.location.reload();
+              }}
+              className="px-4 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary-dark transition-colors whitespace-nowrap"
+            >
+              Devenir acheteur
+            </button>
+          </div>
+        )}
+
         {/* Welcome */}
         <div className="flex items-center justify-between mb-8">
           <div>
