@@ -44,9 +44,7 @@ const revenueOptions = [
   "Plus de 1M EUR",
 ];
 
-const interestTypes = ["Lots", "Sélection d'articles individuels", "Pré-packs ou séries"];
-
-// productInterests removed
+// interestTypes removed
 
 const communicationChannels = ["Whatsapp", "E-mail", "Téléphone"];
 
