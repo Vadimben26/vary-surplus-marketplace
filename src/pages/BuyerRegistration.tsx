@@ -70,7 +70,8 @@ const BuyerRegistration = () => {
   const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
   const [selectedRevenue, setSelectedRevenue] = useState("");
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [storeLink, setStoreLink] = useState("");
+  const [storePhotos, setStorePhotos] = useState<File[]>([]);
   const [selectedChannel, setSelectedChannel] = useState("");
   const [selectedReferral, setSelectedReferral] = useState("");
   const [speaksEnglish, setSpeaksEnglish] = useState<string>("");
