@@ -11,10 +11,8 @@ const Cart = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
   const cartLots = mockLots.filter((lot) => cartItems.includes(lot.id));
 
-  const subtotal = cartLots.reduce((sum, lot) => sum + parseFloat(lot.price.replace(/[^\d]/g, "")), 0);
-  const delivery = cartLots.length * 350;
-  const commission = Math.round(subtotal * 0.05);
-  const total = subtotal + delivery + commission;
+  const subtotal = cartLots.reduce((sum, lot) => sum + Math.round(parseFloat(lot.price.replace(/[^\d]/g, "")) * 1.19), 0);
+  const total = subtotal;
 
   const handleRemove = (id: string) => {
     removeFromCart(id);
