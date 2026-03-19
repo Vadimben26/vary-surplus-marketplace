@@ -303,17 +303,6 @@ const BuyerRegistration = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-foreground">Que recherchez-vous ? *</label>
-                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
-                      {productInterests.map((p) => (
-                        <label key={p} className="flex items-center gap-2 cursor-pointer">
-                          <Checkbox checked={selectedProducts.includes(p)} onCheckedChange={() => toggle(selectedProducts, setSelectedProducts, p)} />
-                          <span className="text-sm text-foreground">{p}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
                     <label className="text-sm font-semibold text-foreground">Sélectionnez votre type de magasin: *</label>
                     <div className="space-y-2 mt-3">
                       {storeTypes.map((t) => (
@@ -324,6 +313,31 @@ const BuyerRegistration = () => {
                       ))}
                     </div>
                   </div>
+                  {selectedStoreTypes.some((t) => storeTypesRequiringLink.includes(t)) && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">Lien de votre site / boutique en ligne *</label>
+                      <Input placeholder="https://www.monsite.com" value={storeLink} onChange={(e) => setStoreLink(e.target.value)} />
+                    </div>
+                  )}
+                  {selectedStoreTypes.some((t) => storeTypesRequiringPhotos.includes(t)) && (
+                    <div className="space-y-3">
+                      <label className="text-sm font-semibold text-foreground">Photos de votre magasin *</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => setStorePhotos(Array.from(e.target.files || []))}
+                        className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                      />
+                      {storePhotos.length > 0 && (
+                        <p className="text-xs text-muted-foreground">{storePhotos.length} photo(s) sélectionnée(s)</p>
+                      )}
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-foreground">Lien de votre site (optionnel)</label>
+                        <Input placeholder="https://www.monsite.com" value={storeLink} onChange={(e) => setStoreLink(e.target.value)} />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
