@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import varyLogo from "@/assets/vary-logo.png";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const Login = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { signIn } = useAuth();
   const [email, setEmail] = useState("");
@@ -16,7 +19,7 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error("Veuillez remplir tous les champs");
+      toast.error(t("login.fillAll"));
       return;
     }
     setLoading(true);
@@ -24,10 +27,10 @@ const Login = () => {
     setLoading(false);
     if (error) {
       toast.error(error.message === "Invalid login credentials"
-        ? "Email ou mot de passe incorrect"
+        ? t("login.invalidCredentials")
         : error.message);
     } else {
-      toast.success("Connexion réussie !");
+      toast.success(t("login.success"));
       navigate("/marketplace");
     }
   };
@@ -38,9 +41,12 @@ const Login = () => {
         <Link to="/">
           <img src={varyLogo} alt="Vary" className="h-10 w-auto" />
         </Link>
-        <Link to="/inscription" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          ← Retour
-        </Link>
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher />
+          <Link to="/inscription" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            {t("common.back")}
+          </Link>
+        </div>
       </header>
 
       <div className="flex-1 flex items-center justify-center px-4">
@@ -51,13 +57,13 @@ const Login = () => {
         >
           <div className="text-center mb-8">
             <img src={varyLogo} alt="Vary" className="h-14 w-auto mx-auto mb-4" />
-            <h1 className="font-heading text-2xl font-bold text-foreground mb-2">Connexion</h1>
-            <p className="text-muted-foreground text-sm">Accédez à votre compte Vary</p>
+            <h1 className="font-heading text-2xl font-bold text-foreground mb-2">{t("login.title")}</h1>
+            <p className="text-muted-foreground text-sm">{t("login.subtitle")}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="bg-card rounded-2xl border border-border p-6 space-y-5">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-foreground">Email</label>
+              <label className="text-sm font-semibold text-foreground">{t("login.email")}</label>
               <Input
                 type="email"
                 placeholder="jean@entreprise.com"
@@ -66,7 +72,7 @@ const Login = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-foreground">Mot de passe</label>
+              <label className="text-sm font-semibold text-foreground">{t("login.password")}</label>
               <Input
                 type="password"
                 placeholder="••••••••"
@@ -79,13 +85,13 @@ const Login = () => {
               disabled={loading}
               className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-50"
             >
-              {loading ? "Connexion..." : "Se connecter"}
+              {loading ? t("login.connecting") : t("login.submit")}
             </button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
-            Pas encore de compte ?{" "}
-            <Link to="/inscription" className="text-primary hover:underline font-medium">S'inscrire</Link>
+            {t("login.noAccount")}{" "}
+            <Link to="/inscription" className="text-primary hover:underline font-medium">{t("common.signup")}</Link>
           </p>
         </motion.div>
       </div>

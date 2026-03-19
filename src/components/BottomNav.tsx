@@ -1,21 +1,23 @@
 import { Link, useLocation } from "react-router-dom";
 import { Heart, ShoppingCart, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import varyLogo from "@/assets/vary-logo.png";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { useCart } from "@/contexts/CartContext";
 
-const navItems = [
-  { icon: null, label: "Accueil", path: "/marketplace", isLogo: true },
-  { icon: Heart, label: "Favoris", path: "/favoris", isLogo: false },
-  { icon: ShoppingCart, label: "Panier", path: "/panier", isLogo: false },
-  { icon: MessageCircle, label: "Messages", path: "/messages", isLogo: false },
-];
-
 const BottomNav = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const { favorites } = useFavorites();
   const { cartItems } = useCart();
+
+  const navItems = [
+    { icon: null, label: t("nav.home"), path: "/marketplace", isLogo: true },
+    { icon: Heart, label: t("nav.favorites"), path: "/favoris", isLogo: false },
+    { icon: ShoppingCart, label: t("nav.cart"), path: "/panier", isLogo: false },
+    { icon: MessageCircle, label: t("nav.messages"), path: "/messages", isLogo: false },
+  ];
 
   const getBadge = (path: string) => {
     if (path === "/favoris") return favorites.length;
