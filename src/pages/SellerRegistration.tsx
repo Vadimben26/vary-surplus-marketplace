@@ -59,7 +59,7 @@ const SellerRegistration = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedShipping, setSelectedShipping] = useState("");
+  
   const [selectedVolume, setSelectedVolume] = useState("");
   const [selectedChannel, setSelectedChannel] = useState("");
   const [selectedReferral, setSelectedReferral] = useState("");
