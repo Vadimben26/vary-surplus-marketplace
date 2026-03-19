@@ -109,7 +109,6 @@ const SellerRegistration = () => {
         locations: visLocations,
         storeTypes: visStoreTypes,
         revenues: visRevenues,
-        frequencies: visFrequencies,
       });
     }
     setStep(next);
