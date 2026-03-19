@@ -16,7 +16,21 @@ const storeTypes = [
   "Revendeur sur d'autres marketplaces (Amazon, eBay, OLX, etc.)",
   "Revendeur sur les réseaux sociaux (Instagram, TikTok, etc.)",
   "Grossiste / Distributeur",
-  "Je n'ai pas encore de magasin",
+];
+
+const storeTypesRequiringPhotos = ["Magasin physique"];
+const storeTypesRequiringLink = [
+  "Magasin en ligne",
+  "Revendeur sur d'autres marketplaces (Amazon, eBay, OLX, etc.)",
+  "Revendeur sur les réseaux sociaux (Instagram, TikTok, etc.)",
+];
+
+const euCountries = [
+  "Allemagne", "Autriche", "Belgique", "Bulgarie", "Chypre", "Croatie",
+  "Danemark", "Espagne", "Estonie", "Finlande", "France", "Grèce",
+  "Hongrie", "Irlande", "Italie", "Lettonie", "Lituanie", "Luxembourg",
+  "Malte", "Pays-Bas", "Pologne", "Portugal", "République tchèque",
+  "Roumanie", "Slovaquie", "Slovénie", "Suède",
 ];
 
 const genderCategories = ["Femme", "Homme", "Enfants"];
@@ -32,14 +46,7 @@ const revenueOptions = [
 
 const interestTypes = ["Lots", "Sélection d'articles individuels", "Pré-packs ou séries"];
 
-const productInterests = [
-  "Vêtements casual",
-  "Vêtements de sport",
-  "Vêtements élégants / de bureau",
-  "Marques de luxe",
-  "Marques premium",
-  "Prix en dessous de 10€",
-];
+// productInterests removed
 
 const communicationChannels = ["Whatsapp", "E-mail", "Téléphone"];
 
@@ -63,10 +70,11 @@ const BuyerRegistration = () => {
   const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
   const [selectedRevenue, setSelectedRevenue] = useState("");
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [storeLink, setStoreLink] = useState("");
+  const [storePhotos, setStorePhotos] = useState<File[]>([]);
   const [selectedChannel, setSelectedChannel] = useState("");
   const [selectedReferral, setSelectedReferral] = useState("");
-  const [speaksEnglish, setSpeaksEnglish] = useState<string>("");
+  // speaksEnglish removed
   const [consent, setConsent] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -243,14 +251,9 @@ const BuyerRegistration = () => {
                         value={formData.country}
                         onChange={(e) => update("country", e.target.value)}
                       >
-                        <option>France</option>
-                        <option>Belgique</option>
-                        <option>Allemagne</option>
-                        <option>Espagne</option>
-                        <option>Italie</option>
-                        <option>Pays-Bas</option>
-                        <option>Portugal</option>
-                        <option>Autre</option>
+                        {euCountries.map((c) => (
+                          <option key={c}>{c}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -300,17 +303,6 @@ const BuyerRegistration = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-foreground">Que recherchez-vous ? *</label>
-                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
-                      {productInterests.map((p) => (
-                        <label key={p} className="flex items-center gap-2 cursor-pointer">
-                          <Checkbox checked={selectedProducts.includes(p)} onCheckedChange={() => toggle(selectedProducts, setSelectedProducts, p)} />
-                          <span className="text-sm text-foreground">{p}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
                     <label className="text-sm font-semibold text-foreground">Sélectionnez votre type de magasin: *</label>
                     <div className="space-y-2 mt-3">
                       {storeTypes.map((t) => (
@@ -321,6 +313,31 @@ const BuyerRegistration = () => {
                       ))}
                     </div>
                   </div>
+                  {selectedStoreTypes.some((t) => storeTypesRequiringLink.includes(t)) && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">Lien de votre site / boutique en ligne *</label>
+                      <Input placeholder="https://www.monsite.com" value={storeLink} onChange={(e) => setStoreLink(e.target.value)} />
+                    </div>
+                  )}
+                  {selectedStoreTypes.some((t) => storeTypesRequiringPhotos.includes(t)) && (
+                    <div className="space-y-3">
+                      <label className="text-sm font-semibold text-foreground">Photos de votre magasin *</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => setStorePhotos(Array.from(e.target.files || []))}
+                        className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                      />
+                      {storePhotos.length > 0 && (
+                        <p className="text-xs text-muted-foreground">{storePhotos.length} photo(s) sélectionnée(s)</p>
+                      )}
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-foreground">Lien de votre site (optionnel)</label>
+                        <Input placeholder="https://www.monsite.com" value={storeLink} onChange={(e) => setStoreLink(e.target.value)} />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -332,17 +349,6 @@ const BuyerRegistration = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Demandes spéciales (optionnel)</label>
                     <Textarea placeholder="Text..." className="resize-none" rows={4} value={formData.specialRequests} onChange={(e) => update("specialRequests", e.target.value)} />
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-foreground">Parlez-vous Anglais ? *</label>
-                    <div className="flex gap-6 mt-3">
-                      {["Oui", "Non"].map((v) => (
-                        <label key={v} className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="english" checked={speaksEnglish === v} onChange={() => setSpeaksEnglish(v)} className="accent-primary w-4 h-4" />
-                          <span className="text-sm text-foreground">{v}</span>
-                        </label>
-                      ))}
-                    </div>
                   </div>
                   <div>
                     <label className="text-sm font-semibold text-foreground">Canal de communication préféré ? *</label>
