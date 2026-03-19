@@ -74,7 +74,7 @@ const BuyerRegistration = () => {
   const [storePhotos, setStorePhotos] = useState<File[]>([]);
   const [selectedChannel, setSelectedChannel] = useState("");
   const [selectedReferral, setSelectedReferral] = useState("");
-  const [speaksEnglish, setSpeaksEnglish] = useState<string>("");
+  // speaksEnglish removed
   const [consent, setConsent] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
