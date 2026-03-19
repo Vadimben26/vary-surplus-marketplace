@@ -77,22 +77,33 @@ const SellerDashboard = () => {
           </button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Lots actifs", value: stats.activeLots, icon: Package, color: "text-primary" },
-            { label: "Vues totales", value: stats.totalViews, icon: Eye, color: "text-blue-500" },
-            { label: "Demandes", value: stats.totalInquiries, icon: TrendingUp, color: "text-green-500" },
-            { label: "CA total", value: stats.revenue, icon: DollarSign, color: "text-amber-500" },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-card rounded-2xl border border-border p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                <span className="text-xs text-muted-foreground">{stat.label}</span>
+        {/* Stats - blurred with VIP upsell */}
+        <div className="relative mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 blur-[6px] select-none pointer-events-none" aria-hidden="true">
+            {[
+              { label: "Lots actifs", value: stats.activeLots, icon: Package, color: "text-primary" },
+              { label: "Vues totales", value: stats.totalViews, icon: Eye, color: "text-blue-500" },
+              { label: "Demandes", value: stats.totalInquiries, icon: TrendingUp, color: "text-green-500" },
+              { label: "CA total", value: stats.revenue, icon: DollarSign, color: "text-amber-500" },
+            ].map((stat) => (
+              <div key={stat.label} className="bg-card rounded-2xl border border-border p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                  <span className="text-xs text-muted-foreground">{stat.label}</span>
+                </div>
+                <p className="font-heading text-xl font-bold text-foreground">{stat.value}</p>
               </div>
-              <p className="font-heading text-xl font-bold text-foreground">{stat.value}</p>
-            </div>
-          ))}
+            ))}
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <button
+              onClick={() => toast.info("Fonctionnalité VIP bientôt disponible !")}
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl shadow-lg hover:bg-primary/90 transition-colors"
+            >
+              <Crown className="h-4 w-4" />
+              Devenir VIP — Débloquer les insights
+            </button>
+          </div>
         </div>
 
         {/* Tab filter */}
