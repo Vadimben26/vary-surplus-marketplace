@@ -94,9 +94,6 @@ const Marketplace = () => {
         </div>
       </div>
 
-      <div className="px-4 md:px-8 max-w-[1600px] mx-auto pt-3">
-        <CategoryBar activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
-      </div>
 
       {/* Mobile search */}
       <div className="md:hidden px-4 pt-3">

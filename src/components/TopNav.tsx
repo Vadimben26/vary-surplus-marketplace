@@ -48,7 +48,12 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
     }
   };
 
-  const isActive = (path: string) => location.pathname.startsWith(path);
+  const isActive = (path: string) => {
+    if (path === "/marketplace" || path === "/inscription/acheteur") {
+      return location.pathname.startsWith("/marketplace") || location.pathname.startsWith("/lot/") || location.pathname.startsWith("/inscription/acheteur");
+    }
+    return location.pathname.startsWith(path);
+  };
 
   const tabs = [
     { label: "Contact & FAQ", path: "/contact", icon: HelpCircle },

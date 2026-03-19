@@ -290,17 +290,6 @@ const BuyerRegistration = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-foreground">Intéressé par: *</label>
-                    <div className="flex flex-wrap gap-4 mt-3">
-                      {interestTypes.map((i) => (
-                        <label key={i} className="flex items-center gap-2 cursor-pointer">
-                          <Checkbox checked={selectedInterests.includes(i)} onCheckedChange={() => toggle(selectedInterests, setSelectedInterests, i)} />
-                          <span className="text-sm text-foreground">{i}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
                     <label className="text-sm font-semibold text-foreground">Sélectionnez votre type de magasin: *</label>
                     <div className="space-y-2 mt-3">
                       {storeTypes.map((t) => (
