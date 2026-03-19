@@ -11,6 +11,7 @@ import BuyerRegistration from "./pages/BuyerRegistration.tsx";
 import SellerRegistration from "./pages/SellerRegistration.tsx";
 import Marketplace from "./pages/Marketplace.tsx";
 import SellerDashboard from "./pages/SellerDashboard.tsx";
+import SellerVIP from "./pages/SellerVIP.tsx";
 import ContactFAQ from "./pages/ContactFAQ.tsx";
 import LotDetail from "./pages/LotDetail.tsx";
 import Favorites from "./pages/Favorites.tsx";
