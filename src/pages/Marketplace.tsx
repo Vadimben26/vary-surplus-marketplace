@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import LotCard from "@/components/LotCard";
-import CategoryBar from "@/components/CategoryBar";
+
 import { mockLots } from "@/data/mockLots";
 import { MapPin, DollarSign, Palette } from "lucide-react";
 
@@ -94,9 +94,6 @@ const Marketplace = () => {
         </div>
       </div>
 
-      <div className="px-4 md:px-8 max-w-[1600px] mx-auto pt-3">
-        <CategoryBar activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
-      </div>
 
       {/* Mobile search */}
       <div className="md:hidden px-4 pt-3">

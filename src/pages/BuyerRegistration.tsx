@@ -44,9 +44,7 @@ const revenueOptions = [
   "Plus de 1M EUR",
 ];
 
-const interestTypes = ["Lots", "Sélection d'articles individuels", "Pré-packs ou séries"];
-
-// productInterests removed
+// interestTypes removed
 
 const communicationChannels = ["Whatsapp", "E-mail", "Téléphone"];
 
@@ -69,7 +67,7 @@ const BuyerRegistration = () => {
   const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
   const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
   const [selectedRevenue, setSelectedRevenue] = useState("");
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  
   const [storeLink, setStoreLink] = useState("");
   const [storePhotos, setStorePhotos] = useState<File[]>([]);
   const [selectedChannel, setSelectedChannel] = useState("");
@@ -287,17 +285,6 @@ const BuyerRegistration = () => {
                         <label key={r} className="flex items-center gap-2 cursor-pointer">
                           <input type="radio" name="revenue" checked={selectedRevenue === r} onChange={() => setSelectedRevenue(r)} className="accent-primary w-4 h-4" />
                           <span className="text-sm text-foreground">{r}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-foreground">Intéressé par: *</label>
-                    <div className="flex flex-wrap gap-4 mt-3">
-                      {interestTypes.map((i) => (
-                        <label key={i} className="flex items-center gap-2 cursor-pointer">
-                          <Checkbox checked={selectedInterests.includes(i)} onCheckedChange={() => toggle(selectedInterests, setSelectedInterests, i)} />
-                          <span className="text-sm text-foreground">{i}</span>
                         </label>
                       ))}
                     </div>

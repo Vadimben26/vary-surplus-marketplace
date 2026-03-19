@@ -47,7 +47,7 @@ const SellerRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const HomeRedirect = () => {
-  return <Navigate to="/marketplace" replace />;
+  return <Navigate to="/inscription" replace />;
 };
 
 const App = () => (
