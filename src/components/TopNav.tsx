@@ -60,8 +60,8 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
 
   const tabs = [
     { label: t("nav.contactFaq"), path: "/contact", icon: HelpCircle },
-    { label: t("nav.buyer"), path: isBuyer ? "/marketplace" : "/inscription/acheteur", icon: ShoppingBag },
-    { label: t("nav.seller"), path: isSeller ? "/seller" : "/inscription/vendeur", icon: Store },
+    { label: t("nav.buyer"), path: isBuyer ? "/marketplace" : "/devenir/acheteur", icon: ShoppingBag },
+    { label: t("nav.seller"), path: isSeller ? "/seller" : "/devenir/vendeur", icon: Store },
   ];
 
   return (
