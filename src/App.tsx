@@ -19,6 +19,7 @@ import Favorites from "./pages/Favorites.tsx";
 import Cart from "./pages/Cart.tsx";
 import Messages from "./pages/Messages.tsx";
 import Profile from "./pages/Profile.tsx";
+import BuyerVIP from "./pages/BuyerVIP.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
