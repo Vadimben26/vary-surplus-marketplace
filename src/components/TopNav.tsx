@@ -148,8 +148,8 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
                       >
                         <tab.icon className="h-4 w-4" /> {tab.label}
                       </Link>
-                    );
-                  })}
+                    )
+                  )}
                 </div>
 
                 {/* Request dual access */}
