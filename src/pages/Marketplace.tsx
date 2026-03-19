@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import LotCard from "@/components/LotCard";
-import CategoryBar from "@/components/CategoryBar";
+
 import { mockLots } from "@/data/mockLots";
 import { MapPin, DollarSign, Palette } from "lucide-react";
 
