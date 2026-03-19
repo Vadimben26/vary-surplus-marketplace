@@ -68,14 +68,6 @@ const Cart = () => {
                   <span className="text-muted-foreground">Sous-total ({cartLots.length} lot{cartLots.length > 1 ? "s" : ""})</span>
                   <span className="text-foreground font-medium">{subtotal.toLocaleString("fr-FR")} €</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground flex items-center gap-1"><Truck className="h-3 w-3" /> Livraison</span>
-                  <span className="text-foreground font-medium">{delivery.toLocaleString("fr-FR")} €</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground flex items-center gap-1"><Shield className="h-3 w-3" /> Commission (5%)</span>
-                  <span className="text-foreground font-medium">{commission.toLocaleString("fr-FR")} €</span>
-                </div>
                 <div className="border-t border-border pt-3 flex justify-between">
                   <span className="font-heading font-bold text-foreground">Total</span>
                   <span className="font-heading font-bold text-primary text-lg">{total.toLocaleString("fr-FR")} €</span>
