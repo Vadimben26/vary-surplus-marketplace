@@ -5,10 +5,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { CartProvider } from "@/contexts/CartContext";
-import { isVerified, canAccessBuyer, canAccessSeller, getUserType } from "@/lib/auth";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Registration from "./pages/Registration.tsx";
 import BuyerRegistration from "./pages/BuyerRegistration.tsx";
 import SellerRegistration from "./pages/SellerRegistration.tsx";
+import Login from "./pages/Login.tsx";
 import Marketplace from "./pages/Marketplace.tsx";
 import SellerDashboard from "./pages/SellerDashboard.tsx";
 import SellerVIP from "./pages/SellerVIP.tsx";
@@ -23,65 +24,74 @@ import NotFound from "./pages/NotFound.tsx";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  if (!isVerified()) {
-    return <Navigate to="/" replace />;
-  }
+  const { isVerified, loading } = useAuth();
+  if (loading) return null;
+  if (!isVerified()) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
 
 const BuyerRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isVerified, canAccessBuyer, loading } = useAuth();
+  if (loading) return null;
   if (!isVerified()) return <Navigate to="/" replace />;
   if (!canAccessBuyer()) return <Navigate to="/inscription/acheteur" replace />;
   return <>{children}</>;
 };
 
 const SellerRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isVerified, canAccessSeller, loading } = useAuth();
+  if (loading) return null;
   if (!isVerified()) return <Navigate to="/" replace />;
   if (!canAccessSeller()) return <Navigate to="/inscription/vendeur" replace />;
   return <>{children}</>;
 };
 
-const getDefaultRoute = () => {
-  if (!isVerified()) return "/";
+const HomeRedirect = () => {
+  const { isVerified, getUserType, loading } = useAuth();
+  if (loading) return null;
+  if (!isVerified()) return <Registration />;
   const type = getUserType();
-  if (type === "seller") return "/seller";
-  return "/marketplace";
+  if (type === "seller") return <Navigate to="/seller" replace />;
+  return <Navigate to="/marketplace" replace />;
 };
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <FavoritesProvider>
-        <CartProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={isVerified() ? <Navigate to={getDefaultRoute()} replace /> : <Registration />} />
-              <Route path="/inscription" element={<Registration />} />
-              <Route path="/inscription/acheteur" element={<BuyerRegistration />} />
-              <Route path="/inscription/vendeur" element={<SellerRegistration />} />
+      <AuthProvider>
+        <FavoritesProvider>
+          <CartProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<HomeRedirect />} />
+                <Route path="/inscription" element={<Registration />} />
+                <Route path="/inscription/acheteur" element={<BuyerRegistration />} />
+                <Route path="/inscription/vendeur" element={<SellerRegistration />} />
+                <Route path="/connexion" element={<Login />} />
 
-              {/* Shared */}
-              <Route path="/contact" element={<ProtectedRoute><ContactFAQ /></ProtectedRoute>} />
-              <Route path="/profil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+                {/* Shared */}
+                <Route path="/contact" element={<ProtectedRoute><ContactFAQ /></ProtectedRoute>} />
+                <Route path="/profil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
 
-              {/* Buyer routes */}
-              <Route path="/marketplace" element={<BuyerRoute><Marketplace /></BuyerRoute>} />
-              <Route path="/lot/:id" element={<BuyerRoute><LotDetail /></BuyerRoute>} />
-              <Route path="/favoris" element={<BuyerRoute><Favorites /></BuyerRoute>} />
-              <Route path="/panier" element={<BuyerRoute><Cart /></BuyerRoute>} />
+                {/* Buyer routes */}
+                <Route path="/marketplace" element={<BuyerRoute><Marketplace /></BuyerRoute>} />
+                <Route path="/lot/:id" element={<BuyerRoute><LotDetail /></BuyerRoute>} />
+                <Route path="/favoris" element={<BuyerRoute><Favorites /></BuyerRoute>} />
+                <Route path="/panier" element={<BuyerRoute><Cart /></BuyerRoute>} />
 
-              {/* Seller routes */}
-              <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
-              <Route path="/seller/vip" element={<SellerRoute><SellerVIP /></SellerRoute>} />
+                {/* Seller routes */}
+                <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
+                <Route path="/seller/vip" element={<SellerRoute><SellerVIP /></SellerRoute>} />
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </CartProvider>
-      </FavoritesProvider>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </CartProvider>
+        </FavoritesProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

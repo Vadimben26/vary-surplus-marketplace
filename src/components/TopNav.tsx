@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, LogOut, HelpCircle, Store, ShoppingBag, ArrowRightLeft, Search, X, SlidersHorizontal } from "lucide-react";
+import { User, LogOut, HelpCircle, Store, ShoppingBag, ArrowRightLeft, Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import varyLogo from "@/assets/vary-logo.png";
-import { getUserType, canAccessBuyer, canAccessSeller, requestDualRole, logout } from "@/lib/auth";
-import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface TopNavProps {
   filters?: {
@@ -22,9 +21,10 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
   const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-  const userType = getUserType();
+  const { profile, signOut, canAccessBuyer, canAccessSeller, getUserType } = useAuth();
   const isBuyer = canAccessBuyer();
   const isSeller = canAccessSeller();
+  const userType = getUserType();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -34,8 +34,8 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     window.location.href = "/";
   };
 
@@ -59,7 +59,6 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
       <div className="flex items-center justify-between px-4 md:px-8 h-16">
-        {/* Logo */}
         <Link to={isSeller && !isBuyer ? "/seller" : "/marketplace"} className="flex-shrink-0">
           <motion.img
             src={varyLogo}
@@ -71,7 +70,6 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
           />
         </Link>
 
-        {/* Nav tabs */}
         <nav className="hidden md:flex items-center gap-1 mx-6">
           {tabs.map((tab) => {
             const active = isActive(tab.path);
@@ -92,7 +90,6 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
           })}
         </nav>
 
-        {/* Search bar (optional) */}
         {showSearch && filters && onFiltersChange && (
           <div className="hidden md:flex flex-1 max-w-md mx-4">
             <div className="flex w-full items-center bg-muted rounded-full border border-border hover:shadow-card transition-shadow">
@@ -115,14 +112,15 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
           </div>
         )}
 
-        {/* Profile */}
         <div className="relative" ref={profileRef}>
           <button
             onClick={() => setShowProfileMenu(!showProfileMenu)}
             className="flex items-center gap-2 px-4 py-2 rounded-full border border-border hover:shadow-card transition-all bg-card"
           >
             <User className="h-5 w-5 text-foreground" />
-            <span className="hidden md:inline text-sm font-medium text-foreground">Mon compte</span>
+            <span className="hidden md:inline text-sm font-medium text-foreground">
+              {profile?.full_name || "Mon compte"}
+            </span>
           </button>
           <AnimatePresence>
             {showProfileMenu && (
@@ -140,19 +138,17 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
                   <User className="h-4 w-4" /> Mon profil
                 </Link>
 
-                {/* Mobile tabs */}
                 <div className="md:hidden border-t border-border my-1 pt-1">
                   {tabs.map((tab) => (
-                      <Link
-                        key={tab.path}
-                        to={tab.path}
-                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
-                        onClick={() => setShowProfileMenu(false)}
-                      >
-                        <tab.icon className="h-4 w-4" /> {tab.label}
-                      </Link>
-                    )
-                  )}
+                    <Link
+                      key={tab.path}
+                      to={tab.path}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
+                      onClick={() => setShowProfileMenu(false)}
+                    >
+                      <tab.icon className="h-4 w-4" /> {tab.label}
+                    </Link>
+                  ))}
                 </div>
 
                 <div className="border-t border-border my-1" />
@@ -163,7 +159,6 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
                   <LogOut className="h-4 w-4" /> Se déconnecter
                 </button>
 
-                {/* Request dual access - last */}
                 {userType !== "both" && (
                   <>
                     <div className="border-t border-border my-1" />
