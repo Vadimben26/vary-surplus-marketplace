@@ -1,4 +1,4 @@
-import { ShoppingCart, Trash2, Truck, Shield } from "lucide-react";
+import { ShoppingCart, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import TopNav from "@/components/TopNav";

@@ -26,9 +26,8 @@ const benefits = [
 const included = [
   "Statistiques en temps réel sur tous vos lots",
   "Nombre de vues, favoris et demandes détaillés",
-  "10 templates de messages professionnels",
+  "Templates de messages professionnels illimités",
   "Mise en avant prioritaire sur la marketplace",
-  "Badge vendeur VIP sur votre profil",
   "Support prioritaire",
 ];
 

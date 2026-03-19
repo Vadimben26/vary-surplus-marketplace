@@ -455,19 +455,6 @@ const SellerRegistration = () => {
                         </div>
                       </div>
 
-                      {/* Order frequency filter */}
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">📦 Fréquence d'achat</label>
-                        <p className="text-xs text-muted-foreground mb-2">Préférez-vous des acheteurs réguliers ou êtes-vous ouvert à tous ?</p>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {visibilityOrderFrequencies.map((f) => (
-                            <label key={f} className="flex items-center gap-2 cursor-pointer">
-                              <Checkbox checked={visFrequencies.includes(f)} onCheckedChange={() => toggle(visFrequencies, setVisFrequencies, f)} />
-                              <span className="text-sm text-foreground">{f}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
                     </motion.div>
                   )}
                 </div>
