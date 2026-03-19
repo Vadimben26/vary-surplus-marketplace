@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, TrendingUp, Eye, DollarSign, MapPin,
-  Edit, Trash2, BarChart3, Clock, CheckCircle2, Upload, X, ShoppingBag
+  Edit, Trash2, BarChart3, Clock, CheckCircle2, Upload, X, ShoppingBag, Crown, Lock
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
