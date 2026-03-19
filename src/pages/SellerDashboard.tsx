@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import { mockLots } from "@/data/mockLots";
+import { canAccessBuyer, requestDualRole } from "@/lib/auth";
+import { toast } from "sonner";
 
 interface SellerLot {
   id: string;
