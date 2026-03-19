@@ -1,23 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, User, Package, Clock, CheckCircle, Edit2, Save, X, Building2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
-import { canAccessSeller } from "@/lib/auth";
-
-interface UserProfile {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  company: string;
-  address: string;
-  city: string;
-  country: string;
-  companyDescription: string;
-}
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const mockOrders = [
   { id: "CMD-2026-001", lot: "Mix 1000 pièces vêtements été", brand: "Zara", total: "6 860 €", status: "delivered", date: "5 mars 2026" },
@@ -33,33 +22,45 @@ const statusLabels: Record<string, { label: string; color: string; icon: typeof 
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { profile, canAccessSeller, updateProfile } = useAuth();
   const isSeller = canAccessSeller();
   const [editing, setEditing] = useState(false);
   const [tab, setTab] = useState<"profile" | "orders">("profile");
-  const [profile, setProfile] = useState<UserProfile>(() => {
-    const stored = localStorage.getItem("vary_profile");
-    return stored ? JSON.parse(stored) : {
-      firstName: "Jean",
-      lastName: "Dupont",
-      email: "jean.dupont@example.com",
-      phone: "+33 6 12 34 56 78",
-      company: "Mode & Style SARL",
-      address: "12 Rue du Commerce",
-      city: "Paris",
-      country: "France",
-      companyDescription: "Grossiste spécialisé dans la distribution de vêtements de marques premium. Plus de 10 ans d'expérience dans le secteur du textile et de la mode.",
-    };
+  const [editForm, setEditForm] = useState({
+    full_name: profile?.full_name || "",
+    phone: profile?.phone || "",
+    company_name: profile?.company_name || "",
+    company_description: profile?.company_description || "",
   });
-  const [editForm, setEditForm] = useState<UserProfile>(profile);
 
-  const handleSave = () => {
-    setProfile(editForm);
-    localStorage.setItem("vary_profile", JSON.stringify(editForm));
-    setEditing(false);
+  useEffect(() => {
+    if (profile) {
+      setEditForm({
+        full_name: profile.full_name || "",
+        phone: profile.phone || "",
+        company_name: profile.company_name || "",
+        company_description: profile.company_description || "",
+      });
+    }
+  }, [profile]);
+
+  const handleSave = async () => {
+    const { error } = await updateProfile(editForm as any);
+    if (error) {
+      toast.error("Erreur lors de la sauvegarde");
+    } else {
+      toast.success("Profil mis à jour");
+      setEditing(false);
+    }
   };
 
   const handleCancel = () => {
-    setEditForm(profile);
+    setEditForm({
+      full_name: profile?.full_name || "",
+      phone: profile?.phone || "",
+      company_name: profile?.company_name || "",
+      company_description: profile?.company_description || "",
+    });
     setEditing(false);
   };
 
@@ -80,7 +81,6 @@ const Profile = () => {
       <main className="max-w-3xl mx-auto px-4 md:px-8 py-6">
         <h1 className="font-heading text-2xl font-bold text-foreground mb-6">Mon compte</h1>
 
-        {/* Tabs */}
         <div className="flex gap-1 mb-8 bg-muted rounded-xl p-1">
           <button
             onClick={() => setTab("profile")}
@@ -104,14 +104,13 @@ const Profile = () => {
                   <User className="h-7 w-7 text-primary" />
                 </div>
                 <div>
-                  <h2 className="font-heading font-semibold text-foreground">{profile.firstName} {profile.lastName}</h2>
-                  <p className="text-sm text-muted-foreground">{profile.company}</p>
+                  <h2 className="font-heading font-semibold text-foreground">{profile?.full_name || "Mon profil"}</h2>
+                  <p className="text-sm text-muted-foreground">{profile?.company_name || profile?.email}</p>
                 </div>
               </div>
               {!editing && (
                 <button onClick={() => setEditing(true)} className="flex items-center gap-2 px-4 py-2 text-sm text-primary border border-primary/20 rounded-xl hover:bg-primary/5 transition-colors">
-                  <Edit2 className="h-4 w-4" />
-                  Modifier
+                  <Edit2 className="h-4 w-4" /> Modifier
                 </button>
               )}
             </div>
@@ -120,38 +119,48 @@ const Profile = () => {
               {editing ? (
                 <>
                   <div className="grid grid-cols-2 gap-4">
-                    {(["firstName", "lastName", "email", "phone", "company", "address", "city", "country"] as (keyof UserProfile)[]).map((key) => (
-                      <div key={key} className={key === "address" ? "col-span-2" : ""}>
-                        <label className="text-xs font-medium text-muted-foreground">
-                          {key === "firstName" ? "Prénom" : key === "lastName" ? "Nom" : key === "email" ? "Email" : key === "phone" ? "Téléphone" : key === "company" ? "Entreprise" : key === "address" ? "Adresse" : key === "city" ? "Ville" : "Pays"}
-                        </label>
-                        <input
-                          type={key === "email" ? "email" : "text"}
-                          value={editForm[key]}
-                          onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
-                          className="mt-1 w-full h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-ring outline-none"
-                        />
-                      </div>
-                    ))}
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Nom complet</label>
+                      <input
+                        type="text"
+                        value={editForm.full_name}
+                        onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                        className="mt-1 w-full h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-ring outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Téléphone</label>
+                      <input
+                        type="tel"
+                        value={editForm.phone}
+                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                        className="mt-1 w-full h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-ring outline-none"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-xs font-medium text-muted-foreground">Entreprise</label>
+                      <input
+                        type="text"
+                        value={editForm.company_name}
+                        onChange={(e) => setEditForm({ ...editForm, company_name: e.target.value })}
+                        className="mt-1 w-full h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-ring outline-none"
+                      />
+                    </div>
                   </div>
-
-                  {/* Company description (seller only) */}
                   {isSeller && (
-                    <div className="col-span-2 pt-2">
+                    <div className="pt-2">
                       <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                         <Building2 className="h-3 w-3" /> Description de l'entreprise
                       </label>
-                      <p className="text-xs text-muted-foreground mt-0.5 mb-1">Apparaît automatiquement sur chacun de vos lots</p>
                       <Textarea
-                        value={editForm.companyDescription}
-                        onChange={(e) => setEditForm({ ...editForm, companyDescription: e.target.value })}
+                        value={editForm.company_description}
+                        onChange={(e) => setEditForm({ ...editForm, company_description: e.target.value })}
                         placeholder="Décrivez votre entreprise..."
                         className="resize-none mt-1"
                         rows={3}
                       />
                     </div>
                   )}
-
                   <div className="flex gap-3 pt-2">
                     <button onClick={handleSave} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary-dark transition-colors text-sm">
                       <Save className="h-4 w-4" /> Enregistrer
@@ -165,30 +174,24 @@ const Profile = () => {
                 <>
                   <div className="grid grid-cols-2 gap-4">
                     {[
-                      ["Prénom", profile.firstName],
-                      ["Nom", profile.lastName],
-                      ["Email", profile.email],
-                      ["Téléphone", profile.phone],
-                      ["Entreprise", profile.company],
-                      ["Adresse", profile.address],
-                      ["Ville", profile.city],
-                      ["Pays", profile.country],
+                      ["Nom", profile?.full_name || "—"],
+                      ["Email", profile?.email || "—"],
+                      ["Téléphone", profile?.phone || "—"],
+                      ["Entreprise", profile?.company_name || "—"],
+                      ["Type", profile?.user_type === "both" ? "Acheteur & Vendeur" : profile?.user_type === "seller" ? "Vendeur" : "Acheteur"],
                     ].map(([label, value]) => (
-                      <div key={label} className={label === "Adresse" ? "col-span-2" : ""}>
+                      <div key={label}>
                         <p className="text-xs text-muted-foreground">{label}</p>
                         <p className="text-sm font-medium text-foreground mt-0.5">{value}</p>
                       </div>
                     ))}
                   </div>
-
-                  {/* Company description display (seller only) */}
-                  {isSeller && profile.companyDescription && (
+                  {isSeller && profile?.company_description && (
                     <div className="border-t border-border pt-4 mt-4">
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
                         <Building2 className="h-3 w-3" /> Description de l'entreprise
                       </p>
-                      <p className="text-sm text-foreground">{profile.companyDescription}</p>
-                      <p className="text-xs text-muted-foreground mt-1">Visible automatiquement sur chacun de vos lots</p>
+                      <p className="text-sm text-foreground">{profile.company_description}</p>
                     </div>
                   )}
                 </>
@@ -225,7 +228,6 @@ const Profile = () => {
           </motion.div>
         )}
       </main>
-
       <BottomNav />
     </div>
   );

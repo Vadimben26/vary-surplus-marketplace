@@ -6,7 +6,9 @@ import varyLogo from "@/assets/vary-logo.png";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { setVerified, setUserType } from "@/lib/auth";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const storeTypes = [
   "Magasin physique",
@@ -54,7 +56,9 @@ const referralSources = [
 
 const BuyerRegistration = () => {
   const navigate = useNavigate();
+  const { signUp, user, profile, updateProfile } = useAuth();
   const [step, setStep] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
   const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
   const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
   const [selectedRevenue, setSelectedRevenue] = useState("");
@@ -69,6 +73,7 @@ const BuyerRegistration = () => {
     lastName: "",
     email: "",
     phone: "",
+    password: "",
     companyName: "",
     vatCode: "",
     address: "",
@@ -79,6 +84,7 @@ const BuyerRegistration = () => {
   });
 
   const totalSteps = 4;
+  const isAlreadyLoggedIn = !!user;
 
   const update = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -88,14 +94,58 @@ const BuyerRegistration = () => {
     setArr(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
   };
 
-  const nextStep = () => {
-    const next = Math.min(step + 1, totalSteps + 1);
-    if (next === totalSteps + 1) {
-      setVerified();
-      setUserType("buyer");
+  const nextStep = async () => {
+    if (step === totalSteps) {
+      setSubmitting(true);
+      try {
+        if (isAlreadyLoggedIn) {
+          // User already logged in, just upgrade to buyer or both
+          const newType = profile?.user_type === "seller" ? "both" : "buyer";
+          await updateProfile({
+            user_type: newType as any,
+            full_name: `${formData.firstName} ${formData.lastName}`,
+            phone: formData.phone,
+            company_name: formData.companyName,
+          });
+          toast.success("Profil acheteur activé !");
+        } else {
+          // New signup
+          if (!formData.email || !formData.password) {
+            toast.error("Email et mot de passe requis");
+            setSubmitting(false);
+            return;
+          }
+          const { error } = await signUp(formData.email, formData.password);
+          if (error) {
+            toast.error(error.message);
+            setSubmitting(false);
+            return;
+          }
+          // Wait a bit for profile to be created by trigger, then update
+          await new Promise((r) => setTimeout(r, 1000));
+          const { data: { user: newUser } } = await supabase.auth.getUser();
+          if (newUser) {
+            await supabase.from("profiles").update({
+              user_type: "buyer",
+              full_name: `${formData.firstName} ${formData.lastName}`,
+              phone: formData.phone,
+              company_name: formData.companyName,
+            }).eq("user_id", newUser.id);
+          }
+          toast.success("Compte créé ! Vérifiez votre email pour confirmer.");
+        }
+      } catch (err: any) {
+        toast.error(err.message || "Erreur lors de l'inscription");
+        setSubmitting(false);
+        return;
+      }
+      setSubmitting(false);
+      setStep(totalSteps + 1);
+    } else {
+      setStep((s) => Math.min(s + 1, totalSteps + 1));
     }
-    setStep(next);
   };
+
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
   const stepContent = (
@@ -119,18 +169,16 @@ const BuyerRegistration = () => {
 
       <div className="flex-1 flex items-start justify-center py-8 px-4">
         <div className="w-full max-w-2xl">
-          {/* Page title */}
           <div className="text-center mb-8">
             <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">
               Détails du profil acheteur
             </h1>
             <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-              Veuillez créer votre profil en complétant toutes les informations demandées. Nous ne pouvons approuver que les entreprises et les magasins réels.
+              Veuillez créer votre profil en complétant toutes les informations demandées.
             </p>
           </div>
 
           <AnimatePresence mode="wait">
-            {/* Step 1: Personal info */}
             {step === 1 && (
               <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepContent}
@@ -145,10 +193,18 @@ const BuyerRegistration = () => {
                       <Input placeholder="Dupont" value={formData.lastName} onChange={(e) => update("lastName", e.target.value)} />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">Adresse e-mail *</label>
-                    <Input type="email" placeholder="jean@entreprise.com" value={formData.email} onChange={(e) => update("email", e.target.value)} />
-                  </div>
+                  {!isAlreadyLoggedIn && (
+                    <>
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-foreground">Adresse e-mail *</label>
+                        <Input type="email" placeholder="jean@entreprise.com" value={formData.email} onChange={(e) => update("email", e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-foreground">Mot de passe *</label>
+                        <Input type="password" placeholder="Minimum 6 caractères" value={formData.password} onChange={(e) => update("password", e.target.value)} />
+                      </div>
+                    </>
+                  )}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Numéro de téléphone *</label>
                     <Input type="tel" placeholder="+33 6 12 34 56 78" value={formData.phone} onChange={(e) => update("phone", e.target.value)} />
@@ -157,7 +213,6 @@ const BuyerRegistration = () => {
               </motion.div>
             )}
 
-            {/* Step 2: Business info */}
             {step === 2 && (
               <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepContent}
@@ -175,7 +230,6 @@ const BuyerRegistration = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Adresse de facturation (rue) *</label>
                     <Input placeholder="8 Avenue du Stade de France" value={formData.address} onChange={(e) => update("address", e.target.value)} />
-                    <p className="text-xs text-muted-foreground">Saisissez le nom de la rue et le numéro</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-2">
@@ -208,12 +262,10 @@ const BuyerRegistration = () => {
               </motion.div>
             )}
 
-            {/* Step 3: Preferences */}
             {step === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepContent}
                 <div className="space-y-8">
-                  {/* Gender categories */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Quelles catégories vendez-vous actuellement ? *</label>
                     <div className="flex flex-wrap gap-4 mt-3">
@@ -224,12 +276,9 @@ const BuyerRegistration = () => {
                         </label>
                       ))}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Vous pouvez sélectionner plusieurs options</p>
                   </div>
-
-                  {/* Revenue */}
                   <div>
-                    <label className="text-sm font-semibold text-foreground">Chiffre d'affaires annuel de l'entreprise: *</label>
+                    <label className="text-sm font-semibold text-foreground">Chiffre d'affaires annuel: *</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
                       {revenueOptions.map((r) => (
                         <label key={r} className="flex items-center gap-2 cursor-pointer">
@@ -239,8 +288,6 @@ const BuyerRegistration = () => {
                       ))}
                     </div>
                   </div>
-
-                  {/* Interest type */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Intéressé par: *</label>
                     <div className="flex flex-wrap gap-4 mt-3">
@@ -252,8 +299,6 @@ const BuyerRegistration = () => {
                       ))}
                     </div>
                   </div>
-
-                  {/* Product interests */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Que recherchez-vous ? *</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
@@ -264,10 +309,7 @@ const BuyerRegistration = () => {
                         </label>
                       ))}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Veuillez cocher toutes les options qui vous conviennent.</p>
                   </div>
-
-                  {/* Store type */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Sélectionnez votre type de magasin: *</label>
                     <div className="space-y-2 mt-3">
@@ -278,23 +320,19 @@ const BuyerRegistration = () => {
                         </label>
                       ))}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Vous pouvez sélectionner plusieurs options</p>
                   </div>
                 </div>
               </motion.div>
             )}
 
-            {/* Step 4: Final questions */}
             {step === 4 && (
               <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepContent}
                 <div className="space-y-8">
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">Vous cherchez quelque chose en particulier ? (OPTIONNEL)</label>
+                    <label className="text-sm font-semibold text-foreground">Demandes spéciales (optionnel)</label>
                     <Textarea placeholder="Text..." className="resize-none" rows={4} value={formData.specialRequests} onChange={(e) => update("specialRequests", e.target.value)} />
-                    <p className="text-xs text-muted-foreground">Mentionnez vos demandes spéciales pour mieux comprendre les besoins de votre magasin.</p>
                   </div>
-
                   <div>
                     <label className="text-sm font-semibold text-foreground">Parlez-vous Anglais ? *</label>
                     <div className="flex gap-6 mt-3">
@@ -306,9 +344,8 @@ const BuyerRegistration = () => {
                       ))}
                     </div>
                   </div>
-
                   <div>
-                    <label className="text-sm font-semibold text-foreground">Quel est votre canal de communication préféré ? *</label>
+                    <label className="text-sm font-semibold text-foreground">Canal de communication préféré ? *</label>
                     <div className="flex gap-6 mt-3">
                       {communicationChannels.map((c) => (
                         <label key={c} className="flex items-center gap-2 cursor-pointer">
@@ -317,9 +354,7 @@ const BuyerRegistration = () => {
                         </label>
                       ))}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Veuillez sélectionner comment vous souhaitez être contacté par notre responsable de compte.</p>
                   </div>
-
                   <div>
                     <label className="text-sm font-semibold text-foreground">Comment avez-vous entendu parler de nous ? *</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
@@ -331,13 +366,12 @@ const BuyerRegistration = () => {
                       ))}
                     </div>
                   </div>
-
                   <div className="pt-2">
                     <label className="flex items-start gap-3 cursor-pointer">
                       <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} className="mt-0.5" />
                       <div>
                         <span className="text-sm font-medium text-foreground">Email & Whatsapp communication</span>
-                        <p className="text-xs text-muted-foreground mt-0.5">J'accepte de recevoir des messages sur les fournisseurs, les produits et les campagnes.</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">J'accepte de recevoir des messages.</p>
                       </div>
                     </label>
                   </div>
@@ -345,7 +379,6 @@ const BuyerRegistration = () => {
               </motion.div>
             )}
 
-            {/* Confirmation */}
             {step === totalSteps + 1 && (
               <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="py-12 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -353,17 +386,20 @@ const BuyerRegistration = () => {
                 </div>
                 <h2 className="font-heading text-2xl font-bold text-foreground mb-3">Merci pour votre inscription !</h2>
                 <p className="text-muted-foreground mb-2 max-w-md mx-auto">
-                  Nous avons bien reçu votre demande. Notre équipe va vérifier vos informations et valider votre compte.
+                  {isAlreadyLoggedIn
+                    ? "Votre profil acheteur a été activé."
+                    : "Vérifiez votre email pour confirmer votre compte, puis connectez-vous."}
                 </p>
-                <p className="text-sm text-muted-foreground mb-8">Vous recevrez un email de confirmation sous 24 à 48h.</p>
-                <button onClick={() => navigate("/marketplace")} className="px-8 py-3 bg-foreground text-background font-semibold rounded-md hover:opacity-90 transition-opacity">
-                  Accéder à la marketplace
+                <button
+                  onClick={() => navigate(isAlreadyLoggedIn ? "/marketplace" : "/connexion")}
+                  className="mt-6 px-8 py-3 bg-foreground text-background font-semibold rounded-md hover:opacity-90 transition-opacity"
+                >
+                  {isAlreadyLoggedIn ? "Accéder à la marketplace" : "Se connecter"}
                 </button>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Navigation */}
           {step <= totalSteps && (
             <div className="flex items-center gap-4 mt-10">
               {step > 1 && (
@@ -371,8 +407,12 @@ const BuyerRegistration = () => {
                   Retour
                 </button>
               )}
-              <button onClick={nextStep} className="px-8 py-3 bg-foreground text-background font-semibold rounded-md hover:opacity-90 transition-opacity">
-                {step === totalSteps ? "Soumettre" : "Suivant"}
+              <button
+                onClick={nextStep}
+                disabled={submitting}
+                className="px-8 py-3 bg-foreground text-background font-semibold rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {submitting ? "Envoi..." : step === totalSteps ? "Soumettre" : "Suivant"}
               </button>
             </div>
           )}
