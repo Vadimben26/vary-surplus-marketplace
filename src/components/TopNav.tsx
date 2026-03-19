@@ -71,7 +71,6 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
         {/* Nav tabs */}
         <nav className="hidden md:flex items-center gap-1 mx-6">
           {tabs.map((tab) => {
-            if (!tab.always && !tab.show) return null;
             const active = isActive(tab.path);
             return (
               <Link
