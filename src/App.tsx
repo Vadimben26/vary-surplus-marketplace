@@ -44,7 +44,7 @@ const SellerRoute = ({ children }: { children: React.ReactNode }) => {
   const { isVerified, canAccessSeller, loading } = useAuth();
   if (loading) return null;
   if (!isVerified()) return <Navigate to="/" replace />;
-  if (!canAccessSeller()) return <Navigate to="/inscription/vendeur" replace />;
+  if (!canAccessSeller()) return <Navigate to="/devenir/vendeur" replace />;
   return <>{children}</>;
 };
 
