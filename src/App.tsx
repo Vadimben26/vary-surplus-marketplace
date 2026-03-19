@@ -66,18 +66,16 @@ const App = () => (
                 <Route path="/inscription/vendeur" element={<SellerRegistration />} />
                 <Route path="/connexion" element={<Login />} />
 
-                {/* Shared */}
-                <Route path="/contact" element={<ProtectedRoute><ContactFAQ /></ProtectedRoute>} />
+                {/* Public pages */}
+                <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/lot/:id" element={<LotDetail />} />
+                <Route path="/contact" element={<ContactFAQ />} />
+
+                {/* Protected (need login) */}
                 <Route path="/profil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
-
-                {/* Buyer routes */}
-                <Route path="/marketplace" element={<BuyerRoute><Marketplace /></BuyerRoute>} />
-                <Route path="/lot/:id" element={<BuyerRoute><LotDetail /></BuyerRoute>} />
-                <Route path="/favoris" element={<BuyerRoute><Favorites /></BuyerRoute>} />
-                <Route path="/panier" element={<BuyerRoute><Cart /></BuyerRoute>} />
-
-                {/* Seller routes */}
+                <Route path="/favoris" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+                <Route path="/panier" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
                 <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
                 <Route path="/seller/vip" element={<SellerRoute><SellerVIP /></SellerRoute>} />
 

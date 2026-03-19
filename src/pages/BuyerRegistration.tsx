@@ -351,17 +351,6 @@ const BuyerRegistration = () => {
                     <Textarea placeholder="Text..." className="resize-none" rows={4} value={formData.specialRequests} onChange={(e) => update("specialRequests", e.target.value)} />
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-foreground">Parlez-vous Anglais ? *</label>
-                    <div className="flex gap-6 mt-3">
-                      {["Oui", "Non"].map((v) => (
-                        <label key={v} className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="english" checked={speaksEnglish === v} onChange={() => setSpeaksEnglish(v)} className="accent-primary w-4 h-4" />
-                          <span className="text-sm text-foreground">{v}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
                     <label className="text-sm font-semibold text-foreground">Canal de communication préféré ? *</label>
                     <div className="flex gap-6 mt-3">
                       {communicationChannels.map((c) => (
