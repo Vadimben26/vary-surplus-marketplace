@@ -39,7 +39,13 @@
     "cart": "Panier",
     "messages": "Messages",
     "becomeAlsoSeller": "Devenir aussi vendeur",
-    "becomeAlsoBuyer": "Devenir aussi acheteur"
+    "becomeAlsoBuyer": "Devenir aussi acheteur",
+    "roleGatewayTitle": "Accès {{role}} requis",
+    "roleGatewayDesc": "Pour accéder à l'espace {{role}}, vous devez être vérifié par notre équipe. Complétez le formulaire d'inscription et notre équipe validera votre profil sous 24h.",
+    "roleGatewayBuyer": "acheteur",
+    "roleGatewaySeller": "vendeur",
+    "roleGatewayCta": "Remplir le formulaire d'inscription",
+    "roleGatewayBack": "Retour"
   },
   "registration": {
     "joinVary": "Rejoignez Vary",

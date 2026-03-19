@@ -39,7 +39,13 @@
     "cart": "Cart",
     "messages": "Messages",
     "becomeAlsoSeller": "Become a seller too",
-    "becomeAlsoBuyer": "Become a buyer too"
+    "becomeAlsoBuyer": "Become a buyer too",
+    "roleGatewayTitle": "{{role}} access required",
+    "roleGatewayDesc": "To access the {{role}} area, you need to be verified by our team. Complete the registration form and our team will validate your profile within 24h.",
+    "roleGatewayBuyer": "buyer",
+    "roleGatewaySeller": "seller",
+    "roleGatewayCta": "Fill in the registration form",
+    "roleGatewayBack": "Back"
   },
   "registration": {
     "joinVary": "Join Vary",
