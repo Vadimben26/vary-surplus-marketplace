@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Heart, Star, MapPin, Package, Truck, Shield, MessageCircle, ShoppingCart, User, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Heart, Star, MapPin, Package, MessageCircle, ShoppingCart, User, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useCallback, useMemo } from "react";
 import { getLotById, getSimilarLots } from "@/data/mockLots";
@@ -37,10 +37,8 @@ const LotDetail = () => {
 
   const liked = isFavorite(lot.id);
   const inCart = isInCart(lot.id);
-  const deliveryFee = 350;
   const priceNum = parseFloat(lot.price.replace(/[^\d]/g, ""));
-  const commissionAmount = Math.round(priceNum * 0.05);
-  const total = priceNum + deliveryFee + commissionAmount;
+  const total = Math.round(priceNum * 1.19);
   const displayedItems = showAllItems ? lot.items : lot.items.slice(0, 4);
 
   const handleAddToCart = () => {
@@ -183,28 +181,16 @@ const LotDetail = () => {
             <div className="md:sticky md:top-[72px] space-y-3">
               <div className="bg-card rounded-xl border border-border p-4 shadow-card">
                 <div className="space-y-1.5">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground text-xs">Prix du lot</span>
-                    <span className="text-foreground font-semibold text-sm">{lot.price}</span>
+                  <div className="flex justify-between items-baseline">
+                    <span className="font-heading font-bold text-foreground text-sm">Prix</span>
+                    <span className="font-heading font-bold text-primary text-lg">{total.toLocaleString("fr-FR")} €</span>
                   </div>
                   {lot.pricePerUnit && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground text-xs">Prix unitaire</span>
+                      <span className="text-muted-foreground text-xs">Prix unitaire estimé</span>
                       <span className="text-foreground font-medium text-xs">{lot.pricePerUnit}</span>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground text-xs flex items-center gap-1"><Truck className="h-3 w-3" /> Livraison</span>
-                    <span className="text-foreground font-medium text-xs">{deliveryFee} €</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground text-xs flex items-center gap-1"><Shield className="h-3 w-3" /> Commission (5%)</span>
-                    <span className="text-foreground font-medium text-xs">{commissionAmount.toLocaleString("fr-FR")} €</span>
-                  </div>
-                  <div className="border-t border-border pt-2 flex justify-between items-baseline">
-                    <span className="font-heading font-bold text-foreground text-sm">Total</span>
-                    <span className="font-heading font-bold text-primary text-lg">{total.toLocaleString("fr-FR")} €</span>
-                  </div>
                 </div>
 
                 <button

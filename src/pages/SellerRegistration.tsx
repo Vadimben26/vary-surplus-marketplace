@@ -17,11 +17,6 @@ const productCategories = [
   "Enfants",
 ];
 
-const shippingOptions = [
-  "Je gère mes propres expéditions",
-  "Je souhaite utiliser le transport intégré Vary",
-  "Les deux, selon la commande",
-];
 
 const volumeOptions = [
   "Moins de 100 unités / mois",
@@ -59,17 +54,12 @@ const visibilityRevenues = [
   "500.000 – 1M €",
   "Plus de 1M €",
 ];
-const visibilityOrderFrequencies = [
-  "Acheteurs réguliers (commandes mensuelles)",
-  "Acheteurs occasionnels",
-  "Nouveaux acheteurs",
-];
 
 const SellerRegistration = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedShipping, setSelectedShipping] = useState("");
+  
   const [selectedVolume, setSelectedVolume] = useState("");
   const [selectedChannel, setSelectedChannel] = useState("");
   const [selectedReferral, setSelectedReferral] = useState("");
@@ -97,7 +87,7 @@ const SellerRegistration = () => {
   const [visLocations, setVisLocations] = useState<string[]>([]);
   const [visStoreTypes, setVisStoreTypes] = useState<string[]>([]);
   const [visRevenues, setVisRevenues] = useState<string[]>([]);
-  const [visFrequencies, setVisFrequencies] = useState<string[]>([]);
+  
 
   const totalSteps = 5;
 
@@ -119,7 +109,6 @@ const SellerRegistration = () => {
         locations: visLocations,
         storeTypes: visStoreTypes,
         revenues: visRevenues,
-        frequencies: visFrequencies,
       });
     }
     setStep(next);
@@ -279,17 +268,6 @@ const SellerRegistration = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-sm font-semibold text-foreground">Mode de livraison : *</label>
-                    <div className="space-y-2 mt-3">
-                      {shippingOptions.map((o) => (
-                        <label key={o} className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="shipping" checked={selectedShipping === o} onChange={() => setSelectedShipping(o)} className="accent-primary w-4 h-4" />
-                          <span className="text-sm text-foreground">{o}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
 
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Localisation de l'entrepôt</label>
@@ -477,19 +455,6 @@ const SellerRegistration = () => {
                         </div>
                       </div>
 
-                      {/* Order frequency filter */}
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">📦 Fréquence d'achat</label>
-                        <p className="text-xs text-muted-foreground mb-2">Préférez-vous des acheteurs réguliers ou êtes-vous ouvert à tous ?</p>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {visibilityOrderFrequencies.map((f) => (
-                            <label key={f} className="flex items-center gap-2 cursor-pointer">
-                              <Checkbox checked={visFrequencies.includes(f)} onCheckedChange={() => toggle(visFrequencies, setVisFrequencies, f)} />
-                              <span className="text-sm text-foreground">{f}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
                     </motion.div>
                   )}
                 </div>
