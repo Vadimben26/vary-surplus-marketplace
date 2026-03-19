@@ -72,6 +72,7 @@ const App = () => (
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/lot/:id" element={<LotDetail />} />
                 <Route path="/contact" element={<ContactFAQ />} />
+                <Route path="/devenir/:role" element={<RoleGateway />} />
 
                 {/* Protected (need login) */}
                 <Route path="/profil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
