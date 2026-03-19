@@ -47,11 +47,6 @@ const SellerRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const HomeRedirect = () => {
-  const { isVerified, getUserType, loading } = useAuth();
-  if (loading) return null;
-  if (!isVerified()) return <Registration />;
-  const type = getUserType();
-  if (type === "seller") return <Navigate to="/seller" replace />;
   return <Navigate to="/marketplace" replace />;
 };
 
