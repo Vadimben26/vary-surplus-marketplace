@@ -26,10 +26,9 @@ const BuyerVIP = () => {
           <p className="text-muted-foreground max-w-lg mx-auto">{t("buyerVIP.subtitle")}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
           {[
             { icon: Clock, titleKey: "buyerVIP.earlyAccess", descKey: "buyerVIP.earlyAccessDesc" },
-            { icon: Eye, titleKey: "buyerVIP.exclusiveLots", descKey: "buyerVIP.exclusiveLotsDesc" },
             { icon: Star, titleKey: "buyerVIP.prioritySupport", descKey: "buyerVIP.prioritySupportDesc" },
           ].map((feat) => (
             <div key={feat.titleKey} className="bg-card border border-border rounded-2xl p-5">
@@ -44,7 +43,7 @@ const BuyerVIP = () => {
           <p className="text-5xl font-heading font-bold text-foreground mb-1">299 €<span className="text-lg font-normal text-muted-foreground"> {t("buyerVIP.perMonth")}</span></p>
           <p className="text-sm text-muted-foreground mb-6">{t("buyerVIP.noCommitment")}</p>
           <ul className="text-left max-w-md mx-auto space-y-3 mb-8">
-            {["included1", "included2", "included3", "included4"].map((key) => (
+            {["included1", "included2"].map((key) => (
               <li key={key} className="flex items-start gap-2 text-sm text-foreground">
                 <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                 {t(`buyerVIP.${key}`)}
