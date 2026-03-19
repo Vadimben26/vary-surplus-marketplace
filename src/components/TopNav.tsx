@@ -152,17 +152,6 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
                   )}
                 </div>
 
-                {/* Request dual access */}
-                {userType !== "both" && (
-                  <button
-                    onClick={handleRequestDual}
-                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                  >
-                    <ArrowRightLeft className="h-4 w-4" />
-                    {isBuyer ? "Devenir aussi vendeur" : "Devenir aussi acheteur"}
-                  </button>
-                )}
-
                 <div className="border-t border-border my-1" />
                 <button
                   onClick={handleLogout}
@@ -170,6 +159,20 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
                 >
                   <LogOut className="h-4 w-4" /> Se déconnecter
                 </button>
+
+                {/* Request dual access - last */}
+                {userType !== "both" && (
+                  <>
+                    <div className="border-t border-border my-1" />
+                    <button
+                      onClick={handleRequestDual}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                    >
+                      <ArrowRightLeft className="h-4 w-4" />
+                      {isBuyer ? "Devenir aussi vendeur" : "Devenir aussi acheteur"}
+                    </button>
+                  </>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

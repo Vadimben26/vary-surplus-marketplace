@@ -3,15 +3,20 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, TrendingUp, Eye, DollarSign, MapPin,
-  Edit, Trash2, BarChart3, Clock, CheckCircle2, Upload, X, ShoppingBag, Crown, Lock
+  Edit, Trash2, BarChart3, Clock, CheckCircle2, Upload, X, Crown
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import { mockLots } from "@/data/mockLots";
-import { canAccessBuyer, requestDualRole } from "@/lib/auth";
 import { toast } from "sonner";
+
+interface LotItem {
+  name: string;
+  quantity: number;
+  size: string;
+}
 
 interface SellerLot {
   id: string;
@@ -26,6 +31,8 @@ interface SellerLot {
   views: number;
   inquiries: number;
   createdAt: string;
+  description?: string;
+  items?: LotItem[];
 }
 
 const mockSellerLots: SellerLot[] = mockLots.slice(0, 6).map((lot, i) => ({
@@ -34,6 +41,8 @@ const mockSellerLots: SellerLot[] = mockLots.slice(0, 6).map((lot, i) => ({
   views: Math.floor(Math.random() * 500) + 50,
   inquiries: Math.floor(Math.random() * 20) + 1,
   createdAt: new Date(Date.now() - Math.random() * 30 * 86400000).toLocaleDateString("fr-FR"),
+  description: lot.description || "",
+  items: lot.items || [],
 }));
 
 const statusConfig = {
@@ -42,20 +51,92 @@ const statusConfig = {
   sold: { label: "Vendu", color: "bg-primary/10 text-primary", icon: DollarSign },
 };
 
+const emptyLotForm = {
+  title: "", brand: "", price: "", units: "", location: "", category: "Vêtements", description: "",
+};
+
 const SellerDashboard = () => {
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [activeTab, setActiveTab] = useState<"all" | "active" | "draft" | "sold">("all");
-  const [lots] = useState<SellerLot[]>(mockSellerLots);
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"active" | "draft" | "sold">("active");
+  const [lots, setLots] = useState<SellerLot[]>(mockSellerLots);
+
+  // Modal state
+  const [showForm, setShowForm] = useState(false);
+  const [editingLot, setEditingLot] = useState<SellerLot | null>(null);
+  const [formData, setFormData] = useState(emptyLotForm);
+  const [lotItems, setLotItems] = useState<LotItem[]>([{ name: "", quantity: 0, size: "" }]);
+
+  // Delete confirm
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const stats = {
-    totalLots: lots.length,
     activeLots: lots.filter((l) => l.status === "active").length,
     totalViews: lots.reduce((s, l) => s + l.views, 0),
     totalInquiries: lots.reduce((s, l) => s + l.inquiries, 0),
     revenue: "47 500 €",
   };
 
-  const filteredLots = activeTab === "all" ? lots : lots.filter((l) => l.status === activeTab);
+  const filteredLots = lots.filter((l) => l.status === activeTab);
+
+  // CRUD handlers
+  const openAdd = () => {
+    setEditingLot(null);
+    setFormData(emptyLotForm);
+    setLotItems([{ name: "", quantity: 0, size: "" }]);
+    setShowForm(true);
+  };
+
+  const openEdit = (lot: SellerLot) => {
+    setEditingLot(lot);
+    setFormData({
+      title: lot.title, brand: lot.brand, price: lot.price,
+      units: String(lot.units), location: lot.location,
+      category: lot.category, description: lot.description || "",
+    });
+    setLotItems(lot.items?.length ? lot.items : [{ name: "", quantity: 0, size: "" }]);
+    setShowForm(true);
+  };
+
+  const handleSave = () => {
+    if (!formData.title || !formData.brand || !formData.price) {
+      toast.error("Veuillez remplir les champs obligatoires");
+      return;
+    }
+    const validItems = lotItems.filter(it => it.name.trim());
+    if (editingLot) {
+      setLots(prev => prev.map(l => l.id === editingLot.id ? {
+        ...l, ...formData, units: parseInt(formData.units) || l.units, items: validItems,
+      } : l));
+      toast.success("Lot modifié avec succès");
+    } else {
+      const newLot: SellerLot = {
+        id: `lot-${Date.now()}`,
+        title: formData.title, brand: formData.brand, price: formData.price,
+        units: parseInt(formData.units) || 0, location: formData.location,
+        category: formData.category, description: formData.description,
+        image: mockLots[0].image, status: "active", views: 0, inquiries: 0,
+        createdAt: new Date().toLocaleDateString("fr-FR"), items: validItems,
+      };
+      setLots(prev => [newLot, ...prev]);
+      toast.success("Lot publié avec succès");
+    }
+    setShowForm(false);
+  };
+
+  const handleDelete = (id: string) => {
+    setLots(prev => prev.filter(l => l.id !== id));
+    setDeletingId(null);
+    toast.success("Lot supprimé");
+  };
+
+  const updateItem = (index: number, field: keyof LotItem, value: string | number) => {
+    setLotItems(prev => prev.map((it, i) => i === index ? { ...it, [field]: value } : it));
+  };
+
+  const addItem = () => setLotItems(prev => [...prev, { name: "", quantity: 0, size: "" }]);
+  const removeItem = (index: number) => setLotItems(prev => prev.filter((_, i) => i !== index));
+
+  const updateForm = (key: string, value: string) => setFormData(prev => ({ ...prev, [key]: value }));
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,10 +149,7 @@ const SellerDashboard = () => {
             <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground">Espace vendeur</h1>
             <p className="text-muted-foreground text-sm mt-1">Gérez vos lots et suivez vos performances</p>
           </div>
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary-dark transition-colors"
-          >
+          <button onClick={openAdd} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary-dark transition-colors">
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Ajouter un lot</span>
           </button>
@@ -97,7 +175,7 @@ const SellerDashboard = () => {
           </div>
           <div className="absolute inset-0 flex items-center justify-center">
             <button
-              onClick={() => toast.info("Fonctionnalité VIP bientôt disponible !")}
+              onClick={() => navigate("/seller/vip")}
               className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl shadow-lg hover:bg-primary/90 transition-colors"
             >
               <Crown className="h-4 w-4" />
@@ -108,7 +186,7 @@ const SellerDashboard = () => {
 
         {/* Tab filter */}
         <div className="flex gap-2 mb-6 overflow-x-auto">
-          {(["all", "active", "draft", "sold"] as const).map((tab) => (
+          {(["active", "draft", "sold"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -116,7 +194,7 @@ const SellerDashboard = () => {
                 activeTab === tab ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground border border-border hover:text-foreground"
               }`}
             >
-              {tab === "all" ? "Tous" : statusConfig[tab].label} ({tab === "all" ? lots.length : lots.filter((l) => l.status === tab).length})
+              {statusConfig[tab].label} ({lots.filter((l) => l.status === tab).length})
             </button>
           ))}
         </div>
@@ -157,10 +235,16 @@ const SellerDashboard = () => {
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {lot.createdAt}</span>
                   </div>
                   <div className="flex gap-2 mt-3">
-                    <button className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-muted text-foreground rounded-lg hover:bg-secondary-light transition-colors">
+                    <button
+                      onClick={() => openEdit(lot)}
+                      className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-muted text-foreground rounded-lg hover:bg-secondary-light transition-colors"
+                    >
                       <Edit className="h-3 w-3" /> Modifier
                     </button>
-                    <button className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors">
+                    <button
+                      onClick={() => setDeletingId(lot.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                    >
                       <Trash2 className="h-3 w-3" /> Supprimer
                     </button>
                   </div>
@@ -178,15 +262,15 @@ const SellerDashboard = () => {
         )}
       </main>
 
-      {/* Add lot modal */}
+      {/* Add/Edit lot modal */}
       <AnimatePresence>
-        {showAddForm && (
+        {showForm && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-foreground/50 flex items-center justify-center p-4"
-            onClick={() => setShowAddForm(false)}
+            onClick={() => setShowForm(false)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
@@ -196,39 +280,45 @@ const SellerDashboard = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-heading text-xl font-bold text-foreground">Ajouter un lot</h2>
-                <button onClick={() => setShowAddForm(false)} className="p-1 text-muted-foreground hover:text-foreground">
+                <h2 className="font-heading text-xl font-bold text-foreground">
+                  {editingLot ? "Modifier le lot" : "Ajouter un lot"}
+                </h2>
+                <button onClick={() => setShowForm(false)} className="p-1 text-muted-foreground hover:text-foreground">
                   <X className="h-5 w-5" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">Titre du lot *</label>
-                  <Input placeholder="Ex: Lot de 200 t-shirts Nike" />
+                  <Input value={formData.title} onChange={e => updateForm("title", e.target.value)} placeholder="Ex: Lot de 200 t-shirts Nike" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Marque *</label>
-                    <Input placeholder="Nike" />
+                    <Input value={formData.brand} onChange={e => updateForm("brand", e.target.value)} placeholder="Nike" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Prix du lot *</label>
-                    <Input placeholder="5 000 €" />
+                    <Input value={formData.price} onChange={e => updateForm("price", e.target.value)} placeholder="5 000 €" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Nombre d'unités *</label>
-                    <Input type="number" placeholder="200" />
+                    <Input type="number" value={formData.units} onChange={e => updateForm("units", e.target.value)} placeholder="200" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Localisation *</label>
-                    <Input placeholder="Paris, France" />
+                    <Input value={formData.location} onChange={e => updateForm("location", e.target.value)} placeholder="Paris, France" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">Catégorie *</label>
-                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground">
+                  <select
+                    value={formData.category}
+                    onChange={e => updateForm("category", e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+                  >
                     <option>Vêtements</option>
                     <option>Sneakers</option>
                     <option>Accessoires</option>
@@ -239,8 +329,49 @@ const SellerDashboard = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">Description</label>
-                  <Textarea placeholder="Décrivez votre lot en détail..." className="resize-none" rows={3} />
+                  <Textarea value={formData.description} onChange={e => updateForm("description", e.target.value)} placeholder="Décrivez votre lot en détail..." className="resize-none" rows={3} />
                 </div>
+
+                {/* Lot content / inventory */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold text-foreground">Contenu du lot *</label>
+                    <button onClick={addItem} className="text-xs text-primary font-medium hover:underline">
+                      + Ajouter une ligne
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {lotItems.map((item, idx) => (
+                      <div key={idx} className="flex gap-2 items-center">
+                        <Input
+                          value={item.name}
+                          onChange={e => updateItem(idx, "name", e.target.value)}
+                          placeholder="Article (ex: T-shirt)"
+                          className="flex-1"
+                        />
+                        <Input
+                          type="number"
+                          value={item.quantity || ""}
+                          onChange={e => updateItem(idx, "quantity", parseInt(e.target.value) || 0)}
+                          placeholder="Qté"
+                          className="w-20"
+                        />
+                        <Input
+                          value={item.size}
+                          onChange={e => updateItem(idx, "size", e.target.value)}
+                          placeholder="Taille"
+                          className="w-24"
+                        />
+                        {lotItems.length > 1 && (
+                          <button onClick={() => removeItem(idx)} className="text-muted-foreground hover:text-destructive p-1">
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">Photos du lot</label>
                   <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/40 transition-colors cursor-pointer">
@@ -251,18 +382,51 @@ const SellerDashboard = () => {
                 </div>
                 <div className="flex gap-3 pt-4">
                   <button
-                    onClick={() => setShowAddForm(false)}
+                    onClick={() => setShowForm(false)}
                     className="flex-1 py-3 bg-muted text-foreground font-semibold rounded-xl hover:bg-secondary-light transition-colors"
                   >
                     Annuler
                   </button>
                   <button
-                    onClick={() => setShowAddForm(false)}
+                    onClick={handleSave}
                     className="flex-1 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary-dark transition-colors"
                   >
-                    Publier le lot
+                    {editingLot ? "Enregistrer" : "Publier le lot"}
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete confirmation */}
+      <AnimatePresence>
+        {deletingId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-foreground/50 flex items-center justify-center p-4"
+            onClick={() => setDeletingId(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-card rounded-2xl border border-border p-6 w-full max-w-sm text-center"
+              onClick={e => e.stopPropagation()}
+            >
+              <Trash2 className="h-10 w-10 text-destructive mx-auto mb-3" />
+              <h3 className="font-heading font-bold text-foreground mb-1">Supprimer ce lot ?</h3>
+              <p className="text-sm text-muted-foreground mb-6">Cette action est irréversible.</p>
+              <div className="flex gap-3">
+                <button onClick={() => setDeletingId(null)} className="flex-1 py-2.5 bg-muted text-foreground font-medium rounded-xl">
+                  Annuler
+                </button>
+                <button onClick={() => handleDelete(deletingId)} className="flex-1 py-2.5 bg-destructive text-destructive-foreground font-medium rounded-xl">
+                  Supprimer
+                </button>
               </div>
             </motion.div>
           </motion.div>

@@ -74,6 +74,7 @@ const App = () => (
 
               {/* Seller routes */}
               <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
+              <Route path="/seller/vip" element={<SellerRoute><SellerVIP /></SellerRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
