@@ -48,9 +48,9 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   const tabs = [
-    { label: "Contact & FAQ", path: "/contact", icon: HelpCircle, always: true },
-    { label: "Acheteur", path: "/marketplace", icon: ShoppingBag, show: isBuyer },
-    { label: "Vendeur", path: "/seller", icon: Store, show: isSeller },
+    { label: "Contact & FAQ", path: "/contact", icon: HelpCircle },
+    { label: "Acheteur", path: isBuyer ? "/marketplace" : "/inscription/acheteur", icon: ShoppingBag },
+    { label: "Vendeur", path: isSeller ? "/seller" : "/inscription/vendeur", icon: Store },
   ];
 
   return (
