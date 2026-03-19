@@ -37,10 +37,8 @@ const LotDetail = () => {
 
   const liked = isFavorite(lot.id);
   const inCart = isInCart(lot.id);
-  const deliveryFee = 350;
   const priceNum = parseFloat(lot.price.replace(/[^\d]/g, ""));
-  const commissionAmount = Math.round(priceNum * 0.05);
-  const total = priceNum + deliveryFee + commissionAmount;
+  const total = Math.round(priceNum * 1.19);
   const displayedItems = showAllItems ? lot.items : lot.items.slice(0, 4);
 
   const handleAddToCart = () => {
