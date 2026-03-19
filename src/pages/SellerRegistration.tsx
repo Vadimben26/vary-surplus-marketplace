@@ -268,17 +268,6 @@ const SellerRegistration = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-sm font-semibold text-foreground">Mode de livraison : *</label>
-                    <div className="space-y-2 mt-3">
-                      {shippingOptions.map((o) => (
-                        <label key={o} className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="shipping" checked={selectedShipping === o} onChange={() => setSelectedShipping(o)} className="accent-primary w-4 h-4" />
-                          <span className="text-sm text-foreground">{o}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
 
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Localisation de l'entrepôt</label>
