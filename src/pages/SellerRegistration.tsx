@@ -17,11 +17,6 @@ const productCategories = [
   "Enfants",
 ];
 
-const shippingOptions = [
-  "Je gère mes propres expéditions",
-  "Je souhaite utiliser le transport intégré Vary",
-  "Les deux, selon la commande",
-];
 
 const volumeOptions = [
   "Moins de 100 unités / mois",
