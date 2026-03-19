@@ -20,6 +20,7 @@ import Cart from "./pages/Cart.tsx";
 import Messages from "./pages/Messages.tsx";
 import Profile from "./pages/Profile.tsx";
 import BuyerVIP from "./pages/BuyerVIP.tsx";
+import RoleGateway from "./pages/RoleGateway.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -35,7 +36,7 @@ const BuyerRoute = ({ children }: { children: React.ReactNode }) => {
   const { isVerified, canAccessBuyer, loading } = useAuth();
   if (loading) return null;
   if (!isVerified()) return <Navigate to="/" replace />;
-  if (!canAccessBuyer()) return <Navigate to="/inscription/acheteur" replace />;
+  if (!canAccessBuyer()) return <Navigate to="/devenir/acheteur" replace />;
   return <>{children}</>;
 };
 
@@ -43,7 +44,7 @@ const SellerRoute = ({ children }: { children: React.ReactNode }) => {
   const { isVerified, canAccessSeller, loading } = useAuth();
   if (loading) return null;
   if (!isVerified()) return <Navigate to="/" replace />;
-  if (!canAccessSeller()) return <Navigate to="/inscription/vendeur" replace />;
+  if (!canAccessSeller()) return <Navigate to="/devenir/vendeur" replace />;
   return <>{children}</>;
 };
 
@@ -71,6 +72,7 @@ const App = () => (
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/lot/:id" element={<LotDetail />} />
                 <Route path="/contact" element={<ContactFAQ />} />
+                <Route path="/devenir/:role" element={<RoleGateway />} />
 
                 {/* Protected (need login) */}
                 <Route path="/profil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

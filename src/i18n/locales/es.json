@@ -39,7 +39,13 @@
     "cart": "Carrito",
     "messages": "Mensajes",
     "becomeAlsoSeller": "Ser también vendedor",
-    "becomeAlsoBuyer": "Ser también comprador"
+    "becomeAlsoBuyer": "Ser también comprador",
+    "roleGatewayTitle": "Acceso {{role}} requerido",
+    "roleGatewayDesc": "Para acceder al espacio {{role}}, debes ser verificado por nuestro equipo. Completa el formulario de registro y nuestro equipo validará tu perfil en 24h.",
+    "roleGatewayBuyer": "comprador",
+    "roleGatewaySeller": "vendedor",
+    "roleGatewayCta": "Rellenar el formulario de registro",
+    "roleGatewayBack": "Atrás"
   },
   "registration": {
     "joinVary": "Únete a Vary",
@@ -399,7 +405,7 @@
     "email": "Email",
     "phone": "Teléfono",
     "chat": "Chat",
-    "chatHours": "Lun-Vie 9h-18h",
+    "chatHours": "24/7",
     "faqTitle": "Preguntas frecuentes",
     "contactUs": "Contáctanos",
     "fullName": "Nombre completo",
@@ -411,7 +417,7 @@
     "sendMessage": "Enviar mensaje",
     "messageSent": "¡Mensaje enviado! Nuestro equipo te responderá en 24h.",
     "faq1q": "¿Cómo funciona el pago en Vary?",
-    "faq1a": "El pago es al contado. Los fondos se retienen en escrow por Vary hasta la confirmación de recepción por el comprador. Se aplica una comisión del 5% en cada transacción.",
+    "faq1a": "El pago es al contado. Los fondos se retienen en escrow por Vary hasta la confirmación de recepción por el comprador. Se aplica una comisión para Vary en cada transacción.",
     "faq2q": "¿Cómo puedo ser vendedor y comprador?",
     "faq2a": "Puedes solicitar acceso dual desde tu perfil. Cada rol requiere verificación por separado. Una vez aprobado, tendrás acceso a ambas plataformas mediante las pestañas en la parte superior.",
     "faq3q": "¿Cómo se organiza el transporte de los lotes?",
@@ -421,7 +427,7 @@
     "faq5q": "¿Cómo se verifican los vendedores y compradores?",
     "faq5a": "Cada registro es verificado por nuestro equipo: SIRET/IVA, dirección, actividad real. Solo las empresas verificadas pueden acceder a la plataforma, garantizando transacciones B2B fiables.",
     "faq6q": "¿Puedo filtrar qué compradores ven mis lotes?",
-    "faq6a": "Sí, como vendedor puedes restringir la visibilidad de tus artículos por ubicación, tipo de tienda, facturación y frecuencia de compra de los compradores."
+    "faq6a": "Sí, como vendedor puedes restringir la visibilidad de tus artículos por ubicación, tipo de tienda y facturación de los compradores."
   },
   "notFound": {
     "title": "404",

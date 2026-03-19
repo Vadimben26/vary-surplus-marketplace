@@ -39,7 +39,13 @@
     "cart": "Panier",
     "messages": "Messages",
     "becomeAlsoSeller": "Devenir aussi vendeur",
-    "becomeAlsoBuyer": "Devenir aussi acheteur"
+    "becomeAlsoBuyer": "Devenir aussi acheteur",
+    "roleGatewayTitle": "Accès {{role}} requis",
+    "roleGatewayDesc": "Pour accéder à l'espace {{role}}, vous devez être vérifié par notre équipe. Complétez le formulaire d'inscription et notre équipe validera votre profil sous 24h.",
+    "roleGatewayBuyer": "acheteur",
+    "roleGatewaySeller": "vendeur",
+    "roleGatewayCta": "Remplir le formulaire d'inscription",
+    "roleGatewayBack": "Retour"
   },
   "registration": {
     "joinVary": "Rejoignez Vary",
@@ -399,7 +405,7 @@
     "email": "Email",
     "phone": "Téléphone",
     "chat": "Chat",
-    "chatHours": "Lun-Ven 9h-18h",
+    "chatHours": "24/7",
     "faqTitle": "Questions fréquentes",
     "contactUs": "Nous contacter",
     "fullName": "Nom complet",
@@ -411,7 +417,7 @@
     "sendMessage": "Envoyer le message",
     "messageSent": "Message envoyé ! Notre équipe vous répondra sous 24h.",
     "faq1q": "Comment fonctionne le paiement sur Vary ?",
-    "faq1a": "Le paiement est comptant. Les fonds sont retenus en escrow par Vary jusqu'à la confirmation de réception par l'acheteur. Une commission de 5% est appliquée sur chaque transaction.",
+    "faq1a": "Le paiement est comptant. Les fonds sont retenus en escrow par Vary jusqu'à la confirmation de réception par l'acheteur. Une commission pour Vary est appliquée sur chaque transaction.",
     "faq2q": "Comment puis-je devenir vendeur et acheteur ?",
     "faq2a": "Vous pouvez faire une demande d'accès double depuis votre profil. Chaque rôle nécessite une vérification séparée. Une fois approuvé, vous aurez accès aux deux plateformes via les onglets en haut de page.",
     "faq3q": "Comment est organisé le transport des lots ?",
@@ -421,7 +427,7 @@
     "faq5q": "Comment sont vérifiés les vendeurs et acheteurs ?",
     "faq5a": "Chaque inscription est vérifiée par notre équipe : SIRET/TVA, adresse, activité réelle. Seules les entreprises vérifiées peuvent accéder à la plateforme, garantissant des transactions B2B fiables.",
     "faq6q": "Puis-je filtrer les acheteurs qui voient mes lots ?",
-    "faq6a": "Oui, en tant que vendeur vous pouvez restreindre la visibilité de vos articles par localisation, type de magasin, chiffre d'affaires et fréquence d'achat des acheteurs."
+    "faq6a": "Oui, en tant que vendeur vous pouvez restreindre la visibilité de vos articles par localisation, type de magasin et chiffre d'affaires des acheteurs."
   },
   "notFound": {
     "title": "404",
