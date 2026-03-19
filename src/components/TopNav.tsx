@@ -40,9 +40,12 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
   };
 
   const handleRequestDual = () => {
-    requestDualRole();
-    toast.success("Accès double activé ! Vous pouvez maintenant naviguer entre les deux plateformes.");
     setShowProfileMenu(false);
+    if (isBuyer && !isSeller) {
+      navigate("/inscription/vendeur");
+    } else if (isSeller && !isBuyer) {
+      navigate("/inscription/acheteur");
+    }
   };
 
   const isActive = (path: string) => location.pathname.startsWith(path);
