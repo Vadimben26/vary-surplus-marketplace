@@ -54,11 +54,6 @@ const visibilityRevenues = [
   "500.000 – 1M €",
   "Plus de 1M €",
 ];
-const visibilityOrderFrequencies = [
-  "Acheteurs réguliers (commandes mensuelles)",
-  "Acheteurs occasionnels",
-  "Nouveaux acheteurs",
-];
 
 const SellerRegistration = () => {
   const navigate = useNavigate();
