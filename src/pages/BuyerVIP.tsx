@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Crown, Eye, Clock, Star, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Crown, Clock, Star, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
