@@ -139,9 +139,7 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
 
                 {/* Mobile tabs */}
                 <div className="md:hidden border-t border-border my-1 pt-1">
-                  {tabs.map((tab) => {
-                    if (!tab.always && !tab.show) return null;
-                    return (
+                  {tabs.map((tab) => (
                       <Link
                         key={tab.path}
                         to={tab.path}
