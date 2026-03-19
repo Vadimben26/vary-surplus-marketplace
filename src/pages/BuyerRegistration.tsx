@@ -251,14 +251,9 @@ const BuyerRegistration = () => {
                         value={formData.country}
                         onChange={(e) => update("country", e.target.value)}
                       >
-                        <option>France</option>
-                        <option>Belgique</option>
-                        <option>Allemagne</option>
-                        <option>Espagne</option>
-                        <option>Italie</option>
-                        <option>Pays-Bas</option>
-                        <option>Portugal</option>
-                        <option>Autre</option>
+                        {euCountries.map((c) => (
+                          <option key={c}>{c}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
