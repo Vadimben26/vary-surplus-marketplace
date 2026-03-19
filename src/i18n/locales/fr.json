@@ -96,6 +96,31 @@
     "checkEmail": "Vérifiez votre email pour confirmer votre compte, puis connectez-vous.",
     "goToMarketplace": "Accéder à la marketplace",
     "photosSelected": "photo(s) sélectionnée(s)",
+    "storeTypes": {
+      "physical": "Magasin physique",
+      "online": "Magasin en ligne",
+      "marketplace": "Revendeur sur d'autres marketplaces (Amazon, eBay, OLX, etc.)",
+      "social": "Revendeur sur les réseaux sociaux (Instagram, TikTok, etc.)",
+      "wholesale": "Grossiste / Distributeur"
+    },
+    "genders": {
+      "women": "Femme",
+      "men": "Homme",
+      "kids": "Enfants"
+    },
+    "revenueOptions": {
+      "none": "Je n'ai pas encore d'entreprise",
+      "under50k": "Moins de 50.000 EUR",
+      "50k200k": "50.000 - 200.000 EUR",
+      "200k500k": "200.000 - 500.000 EUR",
+      "500k1m": "500.000 - 1M EUR",
+      "over1m": "Plus de 1M EUR"
+    },
+    "channels": {
+      "whatsapp": "Whatsapp",
+      "email": "E-mail",
+      "phone": "Téléphone"
+    },
     "validation": {
       "firstLastName": "Prénom et nom requis",
       "phone": "Numéro de téléphone requis",
@@ -160,6 +185,21 @@
     "profileActivated": "Votre profil vendeur a été activé.",
     "checkEmail": "Vérifiez votre email pour confirmer votre compte, puis connectez-vous.",
     "goToSellerDashboard": "Accéder à mon espace vendeur",
+    "productCategories": {
+      "casual": "Vêtements casual",
+      "sport": "Vêtements de sport",
+      "business": "Vêtements élégants / de bureau",
+      "luxury": "Marques de luxe",
+      "premium": "Marques premium",
+      "kids": "Enfants"
+    },
+    "volumeOptions": {
+      "under100": "Moins de 100 unités / mois",
+      "100_500": "100 - 500 unités / mois",
+      "500_2000": "500 - 2000 unités / mois",
+      "2000_10000": "2000 - 10.000 unités / mois",
+      "over10000": "Plus de 10.000 unités / mois"
+    },
     "validation": {
       "firstLastName": "Prénom et nom requis",
       "phone": "Numéro de téléphone requis",
@@ -189,13 +229,38 @@
     "invalidCredentials": "Email ou mot de passe incorrect"
   },
   "marketplace": {
+    "welcome": "Bienvenue, {{name}}",
     "allCountries": "📍 Tous les pays",
     "allPrices": "Tous les prix",
     "allStyles": "🎨 Tous les styles",
     "resetFilters": "Réinitialiser les filtres",
     "reset": "Réinitialiser",
     "noResults": "Aucun lot ne correspond à vos filtres.",
-    "searchPlaceholder": "Rechercher un lot, une marque..."
+    "searchPlaceholder": "Rechercher un lot, une marque...",
+    "vipExclusive": "Offres VIP exclusives",
+    "vipDesc": "Ces offres sont réservées aux membres VIP. Accédez à toutes les offres 24h avant les autres acheteurs.",
+    "vipOnly": "Réservé aux abonnés VIP",
+    "becomeVip": "Devenir VIP — 299 €/mois"
+  },
+  "buyerVIP": {
+    "badge": "Acheteur VIP",
+    "title": "Accédez aux offres avant tout le monde",
+    "subtitle": "Devenez membre VIP et profitez d'un accès anticipé aux meilleurs lots, 24h avant les autres acheteurs.",
+    "backToMarketplace": "Retour au marketplace",
+    "earlyAccess": "Accès anticipé 24h",
+    "earlyAccessDesc": "Voyez et réservez les meilleurs lots 24h avant qu'ils soient visibles par les autres acheteurs.",
+    "exclusiveLots": "Lots exclusifs",
+    "exclusiveLotsDesc": "Accédez à des offres réservées uniquement aux membres VIP, introuvables ailleurs.",
+    "prioritySupport": "Support prioritaire",
+    "prioritySupportDesc": "Bénéficiez d'un support dédié et de réponses prioritaires de notre équipe.",
+    "perMonth": "/ mois",
+    "noCommitment": "Sans engagement, annulable à tout moment",
+    "included1": "Accès à toutes les offres 24h avant les autres",
+    "included2": "Lots exclusifs réservés aux VIP",
+    "included3": "Support prioritaire dédié",
+    "included4": "Alertes personnalisées sur les nouveaux lots",
+    "subscribe": "S'abonner — 299 €/mois",
+    "comingSoon": "Le paiement par abonnement sera bientôt disponible !"
   },
   "lotDetail": {
     "notFound": "Lot introuvable",
@@ -233,7 +298,11 @@
   },
   "messages": {
     "title": "Messages",
-    "empty": "Aucune conversation pour le moment. Contactez un vendeur depuis la page d'un lot pour démarrer une discussion."
+    "empty": "Aucune conversation pour le moment. Contactez un vendeur depuis la page d'un lot pour démarrer une discussion.",
+    "translating": "Traduction en cours...",
+    "translatedAuto": "Traduit automatiquement",
+    "typeMessage": "Écrivez un message...",
+    "send": "Envoyer"
   },
   "profile": {
     "title": "Mon compte",
@@ -297,7 +366,15 @@
     "deleteIrreversible": "Cette action est irréversible.",
     "noLots": "Aucun lot dans cette catégorie.",
     "views": "vues",
-    "requests": "demandes"
+    "requests": "demandes",
+    "categories": {
+      "clothing": "Vêtements",
+      "sneakers": "Sneakers",
+      "accessories": "Accessoires",
+      "sport": "Sport",
+      "beauty": "Beauté",
+      "electronics": "Électronique"
+    }
   },
   "sellerVIP": {
     "badge": "Vendeur VIP",
