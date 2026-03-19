@@ -87,7 +87,7 @@ const SellerRegistration = () => {
   const [visLocations, setVisLocations] = useState<string[]>([]);
   const [visStoreTypes, setVisStoreTypes] = useState<string[]>([]);
   const [visRevenues, setVisRevenues] = useState<string[]>([]);
-  const [visFrequencies, setVisFrequencies] = useState<string[]>([]);
+  
 
   const totalSteps = 5;
 
