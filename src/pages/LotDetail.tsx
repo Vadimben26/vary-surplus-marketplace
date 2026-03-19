@@ -2,6 +2,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Heart, Star, MapPin, Package, MessageCircle, ShoppingCart, User, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { getLotById, getSimilarLots } from "@/data/mockLots";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { useCart } from "@/contexts/CartContext";
@@ -11,6 +12,7 @@ import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 
 const LotDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -28,8 +30,8 @@ const LotDetail = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-heading text-2xl font-bold text-foreground mb-2">Lot introuvable</h1>
-          <button onClick={() => navigate("/marketplace")} className="text-primary hover:underline">Retour aux lots</button>
+          <h1 className="font-heading text-2xl font-bold text-foreground mb-2">{t("lotDetail.notFound")}</h1>
+          <button onClick={() => navigate("/marketplace")} className="text-primary hover:underline">{t("lotDetail.backToLots")}</button>
         </div>
       </div>
     );
@@ -43,7 +45,7 @@ const LotDetail = () => {
 
   const handleAddToCart = () => {
     addToCart(lot.id);
-    toast.success("Lot ajouté au panier");
+    toast.success(t("lotDetail.addedToCart"));
   };
 
   return (
@@ -64,19 +66,10 @@ const LotDetail = () => {
 
       <main className="max-w-6xl mx-auto px-4 md:px-8 py-4">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-
           {/* LEFT: Image + Seller */}
           <div className="md:col-span-4 space-y-3">
             <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-muted group">
-              <motion.img
-                key={activeImage}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-                src={images[activeImage]}
-                alt={`${lot.title} - photo ${activeImage + 1}`}
-                className="w-full h-full object-cover"
-              />
+              <motion.img key={activeImage} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} src={images[activeImage]} alt={`${lot.title} - photo ${activeImage + 1}`} className="w-full h-full object-cover" />
               {images.length > 1 && (
                 <>
                   <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card">
@@ -97,12 +90,11 @@ const LotDetail = () => {
               <div className="flex gap-1.5 mt-2">
                 {images.map((img, i) => (
                   <button key={i} onClick={() => setActiveImage(i)} className={`flex-1 aspect-square rounded-lg overflow-hidden border-2 transition-all ${i === activeImage ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"}`}>
-                    <img src={img} alt={`Miniature ${i + 1}`} className="w-full h-full object-cover" />
+                    <img src={img} alt={`${t("lotDetail.thumbnail")} ${i + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
             )}
-            {/* Seller compact */}
             <div className="flex items-start gap-2.5 p-3 bg-muted rounded-xl">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <User className="h-4 w-4 text-primary" />
@@ -113,7 +105,7 @@ const LotDetail = () => {
                   <Star className="h-3 w-3 fill-primary text-primary flex-shrink-0" />
                   <span className="text-[10px] font-medium text-foreground">{lot.seller.rating.toFixed(1)}</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground">{lot.seller.sales} ventes</p>
+                <p className="text-[10px] text-muted-foreground">{lot.seller.sales} {t("common.sales")}</p>
                 <p className="text-[10px] text-muted-foreground leading-snug mt-1">{lot.seller.description}</p>
               </div>
             </div>
@@ -124,13 +116,13 @@ const LotDetail = () => {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-primary uppercase tracking-wide">{lot.brand}</span>
-                {lot.isNew && <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-primary text-primary-foreground">Nouveau</span>}
+                {lot.isNew && <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-primary text-primary-foreground">{t("lotDetail.new")}</span>}
               </div>
               <h1 className="font-heading text-lg font-bold text-foreground mt-1 leading-tight">{lot.title}</h1>
               <div className="flex items-center gap-1 mt-1">
                 <Star className="h-3.5 w-3.5 fill-primary text-primary" />
                 <span className="text-xs font-medium text-foreground">{lot.rating.toFixed(1)}</span>
-                <span className="text-xs text-muted-foreground ml-1">· {lot.reviews.length} avis</span>
+                <span className="text-xs text-muted-foreground ml-1">· {lot.reviews.length} {t("common.reviews")}</span>
               </div>
             </div>
 
@@ -140,7 +132,7 @@ const LotDetail = () => {
               <div className="bg-muted rounded-lg p-2 text-center">
                 <Package className="h-3 w-3 text-muted-foreground mx-auto mb-0.5" />
                 <p className="font-heading font-bold text-foreground text-xs">{lot.units}</p>
-                <p className="text-[10px] text-muted-foreground">unités</p>
+                <p className="text-[10px] text-muted-foreground">{t("common.units")}</p>
               </div>
               <div className="bg-muted rounded-lg p-2 text-center">
                 <MapPin className="h-3 w-3 text-muted-foreground mx-auto mb-0.5" />
@@ -155,9 +147,8 @@ const LotDetail = () => {
               )}
             </div>
 
-            {/* Item breakdown */}
             <div className="border border-border rounded-xl p-3">
-              <h3 className="font-heading font-semibold text-foreground text-xs mb-2">Contenu du lot</h3>
+              <h3 className="font-heading font-semibold text-foreground text-xs mb-2">{t("lotDetail.lotContent")}</h3>
               {displayedItems.map((item, i) => (
                 <div key={i} className="flex items-center justify-between py-1 border-b border-border/50 last:border-0">
                   <div>
@@ -169,7 +160,7 @@ const LotDetail = () => {
               ))}
               {lot.items.length > 4 && (
                 <button onClick={() => setShowAllItems(!showAllItems)} className="flex items-center gap-1 mt-1.5 text-xs text-primary font-medium hover:underline">
-                  {showAllItems ? "Voir moins" : `+${lot.items.length - 4} articles`}
+                  {showAllItems ? t("lotDetail.showLess") : t("lotDetail.moreItems", { count: lot.items.length - 4 })}
                   <ChevronDown className={`h-3 w-3 transition-transform ${showAllItems ? "rotate-180" : ""}`} />
                 </button>
               )}
@@ -182,12 +173,12 @@ const LotDetail = () => {
               <div className="bg-card rounded-xl border border-border p-4 shadow-card">
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-baseline">
-                    <span className="font-heading font-bold text-foreground text-sm">Prix</span>
+                    <span className="font-heading font-bold text-foreground text-sm">{t("lotDetail.price")}</span>
                     <span className="font-heading font-bold text-primary text-lg">{total.toLocaleString("fr-FR")} €</span>
                   </div>
                   {lot.pricePerUnit && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground text-xs">Prix unitaire estimé</span>
+                      <span className="text-muted-foreground text-xs">{t("lotDetail.estimatedUnitPrice")}</span>
                       <span className="text-foreground font-medium text-xs">{lot.pricePerUnit}</span>
                     </div>
                   )}
@@ -199,21 +190,21 @@ const LotDetail = () => {
                   className={`w-full mt-3 py-2.5 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm ${inCart ? "bg-muted text-muted-foreground cursor-default" : "bg-primary text-primary-foreground hover:bg-primary-dark"}`}
                 >
                   <ShoppingCart className="h-4 w-4" />
-                  {inCart ? "Dans le panier" : "Ajouter au panier"}
+                  {inCart ? t("lotDetail.inCart") : t("lotDetail.addToCart")}
                 </button>
 
                 <button className="w-full mt-2 py-2 border border-border rounded-xl hover:bg-muted transition-colors flex items-center justify-center gap-2 text-xs text-foreground">
                   <MessageCircle className="h-3.5 w-3.5" />
-                  Contacter le vendeur
+                  {t("lotDetail.contactSeller")}
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Reviews — full width below */}
+        {/* Reviews */}
         <div className="mt-6">
-          <h3 className="font-heading font-semibold text-foreground text-sm mb-3">Avis acheteurs ({lot.reviews.length})</h3>
+          <h3 className="font-heading font-semibold text-foreground text-sm mb-3">{t("lotDetail.buyerReviews")} ({lot.reviews.length})</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {lot.reviews.map((review, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="bg-card rounded-xl border border-border p-3">
@@ -242,7 +233,7 @@ const LotDetail = () => {
         {/* Similar lots */}
         {similarLots.length > 0 && (
           <div className="mt-8">
-            <h3 className="font-heading font-semibold text-foreground text-sm mb-3">Lots similaires</h3>
+            <h3 className="font-heading font-semibold text-foreground text-sm mb-3">{t("lotDetail.similarLots")}</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {similarLots.map((l) => (
                 <LotCard key={l.id} {...l} />
@@ -257,7 +248,7 @@ const LotDetail = () => {
         <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
           <div>
             <p className="font-heading font-bold text-foreground text-sm">{total.toLocaleString("fr-FR")} €</p>
-            <p className="text-[10px] text-muted-foreground">Total TTC</p>
+            <p className="text-[10px] text-muted-foreground">{t("lotDetail.totalTTC")}</p>
           </div>
           <button
             onClick={handleAddToCart}
@@ -265,7 +256,7 @@ const LotDetail = () => {
             className={`flex-1 max-w-[200px] py-2.5 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm ${inCart ? "bg-muted text-muted-foreground cursor-default" : "bg-primary text-primary-foreground hover:bg-primary-dark"}`}
           >
             <ShoppingCart className="h-4 w-4" />
-            {inCart ? "Dans le panier" : "Ajouter"}
+            {inCart ? t("lotDetail.inCart") : t("lotDetail.add")}
           </button>
         </div>
       </div>

@@ -2,8 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { User, LogOut, HelpCircle, Store, ShoppingBag, ArrowRightLeft, Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import varyLogo from "@/assets/vary-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface TopNavProps {
   filters?: {
@@ -17,6 +19,7 @@ interface TopNavProps {
 }
 
 const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) => {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -56,9 +59,9 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
   };
 
   const tabs = [
-    { label: "Contact & FAQ", path: "/contact", icon: HelpCircle },
-    { label: "Acheteur", path: isBuyer ? "/marketplace" : "/inscription/acheteur", icon: ShoppingBag },
-    { label: "Vendeur", path: isSeller ? "/seller" : "/inscription/vendeur", icon: Store },
+    { label: t("nav.contactFaq"), path: "/contact", icon: HelpCircle },
+    { label: t("nav.buyer"), path: isBuyer ? "/marketplace" : "/inscription/acheteur", icon: ShoppingBag },
+    { label: t("nav.seller"), path: isSeller ? "/seller" : "/inscription/vendeur", icon: Store },
   ];
 
   return (
@@ -102,7 +105,7 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Rechercher..."
+                  placeholder={t("common.search")}
                   className="bg-transparent text-sm outline-none w-full text-foreground placeholder:text-muted-foreground"
                   value={filters.search}
                   onChange={(e) => onFiltersChange({ ...filters, search: e.target.value })}
@@ -117,68 +120,71 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
           </div>
         )}
 
-        <div className="relative" ref={profileRef}>
-          <button
-            onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border border-border hover:shadow-card transition-all bg-card"
-          >
-            <User className="h-5 w-5 text-foreground" />
-            <span className="hidden md:inline text-sm font-medium text-foreground">
-              {profile?.full_name || "Mon compte"}
-            </span>
-          </button>
-          <AnimatePresence>
-            {showProfileMenu && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="absolute right-0 top-12 bg-card border border-border rounded-xl shadow-card-hover p-2 min-w-[220px]"
-              >
-                <Link
-                  to="/profil"
-                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
-                  onClick={() => setShowProfileMenu(false)}
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <div className="relative" ref={profileRef}>
+            <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border hover:shadow-card transition-all bg-card"
+            >
+              <User className="h-5 w-5 text-foreground" />
+              <span className="hidden md:inline text-sm font-medium text-foreground">
+                {profile?.full_name || t("common.myAccount")}
+              </span>
+            </button>
+            <AnimatePresence>
+              {showProfileMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  className="absolute right-0 top-12 bg-card border border-border rounded-xl shadow-card-hover p-2 min-w-[220px]"
                 >
-                  <User className="h-4 w-4" /> Mon profil
-                </Link>
+                  <Link
+                    to="/profil"
+                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
+                    <User className="h-4 w-4" /> {t("common.myProfile")}
+                  </Link>
 
-                <div className="md:hidden border-t border-border my-1 pt-1">
-                  {tabs.map((tab) => (
-                    <Link
-                      key={tab.path}
-                      to={tab.path}
-                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
-                      onClick={() => setShowProfileMenu(false)}
-                    >
-                      <tab.icon className="h-4 w-4" /> {tab.label}
-                    </Link>
-                  ))}
-                </div>
+                  <div className="md:hidden border-t border-border my-1 pt-1">
+                    {tabs.map((tab) => (
+                      <Link
+                        key={tab.path}
+                        to={tab.path}
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
+                        onClick={() => setShowProfileMenu(false)}
+                      >
+                        <tab.icon className="h-4 w-4" /> {tab.label}
+                      </Link>
+                    ))}
+                  </div>
 
-                <div className="border-t border-border my-1" />
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
-                >
-                  <LogOut className="h-4 w-4" /> Se déconnecter
-                </button>
+                  <div className="border-t border-border my-1" />
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" /> {t("common.logout")}
+                  </button>
 
-                {userType !== "both" && (
-                  <>
-                    <div className="border-t border-border my-1" />
-                    <button
-                      onClick={handleRequestDual}
-                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                    >
-                      <ArrowRightLeft className="h-4 w-4" />
-                      {isBuyer ? "Devenir aussi vendeur" : "Devenir aussi acheteur"}
-                    </button>
-                  </>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  {userType !== "both" && (
+                    <>
+                      <div className="border-t border-border my-1" />
+                      <button
+                        onClick={handleRequestDual}
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                      >
+                        <ArrowRightLeft className="h-4 w-4" />
+                        {isBuyer ? t("nav.becomeAlsoSeller") : t("nav.becomeAlsoBuyer")}
+                      </button>
+                    </>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </header>

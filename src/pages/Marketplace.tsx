@@ -1,14 +1,14 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import LotCard from "@/components/LotCard";
 
 import { mockLots } from "@/data/mockLots";
-import { MapPin, DollarSign, Palette } from "lucide-react";
 
 const locations = ["", "France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique"];
 const priceRanges = [
-  { value: "", label: "Tous les prix" },
+  { value: "", labelKey: "marketplace.allPrices" },
   { value: "low", label: "< 5 000 €" },
   { value: "mid", label: "5 000 – 15 000 €" },
   { value: "high", label: "> 15 000 €" },
@@ -16,6 +16,7 @@ const priceRanges = [
 const styles = ["", "Casual", "Business", "Sport", "Premium", "Denim"];
 
 const Marketplace = () => {
+  const { t } = useTranslation();
   const [filters, setFilters] = useState({
     location: "",
     priceRange: "",
@@ -59,7 +60,7 @@ const Marketplace = () => {
             value={filters.location}
             onChange={(e) => setFilters((f) => ({ ...f, location: e.target.value }))}
           >
-            <option value="">📍 Tous les pays</option>
+            <option value="">{t("marketplace.allCountries")}</option>
             {locations.filter(Boolean).map((loc) => (
               <option key={loc} value={loc}>{loc}</option>
             ))}
@@ -70,7 +71,7 @@ const Marketplace = () => {
             onChange={(e) => setFilters((f) => ({ ...f, priceRange: e.target.value }))}
           >
             {priceRanges.map((pr) => (
-              <option key={pr.value} value={pr.value}>💰 {pr.label}</option>
+              <option key={pr.value} value={pr.value}>💰 {pr.labelKey ? t(pr.labelKey) : pr.label}</option>
             ))}
           </select>
           <select
@@ -78,7 +79,7 @@ const Marketplace = () => {
             value={filters.style}
             onChange={(e) => setFilters((f) => ({ ...f, style: e.target.value }))}
           >
-            <option value="">🎨 Tous les styles</option>
+            <option value="">{t("marketplace.allStyles")}</option>
             {styles.filter(Boolean).map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
@@ -88,19 +89,18 @@ const Marketplace = () => {
               onClick={() => setFilters({ location: "", priceRange: "", style: "", search: filters.search })}
               className="h-9 px-3 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors font-medium"
             >
-              Réinitialiser
+              {t("marketplace.reset")}
             </button>
           )}
         </div>
       </div>
-
 
       {/* Mobile search */}
       <div className="md:hidden px-4 pt-3">
         <div className="flex items-center bg-muted rounded-full border border-border px-4 py-2.5">
           <input
             type="text"
-            placeholder="Rechercher un lot, une marque..."
+            placeholder={t("marketplace.searchPlaceholder")}
             className="bg-transparent text-sm outline-none w-full text-foreground placeholder:text-muted-foreground"
             value={filters.search}
             onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
@@ -111,12 +111,12 @@ const Marketplace = () => {
       <main className="px-4 md:px-8 py-4 pb-24 max-w-[1600px] mx-auto">
         {filteredLots.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-muted-foreground text-lg">Aucun lot ne correspond à vos filtres.</p>
+            <p className="text-muted-foreground text-lg">{t("marketplace.noResults")}</p>
             <button
               onClick={() => setFilters({ location: "", priceRange: "", style: "", search: "" })}
               className="mt-4 text-primary hover:underline font-medium"
             >
-              Réinitialiser les filtres
+              {t("marketplace.resetFilters")}
             </button>
           </div>
         ) : (
