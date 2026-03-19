@@ -36,7 +36,7 @@ const BuyerRoute = ({ children }: { children: React.ReactNode }) => {
   const { isVerified, canAccessBuyer, loading } = useAuth();
   if (loading) return null;
   if (!isVerified()) return <Navigate to="/" replace />;
-  if (!canAccessBuyer()) return <Navigate to="/inscription/acheteur" replace />;
+  if (!canAccessBuyer()) return <Navigate to="/devenir/acheteur" replace />;
   return <>{children}</>;
 };
 
