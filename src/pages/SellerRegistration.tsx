@@ -71,7 +71,40 @@ const SellerRegistration = () => {
     setArr(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
   };
 
+  const validateStep = (): string | null => {
+    if (step === 1) {
+      if (!formData.firstName.trim() || !formData.lastName.trim()) return "Prénom et nom requis";
+      if (!formData.phone.trim()) return "Numéro de téléphone requis";
+      if (!isAlreadyLoggedIn) {
+        if (!formData.email.trim()) return "Adresse e-mail requise";
+        if (!formData.password || formData.password.length < 6) return "Mot de passe requis (min. 6 caractères)";
+      }
+    }
+    if (step === 2) {
+      if (!formData.companyName.trim()) return "Nom de l'entreprise requis";
+      if (!formData.vatCode.trim()) return "Code TVA requis";
+      if (!formData.address.trim()) return "Adresse requise";
+      if (!formData.city.trim()) return "Ville requise";
+    }
+    if (step === 3) {
+      if (selectedCategories.length === 0) return "Sélectionnez au moins un type de produit";
+      if (!selectedVolume) return "Sélectionnez votre volume mensuel";
+    }
+    if (step === 4) {
+      if (!speaksEnglish) return "Indiquez si vous parlez anglais";
+      if (!selectedChannel) return "Sélectionnez un canal de communication";
+      if (!selectedReferral) return "Indiquez comment vous avez entendu parler de nous";
+    }
+    return null;
+  };
+
   const nextStep = async () => {
+    const error = validateStep();
+    if (error) {
+      toast.error(error);
+      return;
+    }
+
     if (step === totalSteps) {
       setSubmitting(true);
       try {

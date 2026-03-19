@@ -100,12 +100,46 @@ const BuyerRegistration = () => {
     setArr(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
   };
 
+  const validateStep = (): string | null => {
+    if (step === 1) {
+      if (!formData.firstName.trim() || !formData.lastName.trim()) return "Prénom et nom requis";
+      if (!formData.phone.trim()) return "Numéro de téléphone requis";
+      if (!isAlreadyLoggedIn) {
+        if (!formData.email.trim()) return "Adresse e-mail requise";
+        if (!formData.password || formData.password.length < 6) return "Mot de passe requis (min. 6 caractères)";
+      }
+    }
+    if (step === 2) {
+      if (!formData.companyName.trim()) return "Nom de l'entreprise requis";
+      if (!formData.vatCode.trim()) return "Code TVA requis";
+      if (!formData.address.trim()) return "Adresse requise";
+      if (!formData.city.trim()) return "Ville requise";
+    }
+    if (step === 3) {
+      if (selectedGenders.length === 0) return "Sélectionnez au moins une catégorie";
+      if (!selectedRevenue) return "Sélectionnez votre chiffre d'affaires";
+      if (selectedStoreTypes.length === 0) return "Sélectionnez au moins un type de magasin";
+      if (selectedStoreTypes.some((t) => storeTypesRequiringLink.includes(t)) && !storeLink.trim()) return "Lien de votre site requis";
+      if (selectedStoreTypes.some((t) => storeTypesRequiringPhotos.includes(t)) && storePhotos.length === 0) return "Photos de votre magasin requises";
+    }
+    if (step === 4) {
+      if (!selectedChannel) return "Sélectionnez un canal de communication";
+      if (!selectedReferral) return "Indiquez comment vous avez entendu parler de nous";
+    }
+    return null;
+  };
+
   const nextStep = async () => {
+    const error = validateStep();
+    if (error) {
+      toast.error(error);
+      return;
+    }
+
     if (step === totalSteps) {
       setSubmitting(true);
       try {
         if (isAlreadyLoggedIn) {
-          // User already logged in, just upgrade to buyer or both
           const newType = profile?.user_type === "seller" ? "both" : "buyer";
           await updateProfile({
             user_type: newType as any,
@@ -115,19 +149,12 @@ const BuyerRegistration = () => {
           });
           toast.success("Profil acheteur activé !");
         } else {
-          // New signup
-          if (!formData.email || !formData.password) {
-            toast.error("Email et mot de passe requis");
-            setSubmitting(false);
-            return;
-          }
           const { error } = await signUp(formData.email, formData.password);
           if (error) {
             toast.error(error.message);
             setSubmitting(false);
             return;
           }
-          // Wait a bit for profile to be created by trigger, then update
           await new Promise((r) => setTimeout(r, 1000));
           const { data: { user: newUser } } = await supabase.auth.getUser();
           if (newUser) {
