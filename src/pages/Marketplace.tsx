@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { mockLots } from "@/data/mockLots";
 import { Slider } from "@/components/ui/slider";
 
-const locations = ["", "France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique"];
+const locations = ["", "France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique", "Royaume-Uni", "Pologne", "Roumanie", "Suède", "Autriche", "Grèce", "Suisse", "Tchéquie", "Danemark", "Irlande", "Hongrie", "Croatie"];
 const styles = ["", "Casual", "Business", "Sport", "Premium", "Denim"];
 
 const PRICE_MIN = 0;

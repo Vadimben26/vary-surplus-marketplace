@@ -421,7 +421,7 @@
     "faq5q": "Comment sont vérifiés les vendeurs et acheteurs ?",
     "faq5a": "Chaque inscription est vérifiée par notre équipe : SIRET/TVA, adresse, activité réelle. Seules les entreprises vérifiées peuvent accéder à la plateforme, garantissant des transactions B2B fiables.",
     "faq6q": "Puis-je filtrer les acheteurs qui voient mes lots ?",
-    "faq6a": "Oui, en tant que vendeur vous pouvez restreindre la visibilité de vos articles par localisation, type de magasin, chiffre d'affaires et fréquence d'achat des acheteurs."
+    "faq6a": "Oui, en tant que vendeur vous pouvez restreindre la visibilité de vos articles par localisation, type de magasin et chiffre d'affaires des acheteurs."
   },
   "notFound": {
     "title": "404",

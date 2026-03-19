@@ -421,7 +421,7 @@
     "faq5q": "How are sellers and buyers verified?",
     "faq5a": "Each registration is verified by our team: SIRET/VAT, address, actual business activity. Only verified companies can access the platform, ensuring reliable B2B transactions.",
     "faq6q": "Can I filter which buyers see my lots?",
-    "faq6a": "Yes, as a seller you can restrict the visibility of your items by location, store type, revenue, and buying frequency of buyers."
+    "faq6a": "Yes, as a seller you can restrict the visibility of your items by location, store type, and revenue of buyers."
   },
   "notFound": {
     "title": "404",
