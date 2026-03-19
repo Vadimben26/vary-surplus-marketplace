@@ -45,9 +45,9 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
   const handleRequestDual = () => {
     setShowProfileMenu(false);
     if (isBuyer && !isSeller) {
-      navigate("/inscription/vendeur");
+      navigate("/devenir/vendeur");
     } else if (isSeller && !isBuyer) {
-      navigate("/inscription/acheteur");
+      navigate("/devenir/acheteur");
     }
   };
 
