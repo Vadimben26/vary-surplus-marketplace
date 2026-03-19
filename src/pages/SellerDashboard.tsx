@@ -5,6 +5,7 @@ import {
   Plus, Package, TrendingUp, Eye, DollarSign, MapPin,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, Upload, X, Crown
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import TopNav from "@/components/TopNav";
@@ -45,29 +46,26 @@ const mockSellerLots: SellerLot[] = mockLots.slice(0, 6).map((lot, i) => ({
   items: lot.items || [],
 }));
 
-const statusConfig = {
-  active: { label: "Actif", color: "bg-green-100 text-green-700", icon: CheckCircle2 },
-  draft: { label: "Brouillon", color: "bg-muted text-muted-foreground", icon: Clock },
-  sold: { label: "Vendu", color: "bg-primary/10 text-primary", icon: DollarSign },
-};
-
 const emptyLotForm = {
   title: "", brand: "", price: "", units: "", location: "", category: "Vêtements", description: "",
 };
 
 const SellerDashboard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"active" | "draft" | "sold">("active");
   const [lots, setLots] = useState<SellerLot[]>(mockSellerLots);
-
-  // Modal state
   const [showForm, setShowForm] = useState(false);
   const [editingLot, setEditingLot] = useState<SellerLot | null>(null);
   const [formData, setFormData] = useState(emptyLotForm);
   const [lotItems, setLotItems] = useState<LotItem[]>([{ name: "", quantity: 0, size: "" }]);
-
-  // Delete confirm
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const statusConfig = {
+    active: { label: t("sellerDashboard.active"), color: "bg-green-100 text-green-700", icon: CheckCircle2 },
+    draft: { label: t("sellerDashboard.draft"), color: "bg-muted text-muted-foreground", icon: Clock },
+    sold: { label: t("sellerDashboard.sold"), color: "bg-primary/10 text-primary", icon: DollarSign },
+  };
 
   const stats = {
     activeLots: lots.filter((l) => l.status === "active").length,
@@ -78,7 +76,6 @@ const SellerDashboard = () => {
 
   const filteredLots = lots.filter((l) => l.status === activeTab);
 
-  // CRUD handlers
   const openAdd = () => {
     setEditingLot(null);
     setFormData(emptyLotForm);
@@ -99,7 +96,7 @@ const SellerDashboard = () => {
 
   const handleSave = () => {
     if (!formData.title || !formData.brand || !formData.price) {
-      toast.error("Veuillez remplir les champs obligatoires");
+      toast.error(t("sellerDashboard.fillRequired"));
       return;
     }
     const validItems = lotItems.filter(it => it.name.trim());
@@ -107,7 +104,7 @@ const SellerDashboard = () => {
       setLots(prev => prev.map(l => l.id === editingLot.id ? {
         ...l, ...formData, units: parseInt(formData.units) || l.units, items: validItems,
       } : l));
-      toast.success("Lot modifié avec succès");
+      toast.success(t("sellerDashboard.lotModified"));
     } else {
       const newLot: SellerLot = {
         id: `lot-${Date.now()}`,
@@ -118,7 +115,7 @@ const SellerDashboard = () => {
         createdAt: new Date().toLocaleDateString("fr-FR"), items: validItems,
       };
       setLots(prev => [newLot, ...prev]);
-      toast.success("Lot publié avec succès");
+      toast.success(t("sellerDashboard.lotPublished"));
     }
     setShowForm(false);
   };
@@ -126,7 +123,7 @@ const SellerDashboard = () => {
   const handleDelete = (id: string) => {
     setLots(prev => prev.filter(l => l.id !== id));
     setDeletingId(null);
-    toast.success("Lot supprimé");
+    toast.success(t("sellerDashboard.lotDeleted"));
   };
 
   const updateItem = (index: number, field: keyof LotItem, value: string | number) => {
@@ -135,23 +132,20 @@ const SellerDashboard = () => {
 
   const addItem = () => setLotItems(prev => [...prev, { name: "", quantity: 0, size: "" }]);
   const removeItem = (index: number) => setLotItems(prev => prev.filter((_, i) => i !== index));
-
   const updateForm = (key: string, value: string) => setFormData(prev => ({ ...prev, [key]: value }));
 
   return (
     <div className="min-h-screen bg-background">
       <TopNav />
       <main className="px-4 md:px-8 py-6 pb-24 max-w-[1400px] mx-auto">
-
-        {/* Welcome */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground">Espace vendeur</h1>
-            <p className="text-muted-foreground text-sm mt-1">Gérez vos lots et suivez vos performances</p>
+            <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground">{t("sellerDashboard.title")}</h1>
+            <p className="text-muted-foreground text-sm mt-1">{t("sellerDashboard.subtitle")}</p>
           </div>
           <button onClick={openAdd} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary-dark transition-colors">
             <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Ajouter un lot</span>
+            <span className="hidden sm:inline">{t("sellerDashboard.addLot")}</span>
           </button>
         </div>
 
@@ -159,10 +153,10 @@ const SellerDashboard = () => {
         <div className="relative mb-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 blur-[6px] select-none pointer-events-none" aria-hidden="true">
             {[
-              { label: "Lots actifs", value: stats.activeLots, icon: Package, color: "text-primary" },
-              { label: "Vues totales", value: stats.totalViews, icon: Eye, color: "text-blue-500" },
-              { label: "Demandes", value: stats.totalInquiries, icon: TrendingUp, color: "text-green-500" },
-              { label: "CA total", value: stats.revenue, icon: DollarSign, color: "text-amber-500" },
+              { label: t("sellerDashboard.activeLots"), value: stats.activeLots, icon: Package, color: "text-primary" },
+              { label: t("sellerDashboard.totalViews"), value: stats.totalViews, icon: Eye, color: "text-blue-500" },
+              { label: t("sellerDashboard.inquiries"), value: stats.totalInquiries, icon: TrendingUp, color: "text-green-500" },
+              { label: t("sellerDashboard.totalRevenue"), value: stats.revenue, icon: DollarSign, color: "text-amber-500" },
             ].map((stat) => (
               <div key={stat.label} className="bg-card rounded-2xl border border-border p-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -179,7 +173,7 @@ const SellerDashboard = () => {
               className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl shadow-lg hover:bg-primary/90 transition-colors"
             >
               <Crown className="h-4 w-4" />
-              Devenir VIP — Débloquer les insights
+              {t("sellerDashboard.vipUnlock")}
             </button>
           </div>
         </div>
@@ -228,10 +222,10 @@ const SellerDashboard = () => {
                     <span className="font-heading font-bold text-foreground whitespace-nowrap">{lot.price}</span>
                   </div>
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><Package className="h-3 w-3" /> {lot.units} unités</span>
+                    <span className="flex items-center gap-1"><Package className="h-3 w-3" /> {lot.units} {t("common.units")}</span>
                     <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {lot.location}</span>
-                    <span className="flex items-center gap-1"><Eye className="h-3 w-3" /> {lot.views} vues</span>
-                    <span className="flex items-center gap-1"><BarChart3 className="h-3 w-3" /> {lot.inquiries} demandes</span>
+                    <span className="flex items-center gap-1"><Eye className="h-3 w-3" /> {lot.views} {t("sellerDashboard.views")}</span>
+                    <span className="flex items-center gap-1"><BarChart3 className="h-3 w-3" /> {lot.inquiries} {t("sellerDashboard.requests")}</span>
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {lot.createdAt}</span>
                   </div>
                   <div className="flex gap-2 mt-3">
@@ -239,13 +233,13 @@ const SellerDashboard = () => {
                       onClick={() => openEdit(lot)}
                       className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-muted text-foreground rounded-lg hover:bg-secondary-light transition-colors"
                     >
-                      <Edit className="h-3 w-3" /> Modifier
+                      <Edit className="h-3 w-3" /> {t("sellerDashboard.editLot")}
                     </button>
                     <button
                       onClick={() => setDeletingId(lot.id)}
                       className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                     >
-                      <Trash2 className="h-3 w-3" /> Supprimer
+                      <Trash2 className="h-3 w-3" /> {t("sellerDashboard.deleteLot")}
                     </button>
                   </div>
                 </div>
@@ -257,7 +251,7 @@ const SellerDashboard = () => {
         {filteredLots.length === 0 && (
           <div className="text-center py-16">
             <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">Aucun lot dans cette catégorie.</p>
+            <p className="text-muted-foreground">{t("sellerDashboard.noLots")}</p>
           </div>
         )}
       </main>
@@ -281,7 +275,7 @@ const SellerDashboard = () => {
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="font-heading text-xl font-bold text-foreground">
-                  {editingLot ? "Modifier le lot" : "Ajouter un lot"}
+                  {editingLot ? t("sellerDashboard.editLotTitle") : t("sellerDashboard.addLotTitle")}
                 </h2>
                 <button onClick={() => setShowForm(false)} className="p-1 text-muted-foreground hover:text-foreground">
                   <X className="h-5 w-5" />
@@ -289,79 +283,59 @@ const SellerDashboard = () => {
               </div>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">Titre du lot *</label>
+                  <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotTitle")} *</label>
                   <Input value={formData.title} onChange={e => updateForm("title", e.target.value)} placeholder="Ex: Lot de 200 t-shirts Nike" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">Marque *</label>
+                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.brand")} *</label>
                     <Input value={formData.brand} onChange={e => updateForm("brand", e.target.value)} placeholder="Nike" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">Prix du lot *</label>
+                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotPrice")} *</label>
                     <Input value={formData.price} onChange={e => updateForm("price", e.target.value)} placeholder="5 000 €" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">Nombre d'unités *</label>
+                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.numberOfUnits")} *</label>
                     <Input type="number" value={formData.units} onChange={e => updateForm("units", e.target.value)} placeholder="200" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">Localisation *</label>
+                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.location")} *</label>
                     <Input value={formData.location} onChange={e => updateForm("location", e.target.value)} placeholder="Paris, France" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">Catégorie *</label>
+                  <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.category")} *</label>
                   <select
                     value={formData.category}
                     onChange={e => updateForm("category", e.target.value)}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
                   >
-                    <option>Vêtements</option>
-                    <option>Sneakers</option>
-                    <option>Accessoires</option>
-                    <option>Sport</option>
-                    <option>Beauté</option>
-                    <option>Électronique</option>
+                    {["clothing", "sneakers", "accessories", "sport", "beauty", "electronics"].map(c => (
+                      <option key={c} value={t(`sellerDashboard.categories.${c}`)}>{t(`sellerDashboard.categories.${c}`)}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">Description</label>
-                  <Textarea value={formData.description} onChange={e => updateForm("description", e.target.value)} placeholder="Décrivez votre lot en détail..." className="resize-none" rows={3} />
+                  <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.description")}</label>
+                  <Textarea value={formData.description} onChange={e => updateForm("description", e.target.value)} placeholder={t("sellerDashboard.describeLot")} className="resize-none" rows={3} />
                 </div>
 
-                {/* Lot content / inventory */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-foreground">Contenu du lot *</label>
+                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotContent")} *</label>
                     <button onClick={addItem} className="text-xs text-primary font-medium hover:underline">
-                      + Ajouter une ligne
+                      {t("sellerDashboard.addLine")}
                     </button>
                   </div>
                   <div className="space-y-2">
                     {lotItems.map((item, idx) => (
                       <div key={idx} className="flex gap-2 items-center">
-                        <Input
-                          value={item.name}
-                          onChange={e => updateItem(idx, "name", e.target.value)}
-                          placeholder="Article (ex: T-shirt)"
-                          className="flex-1"
-                        />
-                        <Input
-                          type="number"
-                          value={item.quantity || ""}
-                          onChange={e => updateItem(idx, "quantity", parseInt(e.target.value) || 0)}
-                          placeholder="Qté"
-                          className="w-20"
-                        />
-                        <Input
-                          value={item.size}
-                          onChange={e => updateItem(idx, "size", e.target.value)}
-                          placeholder="Taille"
-                          className="w-24"
-                        />
+                        <Input value={item.name} onChange={e => updateItem(idx, "name", e.target.value)} placeholder={t("sellerDashboard.article")} className="flex-1" />
+                        <Input type="number" value={item.quantity || ""} onChange={e => updateItem(idx, "quantity", parseInt(e.target.value) || 0)} placeholder={t("sellerDashboard.qty")} className="w-20" />
+                        <Input value={item.size} onChange={e => updateItem(idx, "size", e.target.value)} placeholder={t("sellerDashboard.size")} className="w-24" />
                         {lotItems.length > 1 && (
                           <button onClick={() => removeItem(idx)} className="text-muted-foreground hover:text-destructive p-1">
                             <X className="h-4 w-4" />
@@ -373,11 +347,11 @@ const SellerDashboard = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">Photos du lot</label>
+                  <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotPhotos")}</label>
                   <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/40 transition-colors cursor-pointer">
                     <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Glissez-déposez ou cliquez pour ajouter des images</p>
-                    <p className="text-xs text-muted-foreground mt-1">JPG, PNG (max 10 Mo par image, jusqu'à 8 photos)</p>
+                    <p className="text-sm text-muted-foreground">{t("sellerDashboard.dragDrop")}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t("sellerDashboard.photoFormat")}</p>
                   </div>
                 </div>
                 <div className="flex gap-3 pt-4">
@@ -385,13 +359,13 @@ const SellerDashboard = () => {
                     onClick={() => setShowForm(false)}
                     className="flex-1 py-3 bg-muted text-foreground font-semibold rounded-xl hover:bg-secondary-light transition-colors"
                   >
-                    Annuler
+                    {t("common.cancel")}
                   </button>
                   <button
                     onClick={handleSave}
                     className="flex-1 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary-dark transition-colors"
                   >
-                    {editingLot ? "Enregistrer" : "Publier le lot"}
+                    {editingLot ? t("common.save") : t("sellerDashboard.publishLot")}
                   </button>
                 </div>
               </div>
@@ -418,14 +392,14 @@ const SellerDashboard = () => {
               onClick={e => e.stopPropagation()}
             >
               <Trash2 className="h-10 w-10 text-destructive mx-auto mb-3" />
-              <h3 className="font-heading font-bold text-foreground mb-1">Supprimer ce lot ?</h3>
-              <p className="text-sm text-muted-foreground mb-6">Cette action est irréversible.</p>
+              <h3 className="font-heading font-bold text-foreground mb-1">{t("sellerDashboard.deleteLotTitle")}</h3>
+              <p className="text-sm text-muted-foreground mb-6">{t("sellerDashboard.deleteIrreversible")}</p>
               <div className="flex gap-3">
                 <button onClick={() => setDeletingId(null)} className="flex-1 py-2.5 bg-muted text-foreground font-medium rounded-xl">
-                  Annuler
+                  {t("common.cancel")}
                 </button>
                 <button onClick={() => handleDelete(deletingId)} className="flex-1 py-2.5 bg-destructive text-destructive-foreground font-medium rounded-xl">
-                  Supprimer
+                  {t("common.delete")}
                 </button>
               </div>
             </motion.div>

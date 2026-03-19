@@ -19,6 +19,7 @@ import Favorites from "./pages/Favorites.tsx";
 import Cart from "./pages/Cart.tsx";
 import Messages from "./pages/Messages.tsx";
 import Profile from "./pages/Profile.tsx";
+import BuyerVIP from "./pages/BuyerVIP.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -76,6 +77,7 @@ const App = () => (
                 <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
                 <Route path="/favoris" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
                 <Route path="/panier" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                <Route path="/buyer/vip" element={<BuyerRoute><BuyerVIP /></BuyerRoute>} />
                 <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
                 <Route path="/seller/vip" element={<SellerRoute><SellerVIP /></SellerRoute>} />
 
