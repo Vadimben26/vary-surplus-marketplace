@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { ArrowLeft, User, Package, Clock, CheckCircle, Edit2, Save, X } from "lucide-react";
+import { ArrowLeft, User, Package, Clock, CheckCircle, Edit2, Save, X, Building2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Textarea } from "@/components/ui/textarea";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
+import { canAccessSeller } from "@/lib/auth";
 
 interface UserProfile {
   firstName: string;
@@ -14,6 +16,7 @@ interface UserProfile {
   address: string;
   city: string;
   country: string;
+  companyDescription: string;
 }
 
 const mockOrders = [
@@ -30,6 +33,7 @@ const statusLabels: Record<string, { label: string; color: string; icon: typeof 
 
 const Profile = () => {
   const navigate = useNavigate();
+  const isSeller = canAccessSeller();
   const [editing, setEditing] = useState(false);
   const [tab, setTab] = useState<"profile" | "orders">("profile");
   const [profile, setProfile] = useState<UserProfile>(() => {
@@ -43,6 +47,7 @@ const Profile = () => {
       address: "12 Rue du Commerce",
       city: "Paris",
       country: "France",
+      companyDescription: "Grossiste spécialisé dans la distribution de vêtements de marques premium. Plus de 10 ans d'expérience dans le secteur du textile et de la mode.",
     };
   });
   const [editForm, setEditForm] = useState<UserProfile>(profile);
@@ -117,7 +122,7 @@ const Profile = () => {
                   <div className="grid grid-cols-2 gap-4">
                     {(["firstName", "lastName", "email", "phone", "company", "address", "city", "country"] as (keyof UserProfile)[]).map((key) => (
                       <div key={key} className={key === "address" ? "col-span-2" : ""}>
-                        <label className="text-xs font-medium text-muted-foreground capitalize">
+                        <label className="text-xs font-medium text-muted-foreground">
                           {key === "firstName" ? "Prénom" : key === "lastName" ? "Nom" : key === "email" ? "Email" : key === "phone" ? "Téléphone" : key === "company" ? "Entreprise" : key === "address" ? "Adresse" : key === "city" ? "Ville" : "Pays"}
                         </label>
                         <input
@@ -129,6 +134,24 @@ const Profile = () => {
                       </div>
                     ))}
                   </div>
+
+                  {/* Company description (seller only) */}
+                  {isSeller && (
+                    <div className="col-span-2 pt-2">
+                      <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                        <Building2 className="h-3 w-3" /> Description de l'entreprise
+                      </label>
+                      <p className="text-xs text-muted-foreground mt-0.5 mb-1">Apparaît automatiquement sur chacun de vos lots</p>
+                      <Textarea
+                        value={editForm.companyDescription}
+                        onChange={(e) => setEditForm({ ...editForm, companyDescription: e.target.value })}
+                        placeholder="Décrivez votre entreprise..."
+                        className="resize-none mt-1"
+                        rows={3}
+                      />
+                    </div>
+                  )}
+
                   <div className="flex gap-3 pt-2">
                     <button onClick={handleSave} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary-dark transition-colors text-sm">
                       <Save className="h-4 w-4" /> Enregistrer
@@ -139,23 +162,36 @@ const Profile = () => {
                   </div>
                 </>
               ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    ["Prénom", profile.firstName],
-                    ["Nom", profile.lastName],
-                    ["Email", profile.email],
-                    ["Téléphone", profile.phone],
-                    ["Entreprise", profile.company],
-                    ["Adresse", profile.address],
-                    ["Ville", profile.city],
-                    ["Pays", profile.country],
-                  ].map(([label, value]) => (
-                    <div key={label} className={label === "Adresse" ? "col-span-2" : ""}>
-                      <p className="text-xs text-muted-foreground">{label}</p>
-                      <p className="text-sm font-medium text-foreground mt-0.5">{value}</p>
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    {[
+                      ["Prénom", profile.firstName],
+                      ["Nom", profile.lastName],
+                      ["Email", profile.email],
+                      ["Téléphone", profile.phone],
+                      ["Entreprise", profile.company],
+                      ["Adresse", profile.address],
+                      ["Ville", profile.city],
+                      ["Pays", profile.country],
+                    ].map(([label, value]) => (
+                      <div key={label} className={label === "Adresse" ? "col-span-2" : ""}>
+                        <p className="text-xs text-muted-foreground">{label}</p>
+                        <p className="text-sm font-medium text-foreground mt-0.5">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Company description display (seller only) */}
+                  {isSeller && profile.companyDescription && (
+                    <div className="border-t border-border pt-4 mt-4">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
+                        <Building2 className="h-3 w-3" /> Description de l'entreprise
+                      </p>
+                      <p className="text-sm text-foreground">{profile.companyDescription}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Visible automatiquement sur chacun de vos lots</p>
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
             </div>
           </motion.div>
