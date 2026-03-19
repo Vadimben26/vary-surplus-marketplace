@@ -46,14 +46,7 @@ const revenueOptions = [
 
 const interestTypes = ["Lots", "Sélection d'articles individuels", "Pré-packs ou séries"];
 
-const productInterests = [
-  "Vêtements casual",
-  "Vêtements de sport",
-  "Vêtements élégants / de bureau",
-  "Marques de luxe",
-  "Marques premium",
-  "Prix en dessous de 10€",
-];
+// productInterests removed
 
 const communicationChannels = ["Whatsapp", "E-mail", "Téléphone"];
 
