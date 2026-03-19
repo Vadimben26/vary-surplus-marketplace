@@ -30,13 +30,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const BuyerRoute = ({ children }: { children: React.ReactNode }) => {
   if (!isVerified()) return <Navigate to="/" replace />;
-  if (!canAccessBuyer()) return <Navigate to="/seller" replace />;
+  if (!canAccessBuyer()) return <Navigate to="/inscription/acheteur" replace />;
   return <>{children}</>;
 };
 
 const SellerRoute = ({ children }: { children: React.ReactNode }) => {
   if (!isVerified()) return <Navigate to="/" replace />;
-  if (!canAccessSeller()) return <Navigate to="/marketplace" replace />;
+  if (!canAccessSeller()) return <Navigate to="/inscription/vendeur" replace />;
   return <>{children}</>;
 };
 

@@ -48,9 +48,9 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   const tabs = [
-    { label: "Contact & FAQ", path: "/contact", icon: HelpCircle, always: true },
-    { label: "Acheteur", path: "/marketplace", icon: ShoppingBag, show: isBuyer },
-    { label: "Vendeur", path: "/seller", icon: Store, show: isSeller },
+    { label: "Contact & FAQ", path: "/contact", icon: HelpCircle },
+    { label: "Acheteur", path: isBuyer ? "/marketplace" : "/inscription/acheteur", icon: ShoppingBag },
+    { label: "Vendeur", path: isSeller ? "/seller" : "/inscription/vendeur", icon: Store },
   ];
 
   return (
@@ -71,7 +71,6 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
         {/* Nav tabs */}
         <nav className="hidden md:flex items-center gap-1 mx-6">
           {tabs.map((tab) => {
-            if (!tab.always && !tab.show) return null;
             const active = isActive(tab.path);
             return (
               <Link
@@ -140,9 +139,7 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
 
                 {/* Mobile tabs */}
                 <div className="md:hidden border-t border-border my-1 pt-1">
-                  {tabs.map((tab) => {
-                    if (!tab.always && !tab.show) return null;
-                    return (
+                  {tabs.map((tab) => (
                       <Link
                         key={tab.path}
                         to={tab.path}
@@ -151,8 +148,8 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
                       >
                         <tab.icon className="h-4 w-4" /> {tab.label}
                       </Link>
-                    );
-                  })}
+                    )
+                  )}
                 </div>
 
                 {/* Request dual access */}
