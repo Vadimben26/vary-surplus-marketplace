@@ -62,6 +62,23 @@ const Marketplace = () => {
   const firstName = profile?.full_name?.split(" ")[0];
   const vipLots = dbLots.slice(0, 5);
 
+  // Check if buyer is VIP
+  const { data: isBuyerVip = false } = useQuery({
+    queryKey: ["buyer-vip-status", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return false;
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("id")
+        .eq("user_id", profile.id)
+        .eq("plan", "buyer_vip")
+        .eq("status", "active")
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!profile?.id,
+  });
+
   const hasActiveFilters = filters.location || filters.style || filters.priceRange[0] !== PRICE_MIN || filters.priceRange[1] !== PRICE_MAX;
 
   return (
@@ -77,33 +94,51 @@ const Marketplace = () => {
       )}
 
       {/* VIP Exclusive Row */}
-      <div className="px-4 md:px-8 max-w-[1600px] mx-auto pt-6">
-        <div className="rounded-2xl overflow-hidden border border-primary/20 bg-card p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
+      {!isBuyerVip && (
+        <div className="px-4 md:px-8 max-w-[1600px] mx-auto pt-6">
+          <div className="rounded-2xl overflow-hidden border border-primary/20 bg-card p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Crown className="h-5 w-5 text-primary" />
+                <h3 className="font-heading font-bold text-foreground text-sm">{t("marketplace.vipExclusive")}</h3>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 blur-[8px] select-none pointer-events-none" aria-hidden="true">
+                {vipLots.map((lot: any) => (
+                  <LotCard key={`vip-${lot.id}`} id={lot.id} image={lot.images?.[0] || ""} title={lot.title} brand={lot.brand} price={`${Math.round(lot.price * 1.19).toLocaleString("fr-FR")} €`} units={lot.units} rating={lot.rating || 0} location={lot.location || ""} category={lot.category || ""} />
+                ))}
+              </div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                <div className="flex items-center gap-2 px-4 py-2 bg-card/90 backdrop-blur-sm border border-border rounded-xl shadow-lg">
+                  <Lock className="h-4 w-4 text-primary" />
+                  <span className="font-semibold text-foreground text-sm">{t("marketplace.vipOnly")}</span>
+                </div>
+                <Link to="/buyer/vip" className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl text-sm hover:bg-primary/90 transition-colors shadow-lg">
+                  <Crown className="h-4 w-4" />
+                  {t("marketplace.becomeVip")}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isBuyerVip && vipLots.length > 0 && (
+        <div className="px-4 md:px-8 max-w-[1600px] mx-auto pt-6">
+          <div className="rounded-2xl overflow-hidden border border-primary/20 bg-card p-4">
+            <div className="flex items-center gap-2 mb-3">
               <Crown className="h-5 w-5 text-primary" />
               <h3 className="font-heading font-bold text-foreground text-sm">{t("marketplace.vipExclusive")}</h3>
             </div>
-          </div>
-          <div className="relative">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 blur-[8px] select-none pointer-events-none" aria-hidden="true">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
               {vipLots.map((lot: any) => (
                 <LotCard key={`vip-${lot.id}`} id={lot.id} image={lot.images?.[0] || ""} title={lot.title} brand={lot.brand} price={`${Math.round(lot.price * 1.19).toLocaleString("fr-FR")} €`} units={lot.units} rating={lot.rating || 0} location={lot.location || ""} category={lot.category || ""} />
               ))}
             </div>
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 bg-card/90 backdrop-blur-sm border border-border rounded-xl shadow-lg">
-                <Lock className="h-4 w-4 text-primary" />
-                <span className="font-semibold text-foreground text-sm">{t("marketplace.vipOnly")}</span>
-              </div>
-              <Link to="/buyer/vip" className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl text-sm hover:bg-primary/90 transition-colors shadow-lg">
-                <Crown className="h-4 w-4" />
-                {t("marketplace.becomeVip")}
-              </Link>
-            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Sticky filter bar */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b border-border">

@@ -3,6 +3,7 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Code2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface DevPanelProps {
   profileId: string;
@@ -12,6 +13,7 @@ const DevPanel = ({ profileId }: DevPanelProps) => {
   const [buyerVip, setBuyerVip] = useState(false);
   const [sellerVip, setSellerVip] = useState(false);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   const fetchStatus = async () => {
     const { data } = await supabase
@@ -34,6 +36,10 @@ const DevPanel = ({ profileId }: DevPanelProps) => {
       await supabase.from("subscriptions").insert({ user_id: profileId, plan, status: "active" });
     }
     await fetchStatus();
+    // Invalidate all VIP-related queries so other pages pick up the change
+    queryClient.invalidateQueries({ queryKey: ["seller-vip-status"] });
+    queryClient.invalidateQueries({ queryKey: ["buyer-vip-status"] });
+    queryClient.invalidateQueries({ queryKey: ["buyer-interests"] });
     toast.success(`${plan} ${current ? "désactivé" : "activé"}`);
   };
 
