@@ -51,9 +51,18 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
     }
   };
 
+  const buyerPages = ["/marketplace", "/lot/", "/favoris", "/panier", "/checkout", "/commandes", "/buyer/vip", "/devenir/acheteur", "/inscription/acheteur"];
+  const sellerPages = ["/seller", "/devenir/vendeur", "/inscription/vendeur"];
+
   const isActive = (path: string) => {
-    if (path === "/marketplace" || path === "/inscription/acheteur") {
-      return location.pathname.startsWith("/marketplace") || location.pathname.startsWith("/lot/") || location.pathname.startsWith("/inscription/acheteur");
+    if (path === "/marketplace" || path === "/devenir/acheteur" || path === "/inscription/acheteur") {
+      return buyerPages.some(p => location.pathname.startsWith(p));
+    }
+    if (path === "/seller" || path === "/devenir/vendeur" || path === "/inscription/vendeur") {
+      // Also highlight seller when on shared pages (favorites, cart, messages) AND user is seller-only
+      if (sellerPages.some(p => location.pathname.startsWith(p))) return true;
+      if (isSeller && !isBuyer && ["/favoris", "/panier", "/messages", "/checkout", "/commandes"].some(p => location.pathname.startsWith(p))) return true;
+      return false;
     }
     return location.pathname.startsWith(path);
   };
