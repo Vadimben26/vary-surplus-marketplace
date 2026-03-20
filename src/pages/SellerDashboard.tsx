@@ -453,7 +453,7 @@ const SellerDashboard = () => {
                                             <p className="text-xs font-semibold text-foreground truncate">{bp?.company_name || bp?.full_name || "Acheteur"}</p>
                                           </div>
                                           <button
-                                            onClick={(e) => { e.stopPropagation(); navigate(`/messages?with=${bp?.id}&lot=${lot.id}`); }}
+                                            onClick={(e) => { e.stopPropagation(); setPopover(null); navigate(`/messages?with=${bp?.id}&lot=${lot.id}`); }}
                                             className="p-1.5 rounded-lg text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
                                           >
                                             <MessageCircle className="h-3.5 w-3.5" />
