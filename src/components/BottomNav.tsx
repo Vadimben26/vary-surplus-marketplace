@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Heart, ShoppingCart, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
@@ -5,12 +6,52 @@ import { useTranslation } from "react-i18next";
 import varyLogo from "@/assets/vary-logo.png";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { useCart } from "@/contexts/CartContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BottomNav = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const { favorites } = useFavorites();
   const { cartItems } = useCart();
+  const { profile } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread message count
+  useEffect(() => {
+    if (!profile?.id) return;
+
+    const fetchUnread = async () => {
+      const { count } = await supabase
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .eq("receiver_id", profile.id)
+        .eq("read", false);
+      setUnreadCount(count || 0);
+    };
+
+    fetchUnread();
+
+    const channel = supabase
+      .channel("unread-badge")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages" },
+        () => fetchUnread()
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [profile?.id]);
+
+  // Also listen for custom events from Messages page
+  useEffect(() => {
+    const handler = (e: Event) => {
+      setUnreadCount((e as CustomEvent).detail);
+    };
+    window.addEventListener("vary-unread-count", handler);
+    return () => window.removeEventListener("vary-unread-count", handler);
+  }, []);
 
   const navItems = [
     { icon: null, label: t("nav.home"), path: "/marketplace", isLogo: true },
@@ -22,6 +63,7 @@ const BottomNav = () => {
   const getBadge = (path: string) => {
     if (path === "/favoris") return favorites.length;
     if (path === "/panier") return cartItems.length;
+    if (path === "/messages") return unreadCount;
     return 0;
   };
 
@@ -29,7 +71,7 @@ const BottomNav = () => {
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
       <div className="flex items-center justify-around h-14 md:h-16 px-4 max-w-[1600px] mx-auto">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = location.pathname === item.path || (item.path === "/messages" && location.pathname.startsWith("/messages"));
           const badge = getBadge(item.path);
           return (
             <Link

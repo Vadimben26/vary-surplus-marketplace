@@ -304,7 +304,10 @@
     "translating": "Traduciendo...",
     "translatedAuto": "Traducido automáticamente",
     "typeMessage": "Escribe un mensaje...",
-    "send": "Enviar"
+    "send": "Enviar",
+    "selectConversation": "Selecciona una conversación",
+    "startConversation": "Inicia la conversación...",
+    "vipTemplates": "VIP — Accede a plantillas de mensajes profesionales"
   },
   "profile": {
     "title": "Mi cuenta",

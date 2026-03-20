@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import LotCard from "@/components/LotCard";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
@@ -38,6 +39,7 @@ const LotDetail = () => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isInCart, addToCart } = useCart();
+  const { profile } = useAuth();
   const [showAllItems, setShowAllItems] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
 
@@ -261,7 +263,16 @@ const LotDetail = () => {
                   {inCart ? t("lotDetail.inCart") : t("lotDetail.addToCart")}
                 </button>
 
-                <button className="w-full mt-2 py-2 border border-border rounded-xl hover:bg-muted transition-colors flex items-center justify-center gap-2 text-xs text-foreground">
+                <button
+                  onClick={() => {
+                    if (!profile) {
+                      navigate("/connexion");
+                      return;
+                    }
+                    navigate(`/messages?with=${lot.seller_id}&lot=${lot.id}`);
+                  }}
+                  className="w-full mt-2 py-2 border border-border rounded-xl hover:bg-muted transition-colors flex items-center justify-center gap-2 text-xs text-foreground"
+                >
                   <MessageCircle className="h-3.5 w-3.5" />
                   {t("lotDetail.contactSeller")}
                 </button>
