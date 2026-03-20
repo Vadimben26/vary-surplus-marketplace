@@ -77,6 +77,10 @@ const App = () => (
                 <Route path="/lot/:id" element={<LotDetail />} />
                 <Route path="/contact" element={<ContactFAQ />} />
                 <Route path="/devenir/:role" element={<RoleGateway />} />
+                <Route path="/cgv" element={<CGV />} />
+                <Route path="/mentions-legales" element={<MentionsLegales />} />
+                <Route path="/confidentialite" element={<PolitiqueConfidentialite />} />
+                <Route path="/cookies" element={<PolitiqueCookies />} />
 
                 {/* Protected (need login) */}
                 <Route path="/profil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
