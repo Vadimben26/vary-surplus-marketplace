@@ -56,9 +56,26 @@ const BuyerVIP = () => {
             ))}
           </ul>
           <button
-            onClick={() => toast.info(t("buyerVIP.comingSoon"))}
-            className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
+            onClick={async () => {
+              if (!user) { toast.error(t("checkout.loginRequired")); return; }
+              setLoading(true);
+              try {
+                const { data, error } = await supabase.functions.invoke("create-vip-subscription", {
+                  body: { plan: "buyer_vip" },
+                });
+                if (error) throw error;
+                if (data?.error?.includes("Stripe not configured")) {
+                  toast.info(t("checkout.stripeNotReady"));
+                  return;
+                }
+                if (data?.url) window.location.href = data.url;
+              } catch { toast.error(t("checkout.error")); }
+              finally { setLoading(false); }
+            }}
+            disabled={loading}
+            className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors flex items-center gap-2 mx-auto disabled:opacity-50"
           >
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {t("buyerVIP.subscribe")}
           </button>
         </div>

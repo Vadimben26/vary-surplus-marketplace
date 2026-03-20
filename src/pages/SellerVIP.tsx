@@ -28,8 +28,21 @@ const SellerVIP = () => {
     t("sellerVIP.included5"),
   ];
 
-  const handleSubscribe = () => {
-    toast.info(t("sellerVIP.comingSoon"));
+  const handleSubscribe = async () => {
+    if (!user) { toast.error(t("checkout.loginRequired")); return; }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-vip-subscription", {
+        body: { plan: "seller_vip" },
+      });
+      if (error) throw error;
+      if (data?.error?.includes("Stripe not configured")) {
+        toast.info(t("checkout.stripeNotReady"));
+        return;
+      }
+      if (data?.url) window.location.href = data.url;
+    } catch { toast.error(t("checkout.error")); }
+    finally { setLoading(false); }
   };
 
   return (
