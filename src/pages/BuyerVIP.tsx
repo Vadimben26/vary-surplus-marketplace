@@ -1,11 +1,16 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Crown, Clock, Star, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Crown, Clock, Star, CheckCircle2, ArrowLeft, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 const BuyerVIP = () => {
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const { t } = useTranslation();
 
   return (
