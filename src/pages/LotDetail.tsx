@@ -1,7 +1,7 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Heart, Star, MapPin, Package, MessageCircle, ShoppingCart, User, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,26 @@ import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 
+const MOCK_REVIEWS = [
+  { author: "Sophie M.", rating: 5, date: "2026-03-12", comment: "Qualité excellente, emballage soigné. Je recommande ce vendeur sans hésitation." },
+  { author: "Marco R.", rating: 4, date: "2026-03-08", comment: "Bon lot dans l'ensemble, quelques pièces légèrement différentes de la description mais rapport qualité-prix correct." },
+  { author: "Elena K.", rating: 5, date: "2026-02-28", comment: "Livraison rapide et conforme. Les tailles correspondent bien, mes clients sont ravis." },
+  { author: "Thomas D.", rating: 4, date: "2026-02-20", comment: "Deuxième commande chez ce vendeur. Toujours fiable, bonne communication." },
+  { author: "Amira B.", rating: 3, date: "2026-02-15", comment: "Correct mais un peu long à recevoir. Qualité des produits satisfaisante." },
+  { author: "Lucas P.", rating: 5, date: "2026-01-30", comment: "Parfait pour mon magasin. Les clients adorent, je repasse commande bientôt !" },
+];
+
+const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) => {
+  const s = size === "md" ? "h-4 w-4" : "h-3 w-3";
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star key={star} className={`${s} ${star <= Math.round(rating) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+      ))}
+    </div>
+  );
+};
+
 const LotDetail = () => {
   const { t } = useTranslation();
   const { id } = useParams();
@@ -21,7 +41,6 @@ const LotDetail = () => {
   const [showAllItems, setShowAllItems] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
 
-  // Fetch lot from DB
   const { data: lot, isLoading } = useQuery({
     queryKey: ["lot-detail", id],
     queryFn: async () => {
@@ -37,7 +56,6 @@ const LotDetail = () => {
     enabled: !!id,
   });
 
-  // Fetch similar lots
   const { data: similarLots = [] } = useQuery({
     queryKey: ["similar-lots", lot?.category, lot?.brand, id],
     queryFn: async () => {
@@ -53,6 +71,14 @@ const LotDetail = () => {
     },
     enabled: !!lot,
   });
+
+  const reviews = useMemo(() => {
+    if (!id) return [];
+    const seed = id.charCodeAt(0) + id.charCodeAt(id.length - 1);
+    const count = 3 + (seed % 4);
+    const shuffled = [...MOCK_REVIEWS].sort((a, b) => (a.author.charCodeAt(0) + seed) - (b.author.charCodeAt(0) + seed));
+    return shuffled.slice(0, count);
+  }, [id]);
 
   const images = lot?.images?.length ? lot.images : [];
   const items = lot?.lot_items || [];
@@ -84,6 +110,7 @@ const LotDetail = () => {
   const inCart = isInCart(lot.id);
   const total = Math.round(lot.price * 1.19);
   const displayedItems = showAllItems ? items : items.slice(0, 4);
+  const lotRating = lot.rating || 0;
 
   const handleAddToCart = () => {
     addToCart(lot.id);
@@ -165,6 +192,13 @@ const LotDetail = () => {
             <div>
               <span className="text-xs font-semibold text-primary uppercase tracking-wide">{lot.brand}</span>
               <h1 className="font-heading text-lg font-bold text-foreground mt-1 leading-tight">{lot.title}</h1>
+              {lotRating > 0 && (
+                <div className="flex items-center gap-2 mt-1.5">
+                  <StarRating rating={lotRating} size="md" />
+                  <span className="text-sm font-semibold text-foreground">{lotRating.toFixed(1)}</span>
+                  <span className="text-xs text-muted-foreground">({reviews.length} {t("lotDetail.reviews")})</span>
+                </div>
+              )}
             </div>
 
             {lot.description && (
@@ -235,6 +269,36 @@ const LotDetail = () => {
             </div>
           </div>
         </div>
+
+        {/* Reviews section */}
+        {reviews.length > 0 && (
+          <div className="mt-8">
+            <h3 className="font-heading font-semibold text-foreground text-sm mb-4">{t("lotDetail.buyerReviews")} ({reviews.length})</h3>
+            <div className="space-y-3">
+              {reviews.map((review, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  className="bg-card rounded-xl border border-border p-4"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-xs font-bold text-primary">{review.author.charAt(0)}</span>
+                      </div>
+                      <span className="text-sm font-medium text-foreground">{review.author}</span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">{new Date(review.date).toLocaleDateString("fr-FR")}</span>
+                  </div>
+                  <StarRating rating={review.rating} />
+                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{review.comment}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Similar lots */}
         {similarLots.length > 0 && (
