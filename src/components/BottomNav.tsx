@@ -78,7 +78,6 @@ const BottomNav = () => {
   const sellerNavItems = [
     { icon: null, label: t("nav.home"), path: "/seller", isLogo: true },
     { icon: Truck, label: t("nav.tracking"), path: "/seller/suivi", isLogo: false },
-    { icon: AlertTriangle, label: t("nav.disputes"), path: "/seller/litiges", isLogo: false },
     { icon: MessageCircle, label: t("nav.messages"), path: "/messages", isLogo: false },
   ];
 
