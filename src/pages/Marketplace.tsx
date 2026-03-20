@@ -62,6 +62,23 @@ const Marketplace = () => {
   const firstName = profile?.full_name?.split(" ")[0];
   const vipLots = dbLots.slice(0, 5);
 
+  // Check if buyer is VIP
+  const { data: isBuyerVip = false } = useQuery({
+    queryKey: ["buyer-vip-status", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return false;
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("id")
+        .eq("user_id", profile.id)
+        .eq("plan", "buyer_vip")
+        .eq("status", "active")
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!profile?.id,
+  });
+
   const hasActiveFilters = filters.location || filters.style || filters.priceRange[0] !== PRICE_MIN || filters.priceRange[1] !== PRICE_MAX;
 
   return (
