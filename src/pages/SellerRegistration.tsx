@@ -21,7 +21,7 @@ const referralSources = [
   "Un responsable commercial m'a contacté",
 ];
 
-const visibilityLocations = ["France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique", "Royaume-Uni"];
+const visibilityLocations = ["France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique", "Royaume-Uni", "Pologne", "Roumanie", "Suède", "Autriche", "Grèce", "Tchéquie", "Danemark", "Irlande", "Hongrie", "Croatie", "Bulgarie", "Finlande", "Slovaquie", "Lituanie", "Lettonie", "Slovénie", "Estonie", "Chypre", "Luxembourg", "Malte"];
 const visibilityStoreTypes = ["Magasin physique", "Magasin en ligne", "Revendeur marketplace", "Revendeur réseaux sociaux", "Grossiste / Distributeur"];
 const visibilityRevenues = ["Moins de 50.000 €", "50.000 – 200.000 €", "200.000 – 500.000 €", "500.000 – 1M €", "Plus de 1M €"];
 
@@ -35,7 +35,7 @@ const SellerRegistration = () => {
   const [selectedVolume, setSelectedVolume] = useState("");
   const [selectedChannel, setSelectedChannel] = useState("");
   const [selectedReferral, setSelectedReferral] = useState("");
-  const [speaksEnglish, setSpeaksEnglish] = useState("");
+  const [warehouseFiles, setWarehouseFiles] = useState<File[]>([]);
   const [consent, setConsent] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", email: "", phone: "", password: "",
@@ -75,9 +75,7 @@ const SellerRegistration = () => {
       if (!selectedVolume) return t("sellerReg.validation.volume");
     }
     if (step === 4) {
-      if (!speaksEnglish) return t("sellerReg.validation.english");
       if (!selectedChannel) return t("sellerReg.validation.channel");
-      if (!selectedReferral) return t("sellerReg.validation.referral");
     }
     return null;
   };
@@ -217,11 +215,30 @@ const SellerRegistration = () => {
                   <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.describeActivity")}</label><Textarea placeholder="..." className="resize-none" rows={3} value={formData.description} onChange={(e) => update("description", e.target.value)} /></div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">{t("sellerReg.warehouseImage")}</label>
-                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/40 transition-colors cursor-pointer">
+                    <label className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/40 transition-colors cursor-pointer block">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files) setWarehouseFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+                        }}
+                      />
                       <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
                       <p className="text-sm text-muted-foreground">{t("sellerReg.uploadImage")}</p>
                       <p className="text-xs text-muted-foreground mt-1">{t("sellerReg.uploadFormat")}</p>
-                    </div>
+                    </label>
+                    {warehouseFiles.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {warehouseFiles.map((f, i) => (
+                          <div key={i} className="flex items-center gap-1 bg-muted rounded-lg px-3 py-1.5 text-sm text-foreground">
+                            <span className="truncate max-w-[150px]">{f.name}</span>
+                            <button type="button" onClick={() => setWarehouseFiles(prev => prev.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-foreground ml-1">✕</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -231,17 +248,6 @@ const SellerRegistration = () => {
               <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
                 <div className="space-y-8">
-                  <div>
-                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.speakEnglish")} *</label>
-                    <div className="flex gap-6 mt-3">
-                      {["yes", "no"].map((v) => (
-                        <label key={v} className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="english" checked={speaksEnglish === v} onChange={() => setSpeaksEnglish(v)} className="accent-primary w-4 h-4" />
-                          <span className="text-sm text-foreground">{t(`sellerReg.${v}`)}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
                   <div>
                     <label className="text-sm font-semibold text-foreground">{t("sellerReg.preferredChannel")} *</label>
                     <div className="flex gap-6 mt-3">
@@ -254,7 +260,7 @@ const SellerRegistration = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.howDidYouHear")} *</label>
+                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.howDidYouHear")}</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
                       {referralSources.map((r) => (
                         <label key={r} className="flex items-center gap-2 cursor-pointer">
