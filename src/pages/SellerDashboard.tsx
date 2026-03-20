@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, TrendingUp, Eye, DollarSign,
-  Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus
+  Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
+  Heart, ShoppingCart, MessageCircle, User, Lock
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
@@ -68,6 +69,52 @@ const SellerDashboard = () => {
     },
     enabled: !!profile?.id,
   });
+
+  // Check if seller is VIP
+  const { data: isVipSeller = false } = useQuery({
+    queryKey: ["seller-vip-status", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return false;
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("id")
+        .eq("user_id", profile.id)
+        .eq("plan", "seller_vip")
+        .eq("status", "active")
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!profile?.id,
+  });
+
+  // Fetch buyer interest (favorites + cart) on seller's lots - only for VIP
+  const { data: buyerInterests = [] } = useQuery({
+    queryKey: ["buyer-interests", profile?.id, isVipSeller],
+    queryFn: async () => {
+      if (!profile?.id || !isVipSeller) return [];
+      // Get favorites on my lots
+      const { data: favs } = await supabase
+        .from("favorites")
+        .select("lot_id, user_id, profiles!favorites_user_id_fkey(id, full_name, company_name)")
+        .in("lot_id", lots.map((l: any) => l.id));
+      // Get cart items on my lots
+      const { data: carts } = await supabase
+        .from("cart_items")
+        .select("lot_id, user_id, profiles!cart_items_user_id_fkey(id, full_name, company_name)")
+        .in("lot_id", lots.map((l: any) => l.id));
+      return [...(favs || []).map((f: any) => ({ ...f, type: "favorite" })), ...(carts || []).map((c: any) => ({ ...c, type: "cart" }))];
+    },
+    enabled: !!profile?.id && isVipSeller && lots.length > 0,
+  });
+
+  // Group interests by lot
+  const interestsByLot = (buyerInterests as any[]).reduce((acc: Record<string, any[]>, item: any) => {
+    if (!acc[item.lot_id]) acc[item.lot_id] = [];
+    // Deduplicate by user_id + type
+    const exists = acc[item.lot_id].find((i: any) => i.user_id === item.user_id && i.type === item.type);
+    if (!exists) acc[item.lot_id].push(item);
+    return acc;
+  }, {} as Record<string, any[]>);
 
   const filteredLots = lots.filter((l: any) => l.status === activeTab);
 
@@ -346,6 +393,57 @@ const SellerDashboard = () => {
                         <Trash2 className="h-3 w-3" /> {t("sellerDashboard.deleteLot")}
                       </button>
                     </div>
+
+                    {/* Buyer interest section - VIP only */}
+                    {isVipSeller && interestsByLot[lot.id]?.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("sellerDashboard.buyerInterest")}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {interestsByLot[lot.id].map((interest: any, idx: number) => {
+                            const buyerProfile = interest.profiles;
+                            const isFav = interest.type === "favorite";
+                            return (
+                              <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-muted rounded-lg text-xs">
+                                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                  <User className="h-3 w-3 text-primary" />
+                                </div>
+                                <span className="text-foreground font-medium truncate max-w-[100px]">
+                                  {buyerProfile?.company_name || buyerProfile?.full_name || "Acheteur"}
+                                </span>
+                                {isFav ? (
+                                  <Heart className="h-3 w-3 text-destructive fill-destructive flex-shrink-0" />
+                                ) : (
+                                  <ShoppingCart className="h-3 w-3 text-primary flex-shrink-0" />
+                                )}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/messages?with=${buyerProfile?.id}`);
+                                  }}
+                                  className="p-0.5 text-primary hover:bg-primary/10 rounded transition-colors"
+                                  title={t("lotDetail.contactSeller")}
+                                >
+                                  <MessageCircle className="h-3 w-3" />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Non-VIP teaser */}
+                    {!isVipSeller && (
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); navigate("/seller/vip"); }}
+                          className="flex items-center gap-1.5 text-[10px] text-primary font-medium hover:underline"
+                        >
+                          <Lock className="h-3 w-3" />
+                          {t("sellerDashboard.vipBuyerInsight")}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               );
