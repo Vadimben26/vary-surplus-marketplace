@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Heart, ShoppingCart, MessageCircle, Truck, AlertTriangle } from "lucide-react";
+import { Heart, ShoppingCart, MessageCircle, Truck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import varyLogo from "@/assets/vary-logo.png";
