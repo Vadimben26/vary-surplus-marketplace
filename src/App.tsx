@@ -13,6 +13,8 @@ import Login from "./pages/Login.tsx";
 import Marketplace from "./pages/Marketplace.tsx";
 import SellerDashboard from "./pages/SellerDashboard.tsx";
 import SellerVIP from "./pages/SellerVIP.tsx";
+import SellerTracking from "./pages/SellerTracking.tsx";
+import SellerDisputes from "./pages/SellerDisputes.tsx";
 import ContactFAQ from "./pages/ContactFAQ.tsx";
 import LotDetail from "./pages/LotDetail.tsx";
 import Favorites from "./pages/Favorites.tsx";
