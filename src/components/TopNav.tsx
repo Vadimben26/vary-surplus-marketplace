@@ -23,6 +23,11 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
   const location = useLocation();
   const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [activeRoleTab, setActiveRoleTab] = useState<"buyer" | "seller" | null>(() => {
+    if (typeof window === "undefined") return null;
+    const savedRole = window.sessionStorage.getItem("vary-active-role-tab");
+    return savedRole === "buyer" || savedRole === "seller" ? savedRole : null;
+  });
   const profileRef = useRef<HTMLDivElement>(null);
   const { profile, signOut, canAccessBuyer, canAccessSeller, getUserType } = useAuth();
   const isBuyer = canAccessBuyer();
@@ -37,8 +42,50 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const buyerPages = ["/marketplace", "/lot/", "/buyer/vip", "/devenir/acheteur", "/inscription/acheteur"];
+  const sellerPages = ["/seller", "/seller/vip", "/devenir/vendeur", "/inscription/vendeur"];
+  const sharedPages = ["/favoris", "/panier", "/messages", "/checkout", "/commandes", "/profil"];
+
+  useEffect(() => {
+    if (buyerPages.some((path) => location.pathname.startsWith(path))) {
+      setActiveRoleTab("buyer");
+      window.sessionStorage.setItem("vary-active-role-tab", "buyer");
+      return;
+    }
+
+    if (sellerPages.some((path) => location.pathname.startsWith(path))) {
+      setActiveRoleTab("seller");
+      window.sessionStorage.setItem("vary-active-role-tab", "seller");
+      return;
+    }
+
+    if (!sharedPages.some((path) => location.pathname.startsWith(path))) {
+      setActiveRoleTab(null);
+      window.sessionStorage.removeItem("vary-active-role-tab");
+      return;
+    }
+
+    const savedRole = window.sessionStorage.getItem("vary-active-role-tab");
+    if ((savedRole === "buyer" && isBuyer) || (savedRole === "seller" && isSeller)) {
+      setActiveRoleTab(savedRole);
+      return;
+    }
+
+    if (isSeller && !isBuyer) {
+      setActiveRoleTab("seller");
+      window.sessionStorage.setItem("vary-active-role-tab", "seller");
+      return;
+    }
+
+    if (isBuyer) {
+      setActiveRoleTab("buyer");
+      window.sessionStorage.setItem("vary-active-role-tab", "buyer");
+    }
+  }, [location.pathname, isBuyer, isSeller]);
+
   const handleLogout = async () => {
     await signOut();
+    window.sessionStorage.removeItem("vary-active-role-tab");
     window.location.href = "/";
   };
 
@@ -51,19 +98,17 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
     }
   };
 
-  const buyerPages = ["/marketplace", "/lot/", "/favoris", "/panier", "/checkout", "/commandes", "/buyer/vip", "/devenir/acheteur", "/inscription/acheteur"];
-  const sellerPages = ["/seller", "/devenir/vendeur", "/inscription/vendeur"];
-
   const isActive = (path: string) => {
-    if (path === "/marketplace" || path === "/devenir/acheteur" || path === "/inscription/acheteur") {
-      return buyerPages.some(p => location.pathname.startsWith(p));
+    const onSharedPage = sharedPages.some((sharedPath) => location.pathname.startsWith(sharedPath));
+
+    if (path === "/marketplace" || path === "/devenir/acheteur") {
+      return buyerPages.some((buyerPath) => location.pathname.startsWith(buyerPath)) || (onSharedPage && activeRoleTab === "buyer");
     }
-    if (path === "/seller" || path === "/devenir/vendeur" || path === "/inscription/vendeur") {
-      // Also highlight seller when on shared pages (favorites, cart, messages) AND user is seller-only
-      if (sellerPages.some(p => location.pathname.startsWith(p))) return true;
-      if (isSeller && !isBuyer && ["/favoris", "/panier", "/messages", "/checkout", "/commandes"].some(p => location.pathname.startsWith(p))) return true;
-      return false;
+
+    if (path === "/seller" || path === "/devenir/vendeur") {
+      return sellerPages.some((sellerPath) => location.pathname.startsWith(sellerPath)) || (onSharedPage && activeRoleTab === "seller");
     }
+
     return location.pathname.startsWith(path);
   };
 
@@ -90,10 +135,21 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
         <nav className="hidden md:flex items-center gap-1 mx-6">
           {tabs.map((tab) => {
             const active = isActive(tab.path);
+            const isRoleTab = tab.path === (isBuyer ? "/marketplace" : "/devenir/acheteur") || tab.path === (isSeller ? "/seller" : "/devenir/vendeur");
             return (
               <Link
                 key={tab.path}
                 to={tab.path}
+                onClick={() => {
+                  if (tab.path === (isBuyer ? "/marketplace" : "/devenir/acheteur")) {
+                    window.sessionStorage.setItem("vary-active-role-tab", "buyer");
+                    setActiveRoleTab("buyer");
+                  }
+                  if (tab.path === (isSeller ? "/seller" : "/devenir/vendeur")) {
+                    window.sessionStorage.setItem("vary-active-role-tab", "seller");
+                    setActiveRoleTab("seller");
+                  }
+                }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   active
                     ? "bg-primary text-primary-foreground"
