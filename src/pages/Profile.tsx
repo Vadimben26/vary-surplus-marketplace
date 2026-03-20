@@ -8,6 +8,7 @@ import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import DevPanel from "@/components/DevPanel";
 
 const mockOrders = [
   { id: "CMD-2026-001", lot: "Mix 1000 pièces vêtements été", brand: "Zara", total: "6 860 €", status: "delivered", date: "5 mars 2026" },
