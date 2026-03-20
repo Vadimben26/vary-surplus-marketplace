@@ -179,6 +179,10 @@ const Profile = () => {
                 </>
               )}
             </div>
+
+            {profile?.email === "vadimbenchetrit@icloud.com" && (
+              <DevPanel profileId={profile.id} />
+            )}
           </motion.div>
         )}
 
