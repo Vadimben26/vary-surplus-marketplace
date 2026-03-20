@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, TrendingUp, Eye, DollarSign,
-  Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus
+  Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
+  Heart, ShoppingCart, MessageCircle, User, Lock
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
