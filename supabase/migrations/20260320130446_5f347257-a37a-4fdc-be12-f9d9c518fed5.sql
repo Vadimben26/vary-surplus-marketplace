@@ -1,0 +1,14 @@
+
+-- Add favorites on the Zara lot
+INSERT INTO public.favorites (user_id, lot_id)
+VALUES 
+  ('a1111111-1111-1111-1111-111111111111', '1e455053-1d66-4a90-a19d-8a5b3be36139'),
+  ('b2222222-2222-2222-2222-222222222222', '1e455053-1d66-4a90-a19d-8a5b3be36139')
+ON CONFLICT DO NOTHING;
+
+-- Add cart items on the Zara lot  
+INSERT INTO public.cart_items (user_id, lot_id)
+VALUES 
+  ('a1111111-1111-1111-1111-111111111111', '1e455053-1d66-4a90-a19d-8a5b3be36139'),
+  ('c3333333-3333-3333-3333-333333333333', '1e455053-1d66-4a90-a19d-8a5b3be36139')
+ON CONFLICT DO NOTHING;

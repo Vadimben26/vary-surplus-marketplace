@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -39,6 +39,17 @@ const SellerDashboard = () => {
   const [editingLotId, setEditingLotId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [expandedLotId, setExpandedLotId] = useState<string | null>(null);
+  const [popover, setPopover] = useState<{ lotId: string; type: "favorite" | "cart" } | null>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  // Close popover on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) setPopover(null);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -384,12 +395,78 @@ const SellerDashboard = () => {
                         <span className="flex items-center gap-1"><Package className="h-3 w-3" /> {lot.units} {t("common.units")}</span>
                         {lot.category && <span className="flex items-center gap-1"><BarChart3 className="h-3 w-3" /> {lot.category}</span>}
                         <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(lot.created_at).toLocaleDateString("fr-FR")}</span>
-                        {isVipSeller && (
-                          <>
-                            <span className="flex items-center gap-1"><Heart className="h-3 w-3 text-destructive" /> {(interestsByLot[lot.id] || []).filter((i: any) => i.type === "favorite").length}</span>
-                            <span className="flex items-center gap-1"><ShoppingCart className="h-3 w-3 text-primary" /> {(interestsByLot[lot.id] || []).filter((i: any) => i.type === "cart").length}</span>
-                          </>
-                        )}
+                        {isVipSeller && (() => {
+                          const favCount = (interestsByLot[lot.id] || []).filter((i: any) => i.type === "favorite").length;
+                          const cartCount = (interestsByLot[lot.id] || []).filter((i: any) => i.type === "cart").length;
+                          return (
+                            <>
+                              <span className="relative">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); if (favCount > 0) setPopover(popover?.lotId === lot.id && popover?.type === "favorite" ? null : { lotId: lot.id, type: "favorite" }); }}
+                                  className={`flex items-center gap-1 transition-colors rounded-md px-1.5 py-0.5 ${favCount > 0 ? "hover:bg-destructive/10 cursor-pointer" : "cursor-default"}`}
+                                >
+                                  <Heart className={`h-3 w-3 ${favCount > 0 ? "text-destructive fill-destructive" : "text-muted-foreground"}`} /> {favCount}
+                                </button>
+                                {popover?.lotId === lot.id && popover?.type === "favorite" && (
+                                  <div ref={popoverRef} className="absolute top-full left-0 mt-1 z-50 w-64 bg-card border border-border rounded-xl shadow-lg p-3 space-y-2">
+                                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">Favoris</p>
+                                    {(interestsByLot[lot.id] || []).filter((i: any) => i.type === "favorite").map((interest: any, idx: number) => {
+                                      const bp = interest.profiles;
+                                      return (
+                                        <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded-lg">
+                                          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                            <User className="h-3.5 w-3.5 text-primary" />
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-semibold text-foreground truncate">{bp?.company_name || bp?.full_name || "Acheteur"}</p>
+                                          </div>
+                                          <button
+                                            onClick={(e) => { e.stopPropagation(); navigate(`/messages?with=${bp?.id}&lot=${lot.id}`); }}
+                                            className="p-1.5 rounded-lg text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
+                                          >
+                                            <MessageCircle className="h-3.5 w-3.5" />
+                                          </button>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </span>
+                              <span className="relative">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); if (cartCount > 0) setPopover(popover?.lotId === lot.id && popover?.type === "cart" ? null : { lotId: lot.id, type: "cart" }); }}
+                                  className={`flex items-center gap-1 transition-colors rounded-md px-1.5 py-0.5 ${cartCount > 0 ? "hover:bg-primary/10 cursor-pointer" : "cursor-default"}`}
+                                >
+                                  <ShoppingCart className={`h-3 w-3 ${cartCount > 0 ? "text-primary" : "text-muted-foreground"}`} /> {cartCount}
+                                </button>
+                                {popover?.lotId === lot.id && popover?.type === "cart" && (
+                                  <div ref={popoverRef} className="absolute top-full left-0 mt-1 z-50 w-64 bg-card border border-border rounded-xl shadow-lg p-3 space-y-2">
+                                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">Panier</p>
+                                    {(interestsByLot[lot.id] || []).filter((i: any) => i.type === "cart").map((interest: any, idx: number) => {
+                                      const bp = interest.profiles;
+                                      return (
+                                        <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded-lg">
+                                          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                            <User className="h-3.5 w-3.5 text-primary" />
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-semibold text-foreground truncate">{bp?.company_name || bp?.full_name || "Acheteur"}</p>
+                                          </div>
+                                          <button
+                                            onClick={(e) => { e.stopPropagation(); navigate(`/messages?with=${bp?.id}&lot=${lot.id}`); }}
+                                            className="p-1.5 rounded-lg text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
+                                          >
+                                            <MessageCircle className="h-3.5 w-3.5" />
+                                          </button>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </span>
+                            </>
+                          );
+                        })()}
                       </div>
                       <div className="flex gap-2 mt-3">
                         <button
