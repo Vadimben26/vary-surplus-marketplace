@@ -232,8 +232,11 @@ const SellerDashboard = () => {
       <main className="px-4 md:px-8 py-6 pb-24 max-w-[1400px] mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground">{t("sellerDashboard.title")}</h1>
-            <p className="text-muted-foreground text-sm mt-1">{t("sellerDashboard.subtitle")}</p>
+            <h1 className="font-heading text-xl md:text-2xl font-bold text-foreground">
+              {profile?.full_name
+                ? `${t("marketplace.welcome", { name: profile.full_name.split(" ")[0] })} 👋`
+                : t("sellerDashboard.title")}
+            </h1>
           </div>
           <button onClick={openAdd} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors">
             <Plus className="h-4 w-4" />
