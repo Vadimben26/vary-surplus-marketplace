@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Plus, Package, TrendingUp, Eye, DollarSign,
+  Plus, Package, DollarSign,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
   Heart, ShoppingCart, MessageCircle, User, Lock
 } from "lucide-react";
@@ -38,6 +38,7 @@ const SellerDashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingLotId, setEditingLotId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [expandedLotId, setExpandedLotId] = useState<string | null>(null);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -296,8 +297,8 @@ const SellerDashboard = () => {
           <div className={`grid grid-cols-2 md:grid-cols-4 gap-4${!isVipSeller ? " blur-[6px] select-none pointer-events-none" : ""}`} aria-hidden={!isVipSeller}>
             {[
               { label: t("sellerDashboard.activeLots"), value: lots.filter((l: any) => l.status === "active").length, icon: Package, color: "text-primary" },
-              { label: t("sellerDashboard.totalViews"), value: "—", icon: Eye, color: "text-blue-500" },
-              { label: t("sellerDashboard.inquiries"), value: "—", icon: TrendingUp, color: "text-green-500" },
+              { label: t("sellerDashboard.totalFavorites"), value: (buyerInterests as any[]).filter((i: any) => i.type === "favorite").length, icon: Heart, color: "text-destructive" },
+              { label: t("sellerDashboard.totalCarts"), value: (buyerInterests as any[]).filter((i: any) => i.type === "cart").length, icon: ShoppingCart, color: "text-green-500" },
               { label: t("sellerDashboard.totalRevenue"), value: "— €", icon: DollarSign, color: "text-amber-500" },
             ].map((stat) => (
               <div key={stat.label} className="bg-card rounded-2xl border border-border p-4">
@@ -351,102 +352,158 @@ const SellerDashboard = () => {
                   key={lot.id}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-card rounded-2xl border border-border p-4 flex flex-col sm:flex-row gap-4 cursor-pointer hover:border-primary/30 transition-colors"
-                  onClick={() => navigate(`/lot/${lot.id}`)}
+                  className={`bg-card rounded-2xl border transition-colors ${expandedLotId === lot.id ? "border-primary/40" : "border-border hover:border-primary/30"}`}
                 >
-                  <div className="w-full sm:w-28 h-28 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-                    {lotImage ? (
-                      <img src={lotImage} alt={lot.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Package className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-semibold text-primary uppercase">{lot.brand}</span>
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${sc.color}`}>
-                            <StatusIcon className="h-3 w-3" /> {sc.label}
-                          </span>
+                  <div
+                    className="p-4 flex flex-col sm:flex-row gap-4 cursor-pointer"
+                    onClick={() => setExpandedLotId(expandedLotId === lot.id ? null : lot.id)}
+                  >
+                    <div className="w-full sm:w-28 h-28 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+                      {lotImage ? (
+                        <img src={lotImage} alt={lot.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="h-8 w-8 text-muted-foreground" />
                         </div>
-                        <h3 className="font-heading font-semibold text-foreground text-sm line-clamp-1">{lot.title}</h3>
-                      </div>
-                      <span className="font-heading font-bold text-foreground whitespace-nowrap">{lot.price.toLocaleString("fr-FR")} €</span>
+                      )}
                     </div>
-                    <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><Package className="h-3 w-3" /> {lot.units} {t("common.units")}</span>
-                      {lot.category && <span className="flex items-center gap-1"><BarChart3 className="h-3 w-3" /> {lot.category}</span>}
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(lot.created_at).toLocaleDateString("fr-FR")}</span>
-                    </div>
-                    <div className="flex gap-2 mt-3">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); openEdit(lot); }}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
-                      >
-                        <Edit className="h-3 w-3" /> {t("sellerDashboard.editLot")}
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setDeletingId(lot.id); }}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="h-3 w-3" /> {t("sellerDashboard.deleteLot")}
-                      </button>
-                    </div>
-
-                    {/* Buyer interest section - VIP only */}
-                    {isVipSeller && interestsByLot[lot.id]?.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-border">
-                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("sellerDashboard.buyerInterest")}</p>
-                        <div className="flex flex-wrap gap-2">
-                          {interestsByLot[lot.id].map((interest: any, idx: number) => {
-                            const buyerProfile = interest.profiles;
-                            const isFav = interest.type === "favorite";
-                            return (
-                              <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-muted rounded-lg text-xs">
-                                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                  <User className="h-3 w-3 text-primary" />
-                                </div>
-                                <span className="text-foreground font-medium truncate max-w-[100px]">
-                                  {buyerProfile?.company_name || buyerProfile?.full_name || "Acheteur"}
-                                </span>
-                                {isFav ? (
-                                  <Heart className="h-3 w-3 text-destructive fill-destructive flex-shrink-0" />
-                                ) : (
-                                  <ShoppingCart className="h-3 w-3 text-primary flex-shrink-0" />
-                                )}
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate(`/messages?with=${buyerProfile?.id}`);
-                                  }}
-                                  className="p-0.5 text-primary hover:bg-primary/10 rounded transition-colors"
-                                  title={t("lotDetail.contactSeller")}
-                                >
-                                  <MessageCircle className="h-3 w-3" />
-                                </button>
-                              </div>
-                            );
-                          })}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-semibold text-primary uppercase">{lot.brand}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${sc.color}`}>
+                              <StatusIcon className="h-3 w-3" /> {sc.label}
+                            </span>
+                          </div>
+                          <h3 className="font-heading font-semibold text-foreground text-sm line-clamp-1">{lot.title}</h3>
                         </div>
+                        <span className="font-heading font-bold text-foreground whitespace-nowrap">{lot.price.toLocaleString("fr-FR")} €</span>
                       </div>
-                    )}
-
-                    {/* Non-VIP teaser */}
-                    {!isVipSeller && (
-                      <div className="mt-3 pt-3 border-t border-border">
+                      <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1"><Package className="h-3 w-3" /> {lot.units} {t("common.units")}</span>
+                        {lot.category && <span className="flex items-center gap-1"><BarChart3 className="h-3 w-3" /> {lot.category}</span>}
+                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(lot.created_at).toLocaleDateString("fr-FR")}</span>
+                        {isVipSeller && (
+                          <>
+                            <span className="flex items-center gap-1"><Heart className="h-3 w-3 text-destructive" /> {(interestsByLot[lot.id] || []).filter((i: any) => i.type === "favorite").length}</span>
+                            <span className="flex items-center gap-1"><ShoppingCart className="h-3 w-3 text-primary" /> {(interestsByLot[lot.id] || []).filter((i: any) => i.type === "cart").length}</span>
+                          </>
+                        )}
+                      </div>
+                      <div className="flex gap-2 mt-3">
                         <button
-                          onClick={(e) => { e.stopPropagation(); navigate("/seller/vip"); }}
-                          className="flex items-center gap-1.5 text-[10px] text-primary font-medium hover:underline"
+                          onClick={(e) => { e.stopPropagation(); openEdit(lot); }}
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
                         >
-                          <Lock className="h-3 w-3" />
-                          {t("sellerDashboard.vipBuyerInsight")}
+                          <Edit className="h-3 w-3" /> {t("sellerDashboard.editLot")}
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setDeletingId(lot.id); }}
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="h-3 w-3" /> {t("sellerDashboard.deleteLot")}
                         </button>
                       </div>
-                    )}
+                    </div>
                   </div>
+
+                  {/* Expanded detail panel */}
+                  <AnimatePresence>
+                    {expandedLotId === lot.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-4 pb-4 border-t border-border pt-4 space-y-4">
+                          {/* Lot images gallery */}
+                          {lot.images?.length > 1 && (
+                            <div className="flex gap-2 overflow-x-auto">
+                              {lot.images.map((img: string, i: number) => (
+                                <img key={i} src={img} alt={`${lot.title} ${i + 1}`} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Description */}
+                          {lot.description && (
+                            <p className="text-xs text-muted-foreground leading-relaxed">{lot.description}</p>
+                          )}
+
+                          {/* Lot items */}
+                          {lot.lot_items?.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("lotDetail.lotContent")}</p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                                {lot.lot_items.map((item: any, i: number) => (
+                                  <div key={i} className="flex items-center justify-between py-1 px-2 bg-muted/50 rounded text-xs">
+                                    <span className="text-foreground">{item.name} {item.size && <span className="text-muted-foreground">({item.size})</span>}</span>
+                                    <span className="font-semibold text-primary">{item.quantity} pcs</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* VIP: Buyer interest details */}
+                          {isVipSeller && interestsByLot[lot.id]?.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("sellerDashboard.buyerInterest")}</p>
+                              <div className="space-y-2">
+                                {interestsByLot[lot.id].map((interest: any, idx: number) => {
+                                  const buyerProfile = interest.profiles;
+                                  const isFav = interest.type === "favorite";
+                                  return (
+                                    <div key={idx} className="flex items-center gap-3 p-2.5 bg-muted rounded-xl">
+                                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                        <User className="h-4 w-4 text-primary" />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-semibold text-foreground truncate">
+                                          {buyerProfile?.company_name || buyerProfile?.full_name || "Acheteur"}
+                                        </p>
+                                        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                          {isFav ? (
+                                            <><Heart className="h-3 w-3 text-destructive fill-destructive" /> Favori</>
+                                          ) : (
+                                            <><ShoppingCart className="h-3 w-3 text-primary" /> Panier</>
+                                          )}
+                                        </p>
+                                      </div>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          navigate(`/messages?with=${buyerProfile?.id}&lot=${lot.id}`);
+                                        }}
+                                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                                      >
+                                        <MessageCircle className="h-3 w-3" />
+                                        Contacter
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Non-VIP teaser */}
+                          {!isVipSeller && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); navigate("/seller/vip"); }}
+                              className="flex items-center gap-1.5 text-xs text-primary font-medium hover:underline"
+                            >
+                              <Lock className="h-3 w-3" />
+                              {t("sellerDashboard.vipBuyerInsight")}
+                            </button>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               );
             })}
