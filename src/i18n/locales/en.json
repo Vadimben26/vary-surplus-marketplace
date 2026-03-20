@@ -38,6 +38,8 @@
     "favorites": "Favorites",
     "cart": "Cart",
     "messages": "Messages",
+    "tracking": "Tracking",
+    "disputes": "Disputes",
     "becomeAlsoSeller": "Become a seller too",
     "becomeAlsoBuyer": "Become a buyer too",
     "roleGatewayTitle": "{{role}} access required",
