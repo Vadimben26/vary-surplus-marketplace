@@ -439,6 +439,24 @@
     "faq6q": "Puis-je filtrer les acheteurs qui voient mes lots ?",
     "faq6a": "Oui, en tant que vendeur vous pouvez restreindre la visibilité de vos articles par localisation, type de magasin et chiffre d'affaires des acheteurs."
   },
+  "sellerTracking": {
+    "title": "Suivi des commandes",
+    "empty": "Aucune commande en cours",
+    "paid": "Payé",
+    "preparing": "Préparation",
+    "shipped": "Expédié",
+    "delivered": "Livré",
+    "confirmed": "Confirmé",
+    "trackingNumber": "N° de suivi"
+  },
+  "sellerDisputes": {
+    "title": "Litiges",
+    "empty": "Aucun litige en cours",
+    "emptyDesc": "Les litiges apparaîtront ici si un acheteur signale un problème avec sa commande.",
+    "disputed": "En litige",
+    "refunded": "Remboursé",
+    "contactBuyer": "Contacter l'acheteur"
+  },
   "notFound": {
     "title": "404",
     "subtitle": "Oups ! Page introuvable",
