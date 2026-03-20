@@ -21,7 +21,7 @@ const referralSources = [
   "Un responsable commercial m'a contacté",
 ];
 
-const visibilityLocations = ["France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique", "Royaume-Uni"];
+const visibilityLocations = ["France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique", "Royaume-Uni", "Pologne", "Roumanie", "Suède", "Autriche", "Grèce", "Tchéquie", "Danemark", "Irlande", "Hongrie", "Croatie", "Bulgarie", "Finlande", "Slovaquie", "Lituanie", "Lettonie", "Slovénie", "Estonie", "Chypre", "Luxembourg", "Malte"];
 const visibilityStoreTypes = ["Magasin physique", "Magasin en ligne", "Revendeur marketplace", "Revendeur réseaux sociaux", "Grossiste / Distributeur"];
 const visibilityRevenues = ["Moins de 50.000 €", "50.000 – 200.000 €", "200.000 – 500.000 €", "500.000 – 1M €", "Plus de 1M €"];
 
