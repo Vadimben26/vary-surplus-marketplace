@@ -38,6 +38,8 @@
     "favorites": "Favorites",
     "cart": "Cart",
     "messages": "Messages",
+    "tracking": "Tracking",
+    "disputes": "Disputes",
     "becomeAlsoSeller": "Become a seller too",
     "becomeAlsoBuyer": "Become a buyer too",
     "roleGatewayTitle": "{{role}} access required",
@@ -436,6 +438,24 @@
     "faq5a": "Each registration is verified by our team: SIRET/VAT, address, actual business activity. Only verified companies can access the platform, ensuring reliable B2B transactions.",
     "faq6q": "Can I filter which buyers see my lots?",
     "faq6a": "Yes, as a seller you can restrict the visibility of your items by location, store type, and revenue of buyers."
+  },
+  "sellerTracking": {
+    "title": "Order Tracking",
+    "empty": "No orders in progress",
+    "paid": "Paid",
+    "preparing": "Preparing",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "confirmed": "Confirmed",
+    "trackingNumber": "Tracking #"
+  },
+  "sellerDisputes": {
+    "title": "Disputes",
+    "empty": "No disputes",
+    "emptyDesc": "Disputes will appear here if a buyer reports an issue with their order.",
+    "disputed": "Disputed",
+    "refunded": "Refunded",
+    "contactBuyer": "Contact buyer"
   },
   "notFound": {
     "title": "404",

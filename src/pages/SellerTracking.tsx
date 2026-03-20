@@ -1,0 +1,131 @@
+import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import TopNav from "@/components/TopNav";
+import BottomNav from "@/components/BottomNav";
+import { Truck, Package, CheckCircle2, Clock } from "lucide-react";
+import { motion } from "framer-motion";
+
+const statusSteps = ["paid", "preparing", "shipped", "delivered", "confirmed"] as const;
+
+const SellerTracking = () => {
+  const { t } = useTranslation();
+  const { profile } = useAuth();
+
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ["seller-tracking", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*, lots(title, brand, images), profiles!orders_buyer_id_fkey(full_name, company_name)")
+        .eq("seller_id", profile.id)
+        .in("status", ["paid", "preparing", "shipped", "delivered", "confirmed"])
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!profile?.id,
+  });
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "paid": return <Clock className="h-4 w-4 text-amber-500" />;
+      case "preparing": return <Package className="h-4 w-4 text-blue-500" />;
+      case "shipped": return <Truck className="h-4 w-4 text-primary" />;
+      case "delivered": return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case "confirmed": return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+      default: return <Clock className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      paid: t("sellerTracking.paid"),
+      preparing: t("sellerTracking.preparing"),
+      shipped: t("sellerTracking.shipped"),
+      delivered: t("sellerTracking.delivered"),
+      confirmed: t("sellerTracking.confirmed"),
+    };
+    return labels[status] || status;
+  };
+
+  const getStepIndex = (status: string) => statusSteps.indexOf(status as any);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <TopNav />
+      <main className="px-4 md:px-8 py-6 pb-24 max-w-[1400px] mx-auto">
+        <h1 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-6">
+          {t("sellerTracking.title")}
+        </h1>
+
+        {isLoading ? (
+          <div className="text-center py-16 text-muted-foreground">{t("common.loading")}</div>
+        ) : orders.length === 0 ? (
+          <div className="text-center py-16">
+            <Truck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">{t("sellerTracking.empty")}</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {orders.map((order: any, i: number) => {
+              const lot = order.lots;
+              const buyer = order.profiles;
+              const currentStep = getStepIndex(order.status);
+
+              return (
+                <motion.div
+                  key={order.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="bg-card rounded-2xl border border-border p-4"
+                >
+                  <div className="flex items-start gap-3 mb-4">
+                    {lot?.images?.[0] && (
+                      <img src={lot.images[0]} alt={lot.title} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-heading font-semibold text-foreground text-sm line-clamp-1">{lot?.title}</h3>
+                      <p className="text-xs text-muted-foreground">{buyer?.company_name || buyer?.full_name || "Acheteur"}</p>
+                      <p className="text-xs font-semibold text-primary mt-0.5">{Number(order.amount).toLocaleString("fr-FR")} €</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-xs font-medium">
+                      {getStatusIcon(order.status)}
+                      {getStatusLabel(order.status)}
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="flex items-center gap-1">
+                    {statusSteps.map((step, idx) => (
+                      <div key={step} className="flex-1 flex items-center gap-1">
+                        <div className={`h-1.5 flex-1 rounded-full transition-colors ${idx <= currentStep ? "bg-primary" : "bg-muted"}`} />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-between mt-1.5">
+                    {statusSteps.map((step) => (
+                      <span key={step} className="text-[8px] text-muted-foreground">{getStatusLabel(step)}</span>
+                    ))}
+                  </div>
+
+                  {order.tracking_number && (
+                    <p className="text-xs text-muted-foreground mt-3">
+                      {t("sellerTracking.trackingNumber")}: <span className="font-mono font-semibold text-foreground">{order.tracking_number}</span>
+                    </p>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </main>
+      <BottomNav />
+    </div>
+  );
+};
+
+export default SellerTracking;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Heart, ShoppingCart, MessageCircle } from "lucide-react";
+import { Heart, ShoppingCart, MessageCircle, Truck, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import varyLogo from "@/assets/vary-logo.png";
@@ -9,6 +9,8 @@ import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+const SELLER_PATHS = ["/seller", "/seller/vip", "/seller/suivi", "/seller/litiges"];
+
 const BottomNav = () => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -16,6 +18,8 @@ const BottomNav = () => {
   const { cartItems } = useCart();
   const { profile } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const isSellerInterface = SELLER_PATHS.some(p => location.pathname.startsWith(p));
 
   // Fetch unread message count
   useEffect(() => {
@@ -53,12 +57,21 @@ const BottomNav = () => {
     return () => window.removeEventListener("vary-unread-count", handler);
   }, []);
 
-  const navItems = [
+  const buyerNavItems = [
     { icon: null, label: t("nav.home"), path: "/marketplace", isLogo: true },
     { icon: Heart, label: t("nav.favorites"), path: "/favoris", isLogo: false },
     { icon: ShoppingCart, label: t("nav.cart"), path: "/panier", isLogo: false },
     { icon: MessageCircle, label: t("nav.messages"), path: "/messages", isLogo: false },
   ];
+
+  const sellerNavItems = [
+    { icon: null, label: t("nav.home"), path: "/seller", isLogo: true },
+    { icon: Truck, label: t("nav.tracking"), path: "/seller/suivi", isLogo: false },
+    { icon: AlertTriangle, label: t("nav.disputes"), path: "/seller/litiges", isLogo: false },
+    { icon: MessageCircle, label: t("nav.messages"), path: "/messages", isLogo: false },
+  ];
+
+  const navItems = isSellerInterface ? sellerNavItems : buyerNavItems;
 
   const getBadge = (path: string) => {
     if (path === "/favoris") return favorites.length;
