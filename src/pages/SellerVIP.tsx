@@ -75,7 +75,7 @@ const SellerVIP = () => {
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-card rounded-2xl border-2 border-primary p-6 md:p-8 mb-6">
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="font-heading text-4xl font-bold text-foreground">299 €</span>
+            <span className="font-heading text-4xl font-bold text-foreground">99 €</span>
             <span className="text-muted-foreground text-sm">{t("sellerVIP.perMonth")}</span>
           </div>
           <p className="text-sm text-muted-foreground mb-6">{t("sellerVIP.noCommitment")}</p>

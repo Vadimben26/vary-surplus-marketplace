@@ -85,13 +85,14 @@ serve(async (req) => {
       });
     }
 
+    const priceAmount = plan === "seller_vip" ? 9900 : 29900; // seller 99€, buyer 299€
     const prices = await stripe.prices.list({ product: product.id, active: true });
-    let price = prices.data.find(p => p.unit_amount === 29900 && p.recurring?.interval === "month");
+    let price = prices.data.find(p => p.unit_amount === priceAmount && p.recurring?.interval === "month");
     
     if (!price) {
       price = await stripe.prices.create({
         product: product.id,
-        unit_amount: 29900, // 299€
+        unit_amount: priceAmount,
         currency: "eur",
         recurring: { interval: "month" },
       });
