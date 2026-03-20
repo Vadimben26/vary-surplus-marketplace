@@ -19,7 +19,17 @@ const BottomNav = () => {
   const { profile } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const isSellerInterface = SELLER_PATHS.some(p => location.pathname.startsWith(p));
+  // Track last interface in sessionStorage so /messages knows which side we're on
+  const isOnSellerPath = SELLER_PATHS.some(p => location.pathname.startsWith(p));
+  useEffect(() => {
+    if (isOnSellerPath) {
+      sessionStorage.setItem("vary_last_interface", "seller");
+    } else if (location.pathname !== "/messages") {
+      sessionStorage.setItem("vary_last_interface", "buyer");
+    }
+  }, [location.pathname, isOnSellerPath]);
+
+  const isSellerInterface = isOnSellerPath || (location.pathname === "/messages" && sessionStorage.getItem("vary_last_interface") === "seller");
 
   // Fetch unread message count
   useEffect(() => {
