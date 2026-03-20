@@ -43,7 +43,7 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
   }, []);
 
   const buyerPages = ["/marketplace", "/lot/", "/buyer/vip", "/devenir/acheteur", "/inscription/acheteur"];
-  const sellerPages = ["/seller", "/seller/vip", "/devenir/vendeur", "/inscription/vendeur"];
+  const sellerPages = ["/seller", "/seller/vip", "/seller/suivi", "/seller/litiges", "/devenir/vendeur", "/inscription/vendeur"];
   const sharedPages = ["/favoris", "/panier", "/messages", "/checkout", "/commandes", "/profil"];
 
   useEffect(() => {
