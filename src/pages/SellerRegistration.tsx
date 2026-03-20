@@ -75,9 +75,7 @@ const SellerRegistration = () => {
       if (!selectedVolume) return t("sellerReg.validation.volume");
     }
     if (step === 4) {
-      if (!speaksEnglish) return t("sellerReg.validation.english");
       if (!selectedChannel) return t("sellerReg.validation.channel");
-      if (!selectedReferral) return t("sellerReg.validation.referral");
     }
     return null;
   };
