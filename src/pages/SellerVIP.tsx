@@ -89,8 +89,8 @@ const SellerVIP = () => {
             ))}
           </div>
 
-          <button onClick={handleSubscribe} className="w-full py-3.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
-            <Crown className="h-4 w-4" />
+          <button onClick={handleSubscribe} disabled={loading} className="w-full py-3.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
             {t("sellerVIP.subscribe")}
           </button>
         </motion.div>
