@@ -17,6 +17,8 @@ import ContactFAQ from "./pages/ContactFAQ.tsx";
 import LotDetail from "./pages/LotDetail.tsx";
 import Favorites from "./pages/Favorites.tsx";
 import Cart from "./pages/Cart.tsx";
+import Checkout from "./pages/Checkout.tsx";
+import Orders from "./pages/Orders.tsx";
 import Messages from "./pages/Messages.tsx";
 import Profile from "./pages/Profile.tsx";
 import BuyerVIP from "./pages/BuyerVIP.tsx";
