@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import LotCard from "@/components/LotCard";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
