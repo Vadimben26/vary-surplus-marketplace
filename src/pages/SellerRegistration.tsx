@@ -35,7 +35,7 @@ const SellerRegistration = () => {
   const [selectedVolume, setSelectedVolume] = useState("");
   const [selectedChannel, setSelectedChannel] = useState("");
   const [selectedReferral, setSelectedReferral] = useState("");
-  const [speaksEnglish, setSpeaksEnglish] = useState("");
+  const [warehouseFiles, setWarehouseFiles] = useState<File[]>([]);
   const [consent, setConsent] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", email: "", phone: "", password: "",
