@@ -70,6 +70,52 @@ const SellerDashboard = () => {
     enabled: !!profile?.id,
   });
 
+  // Check if seller is VIP
+  const { data: isVipSeller = false } = useQuery({
+    queryKey: ["seller-vip-status", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return false;
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("id")
+        .eq("user_id", profile.id)
+        .eq("plan", "seller_vip")
+        .eq("status", "active")
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!profile?.id,
+  });
+
+  // Fetch buyer interest (favorites + cart) on seller's lots - only for VIP
+  const { data: buyerInterests = [] } = useQuery({
+    queryKey: ["buyer-interests", profile?.id, isVipSeller],
+    queryFn: async () => {
+      if (!profile?.id || !isVipSeller) return [];
+      // Get favorites on my lots
+      const { data: favs } = await supabase
+        .from("favorites")
+        .select("lot_id, user_id, profiles!favorites_user_id_fkey(id, full_name, company_name)")
+        .in("lot_id", lots.map((l: any) => l.id));
+      // Get cart items on my lots
+      const { data: carts } = await supabase
+        .from("cart_items")
+        .select("lot_id, user_id, profiles!cart_items_user_id_fkey(id, full_name, company_name)")
+        .in("lot_id", lots.map((l: any) => l.id));
+      return [...(favs || []).map((f: any) => ({ ...f, type: "favorite" })), ...(carts || []).map((c: any) => ({ ...c, type: "cart" }))];
+    },
+    enabled: !!profile?.id && isVipSeller && lots.length > 0,
+  });
+
+  // Group interests by lot
+  const interestsByLot = (buyerInterests as any[]).reduce((acc: Record<string, any[]>, item: any) => {
+    if (!acc[item.lot_id]) acc[item.lot_id] = [];
+    // Deduplicate by user_id + type
+    const exists = acc[item.lot_id].find((i: any) => i.user_id === item.user_id && i.type === item.type);
+    if (!exists) acc[item.lot_id].push(item);
+    return acc;
+  }, {} as Record<string, any[]>);
+
   const filteredLots = lots.filter((l: any) => l.status === activeTab);
 
   const statusConfig = {
