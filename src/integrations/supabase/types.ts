@@ -402,6 +402,8 @@ export type Database = {
       get_my_profile_id: { Args: never; Returns: string }
       is_seller: { Args: never; Returns: boolean }
       is_seller_of_lot: { Args: { _lot_id: string }; Returns: boolean }
+      is_vip_buyer: { Args: never; Returns: boolean }
+      is_vip_seller: { Args: never; Returns: boolean }
     }
     Enums: {
       lot_status: "active" | "draft" | "sold"
