@@ -1,101 +1,108 @@
 
 
-# Plan : Passer de mock data à un vrai backend avec Lovable Cloud
+# Audit : fonctionnalités manquantes pour la mise en ligne
 
-## Contexte
+## Ce qui fonctionne déjà
+- Authentification (inscription, connexion, profils)
+- CRUD lots vendeur (création, modification, suppression avec photos)
+- Marketplace acheteur (consultation, filtres, détail lot)
+- Favoris et panier (base de données)
+- Messagerie basique entre utilisateurs
+- Traduction automatique des messages
+- i18n (FR/EN/ES)
+- RLS et sécurité de base
 
-Actuellement, tout le site fonctionne avec des données fictives (mockLots.ts) et une authentification simulée via localStorage. Pour que les vendeurs puissent publier de vrais lots et que les acheteurs les voient, il faut mettre en place une vraie base de données, une authentification et un stockage d'images.
+---
 
-## Ce qui va changer pour l'utilisateur
+## Fonctionnalités critiques manquantes (bloquantes pour la mise en ligne)
 
-- Les vendeurs pourront s'inscrire avec un vrai compte (email/mot de passe), publier des lots avec photos, les modifier et les supprimer
-- Les acheteurs verront les vrais lots publiés par les vendeurs
-- Les favoris, le panier et les messages seront liés au compte utilisateur
-- Les données persistent entre les sessions et sont partagées entre tous les utilisateurs
+### 1. Paiement et transactions
+- **Intégration Stripe** pour le paiement comptant des lots
+- **Système d'escrow** : retenir les fonds jusqu'à confirmation de réception par l'acheteur
+- **Commission automatique** de 19% côté acheteur (affichage) + marge Vary sur la transaction
+- **Abonnements VIP** vendeur et acheteur à 299€/mois via Stripe
+- **Facturation** : génération de factures pour chaque transaction
 
-## Architecture technique
+### 2. Flux de commande complet
+- Page de checkout avec récapitulatif et paiement
+- Statuts de commande (payé → en préparation → expédié → livré → confirmé)
+- Tableau de bord des commandes côté acheteur ET vendeur
+- Notification de confirmation de réception par l'acheteur (libère les fonds)
+- Gestion des litiges / réclamations
 
-### 1. Activer Lovable Cloud et configurer l'authentification
+### 3. Transport intégré
+- Calcul automatique des frais de transport (API transporteur ou tarifs fixes par zone)
+- Suivi de colis (numéro de tracking)
+- Intégration avec un ou plusieurs transporteurs
 
-- Activer Supabase via Lovable Cloud
-- Configurer l'authentification par email/mot de passe
-- Remplacer le système localStorage (`src/lib/auth.ts`) par Supabase Auth
-- Créer un contexte AuthContext pour gérer la session utilisateur dans toute l'app
+### 4. Notifications
+- Emails transactionnels (confirmation commande, expédition, réception)
+- Notifications in-app (nouveau message, commande, etc.)
+- Emails d'authentification brandés (domaine personnalisé)
 
-### 2. Créer les tables de base de données
+### 5. Vérification des professionnels
+- Validation manuelle ou automatique des inscriptions (SIRET, documents)
+- Workflow d'approbation admin avant activation du compte
+- Upload et vérification de documents légaux (Kbis, etc.)
 
-```text
-profiles
-├── id (uuid, FK auth.users)
-├── email
-├── full_name
-├── phone
-├── company_name
-├── company_description
-├── user_type (buyer | seller | both)
-├── siret
-├── created_at
+---
 
-lots
-├── id (uuid)
-├── seller_id (FK profiles)
-├── title, brand, price, units
-├── category, location, description
-├── status (active | draft | sold)
-├── images (text[])
-├── created_at
+## Fonctionnalités importantes (fortement recommandées)
 
-lot_items
-├── id (uuid)
-├── lot_id (FK lots)
-├── name, quantity, size
+### 6. Panel d'administration
+- Dashboard admin pour Vary (vous)
+- Modération des lots publiés
+- Gestion des utilisateurs (suspension, vérification)
+- Suivi des transactions et commissions
+- Statistiques globales (GMV, nombre de lots, utilisateurs actifs)
 
-favorites
-├── user_id (FK profiles)
-├── lot_id (FK lots)
+### 7. Système d'avis réels
+- Remplacer les avis fictifs par de vrais avis post-transaction
+- Un acheteur ne peut noter qu'après confirmation de réception
+- Note moyenne calculée dynamiquement
 
-cart_items
-├── user_id (FK profiles)
-├── lot_id (FK lots)
+### 8. Recherche avancée
+- Recherche full-text performante (Supabase Full Text Search ou Algolia)
+- Filtres combinés plus robustes
+- Tri par pertinence, prix, date, note
 
-messages
-├── id, sender_id, receiver_id
-├── lot_id (optional)
-├── content, read, created_at
-```
+### 9. SEO et performance
+- Méta-tags dynamiques par lot (Open Graph, Twitter Cards)
+- Sitemap automatique
+- Pages statiques optimisées (CGV, mentions légales, politique de confidentialité)
 
-### 3. Sécurité (RLS)
+### 10. Pages légales obligatoires
+- CGV / CGU
+- Politique de confidentialité (RGPD)
+- Mentions légales
+- Politique de cookies
 
-- Tout le monde peut lire les lots actifs
-- Seul le vendeur propriétaire peut créer/modifier/supprimer ses lots
-- Chaque utilisateur ne voit que ses favoris et son panier
-- Les messages sont visibles uniquement par l'expéditeur et le destinataire
+---
 
-### 4. Stockage d'images
+## Fonctionnalités secondaires (améliorations post-lancement)
 
-- Créer un bucket `lot-images` pour les photos de lots
-- Les vendeurs peuvent uploader des images lors de la création/modification d'un lot
-- RLS : seul le propriétaire peut uploader/supprimer, lecture publique
+- Système de recommandations personnalisées
+- Analytics vendeur avancées (VIP)
+- Programme de parrainage
+- API publique pour intégrations tierces
+- App mobile (PWA)
+- Chat en temps réel (WebSocket au lieu de polling)
+- Multi-devises
 
-### 5. Adapter le code existant
+---
 
-- **Marketplace** : remplacer `mockLots` par un fetch Supabase des lots actifs
-- **LotDetail** : charger le lot + ses items + le profil vendeur depuis Supabase
-- **SellerDashboard** : CRUD réel sur la table `lots` au lieu du state local
-- **Favoris/Panier** : remplacer les contextes localStorage par des requêtes Supabase
-- **Registration** : créer un vrai compte Supabase Auth + profil à l'inscription
-- **Profile** : lire/modifier le profil depuis la base de données
+## Ordre de priorité recommandé
 
-### 6. Ordre d'implémentation
+1. **Pages légales** (CGV, RGPD, mentions) — obligatoire légalement
+2. **Paiement Stripe + escrow** — sans paiement, pas de marketplace
+3. **Flux de commande complet** — checkout → livraison → confirmation
+4. **Emails transactionnels** — domaine personnalisé + notifications
+5. **Vérification des professionnels** — confiance et sécurité
+6. **Panel admin** — pour gérer la plateforme
+7. **Avis réels** — remplacer les fictifs
+8. **Transport intégré** — calcul et suivi
+9. **Recherche avancée** — améliorer l'expérience
+10. **SEO + performance** — acquisition organique
 
-1. Activer Lovable Cloud + Auth
-2. Migrations : tables + RLS + bucket storage
-3. AuthContext + remplacement de `src/lib/auth.ts`
-4. Adaptation des formulaires d'inscription (buyer + seller)
-5. CRUD lots vendeur (SellerDashboard)
-6. Marketplace + LotDetail (lecture depuis DB)
-7. Favoris + Panier (DB au lieu de localStorage)
-8. Messages (DB)
-
-C'est un chantier conséquent, je procéderai étape par étape pour que chaque partie soit testable avant de passer à la suivante.
+C'est un chantier conséquent. Je recommande de commencer par les paiements Stripe + pages légales, car ce sont les deux prérequis absolus pour accepter de vraies transactions.
 
