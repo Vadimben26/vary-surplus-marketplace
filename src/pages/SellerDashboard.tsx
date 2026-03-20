@@ -413,19 +413,18 @@ const SellerDashboard = () => {
                                     {(interestsByLot[lot.id] || []).filter((i: any) => i.type === "favorite").map((interest: any, idx: number) => {
                                       const bp = interest.profiles;
                                       return (
-                                        <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded-lg">
+                                        <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors"
+                                          onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); setPopover(null); navigate(`/messages?with=${bp?.id}&lot=${lot.id}`); }}
+                                        >
                                           <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                                             <User className="h-3.5 w-3.5 text-primary" />
                                           </div>
                                           <div className="flex-1 min-w-0">
                                             <p className="text-xs font-semibold text-foreground truncate">{bp?.company_name || bp?.full_name || "Acheteur"}</p>
                                           </div>
-                                          <button
-                                            onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); setPopover(null); navigate(`/messages?with=${bp?.id}&lot=${lot.id}`); }}
-                                            className="p-1.5 rounded-lg text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
-                                          >
+                                          <div className="p-1.5 rounded-lg text-primary bg-primary/10">
                                             <MessageCircle className="h-3.5 w-3.5" />
-                                          </button>
+                                          </div>
                                         </div>
                                       );
                                     })}
