@@ -436,5 +436,75 @@
     "title": "404",
     "subtitle": "Oups ! Page introuvable",
     "returnHome": "Retour à l'accueil"
+  },
+  "legal": {
+    "cgv": {
+      "title": "Conditions Générales de Vente",
+      "lastUpdated": "Dernière mise à jour : mars 2026",
+      "s1Title": "1. Objet",
+      "s1Text": "Les présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre les utilisateurs professionnels (acheteurs et vendeurs) et la plateforme Vary, marketplace B2B spécialisée dans le commerce de gros de lots de marchandises.",
+      "s2Title": "2. Inscription et éligibilité",
+      "s2Text": "L'accès à la plateforme est réservé aux professionnels disposant d'un numéro SIRET ou équivalent européen valide. Chaque inscription est soumise à vérification par l'équipe Vary avant activation du compte.",
+      "s3Title": "3. Prix et paiement",
+      "s3Text": "Tous les prix sont affichés hors taxes (HT). Le paiement s'effectue au comptant lors de la commande. Les fonds sont retenus en escrow par Vary jusqu'à la confirmation de réception par l'acheteur. Une commission est appliquée sur chaque transaction.",
+      "s4Title": "4. Commandes et livraison",
+      "s4Text": "Une fois la commande confirmée et le paiement validé, le vendeur dispose de 5 jours ouvrés pour expédier les marchandises. Le vendeur est responsable de l'emballage et de l'expédition. L'acheteur dispose de 48h après réception pour signaler tout problème.",
+      "s5Title": "5. Escrow et libération des fonds",
+      "s5Text": "Les fonds sont conservés par Vary pendant toute la durée de la transaction. Ils sont libérés au vendeur après confirmation de réception par l'acheteur ou automatiquement après 7 jours sans réclamation.",
+      "s6Title": "6. Litiges et réclamations",
+      "s6Text": "En cas de litige, les parties disposent de 7 jours pour trouver un accord amiable via la messagerie Vary. Passé ce délai, Vary intervient en tant que médiateur et prend une décision finale basée sur les preuves fournies (photos, documents de transport).",
+      "s7Title": "7. Abonnements VIP",
+      "s7Text": "Les abonnements VIP acheteur et vendeur sont facturés mensuellement à 299€ HT/mois. L'abonnement est renouvelé automatiquement sauf résiliation avant la fin de la période en cours. La résiliation prend effet à la fin du mois en cours.",
+      "s8Title": "8. Droit applicable",
+      "s8Text": "Les présentes CGV sont régies par le droit français. Tout litige non résolu à l'amiable sera soumis aux tribunaux compétents de Paris."
+    },
+    "mentions": {
+      "title": "Mentions Légales",
+      "lastUpdated": "Dernière mise à jour : mars 2026",
+      "s1Title": "1. Éditeur du site",
+      "s1Text": "Le site Vary est édité par Vary SAS, société par actions simplifiée au capital de [montant] euros, immatriculée au RCS de Paris sous le numéro [numéro]. Siège social : [adresse]. Directeur de la publication : [nom du dirigeant]. Contact : contact@vary.com",
+      "s2Title": "2. Hébergement",
+      "s2Text": "Le site est hébergé par Lovable Cloud (infrastructure Supabase), dont le siège social est situé aux États-Unis. Les données sont stockées sur des serveurs situés dans l'Union Européenne conformément au RGPD.",
+      "s3Title": "3. Propriété intellectuelle",
+      "s3Text": "L'ensemble des éléments du site Vary (textes, images, logos, code source, base de données) est protégé par le droit de la propriété intellectuelle. Toute reproduction, même partielle, est interdite sans autorisation préalable écrite de Vary SAS.",
+      "s4Title": "4. Responsabilité",
+      "s4Text": "Vary agit en tant qu'intermédiaire entre acheteurs et vendeurs professionnels. Vary ne peut être tenu responsable de la qualité, la conformité ou la livraison des marchandises vendues sur la plateforme. Le système d'escrow vise à protéger les deux parties."
+    },
+    "privacy": {
+      "title": "Politique de Confidentialité",
+      "lastUpdated": "Dernière mise à jour : mars 2026",
+      "s1Title": "1. Données collectées",
+      "s1Text": "Nous collectons les données suivantes : nom, prénom, email, téléphone, nom de société, numéro SIRET, adresse, type d'activité, et données de navigation. Ces données sont nécessaires au fonctionnement de la plateforme et à la vérification des comptes professionnels.",
+      "s2Title": "2. Finalités du traitement",
+      "s2Text": "Vos données sont utilisées pour : la gestion de votre compte, le traitement des transactions, la vérification d'identité professionnelle, la communication relative aux commandes, l'amélioration de nos services, et le respect de nos obligations légales.",
+      "s3Title": "3. Base légale",
+      "s3Text": "Le traitement de vos données repose sur : l'exécution du contrat (CGV), votre consentement (cookies, newsletter), nos intérêts légitimes (sécurité, prévention de la fraude), et nos obligations légales (facturation, fiscalité).",
+      "s4Title": "4. Durée de conservation",
+      "s4Text": "Les données de compte sont conservées pendant toute la durée de la relation commerciale et 3 ans après la dernière activité. Les données de facturation sont conservées 10 ans conformément aux obligations comptables. Les données de navigation sont conservées 13 mois maximum.",
+      "s5Title": "5. Vos droits",
+      "s5Text": "Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression, de portabilité, de limitation et d'opposition au traitement de vos données. Pour exercer ces droits, contactez-nous à : privacy@vary.com",
+      "s6Title": "6. Transfert de données",
+      "s6Text": "Vos données peuvent être transférées vers des prestataires situés hors UE (hébergement, paiement). Ces transferts sont encadrés par des clauses contractuelles types approuvées par la Commission Européenne.",
+      "s7Title": "7. Sécurité",
+      "s7Text": "Nous mettons en œuvre des mesures techniques et organisationnelles pour protéger vos données : chiffrement en transit et au repos, contrôle d'accès, audits de sécurité réguliers, et politiques de sécurité au niveau des lignes (RLS) dans notre base de données."
+    },
+    "cookies": {
+      "title": "Politique de Cookies",
+      "lastUpdated": "Dernière mise à jour : mars 2026",
+      "s1Title": "1. Qu'est-ce qu'un cookie ?",
+      "s1Text": "Un cookie est un petit fichier texte déposé sur votre appareil lors de votre visite sur notre site. Il permet de stocker des informations relatives à votre navigation.",
+      "s2Title": "2. Cookies utilisés",
+      "s2Text": "Nous utilisons des cookies strictement nécessaires (authentification, session, préférences de langue) et des cookies analytiques (mesure d'audience, amélioration du service). Aucun cookie publicitaire n'est utilisé sur Vary.",
+      "s3Title": "3. Gestion des cookies",
+      "s3Text": "Vous pouvez à tout moment modifier vos préférences en matière de cookies via les paramètres de votre navigateur. La désactivation des cookies nécessaires peut affecter le fonctionnement du site.",
+      "s4Title": "4. Durée de conservation",
+      "s4Text": "Les cookies de session sont supprimés à la fermeture du navigateur. Les cookies persistants (préférences, langue) sont conservés 13 mois maximum conformément aux recommandations de la CNIL."
+    },
+    "footer": {
+      "cgv": "CGV",
+      "mentions": "Mentions légales",
+      "privacy": "Politique de confidentialité",
+      "cookies": "Cookies"
+    }
   }
 }

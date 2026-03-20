@@ -4,6 +4,7 @@ import { ShoppingBag, Store, CheckCircle, Shield, Package, Truck } from "lucide-
 import { useTranslation } from "react-i18next";
 import varyLogo from "@/assets/vary-logo.png";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import LegalFooter from "@/components/LegalFooter";
 
 const Registration = () => {
   const { t } = useTranslation();
@@ -105,6 +106,7 @@ const Registration = () => {
           </div>
         </motion.div>
       </div>
+      <LegalFooter />
     </div>
   );
 };

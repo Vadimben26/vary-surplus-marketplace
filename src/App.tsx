@@ -22,6 +22,10 @@ import Profile from "./pages/Profile.tsx";
 import BuyerVIP from "./pages/BuyerVIP.tsx";
 import RoleGateway from "./pages/RoleGateway.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import CGV from "./pages/CGV.tsx";
+import MentionsLegales from "./pages/MentionsLegales.tsx";
+import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite.tsx";
+import PolitiqueCookies from "./pages/PolitiqueCookies.tsx";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +77,10 @@ const App = () => (
                 <Route path="/lot/:id" element={<LotDetail />} />
                 <Route path="/contact" element={<ContactFAQ />} />
                 <Route path="/devenir/:role" element={<RoleGateway />} />
+                <Route path="/cgv" element={<CGV />} />
+                <Route path="/mentions-legales" element={<MentionsLegales />} />
+                <Route path="/confidentialite" element={<PolitiqueConfidentialite />} />
+                <Route path="/cookies" element={<PolitiqueCookies />} />
 
                 {/* Protected (need login) */}
                 <Route path="/profil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

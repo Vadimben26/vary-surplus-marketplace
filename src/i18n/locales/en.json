@@ -436,5 +436,75 @@
     "title": "404",
     "subtitle": "Oops! Page not found",
     "returnHome": "Return to home"
+  },
+  "legal": {
+    "cgv": {
+      "title": "Terms and Conditions of Sale",
+      "lastUpdated": "Last updated: March 2026",
+      "s1Title": "1. Purpose",
+      "s1Text": "These Terms and Conditions of Sale (T&Cs) govern the contractual relationships between professional users (buyers and sellers) and the Vary platform, a B2B marketplace specializing in wholesale merchandise lots.",
+      "s2Title": "2. Registration and Eligibility",
+      "s2Text": "Access to the platform is reserved for professionals with a valid SIRET number or European equivalent. Each registration is subject to verification by the Vary team before account activation.",
+      "s3Title": "3. Pricing and Payment",
+      "s3Text": "All prices are displayed excluding tax (excl. VAT). Payment is made upfront at the time of order. Funds are held in escrow by Vary until the buyer confirms receipt. A commission is applied on each transaction.",
+      "s4Title": "4. Orders and Delivery",
+      "s4Text": "Once the order is confirmed and payment validated, the seller has 5 business days to ship the goods. The seller is responsible for packaging and shipping. The buyer has 48 hours after receipt to report any issues.",
+      "s5Title": "5. Escrow and Fund Release",
+      "s5Text": "Funds are held by Vary throughout the transaction. They are released to the seller after the buyer confirms receipt or automatically after 7 days without a claim.",
+      "s6Title": "6. Disputes and Claims",
+      "s6Text": "In case of a dispute, parties have 7 days to reach an amicable agreement via Vary messaging. After this period, Vary intervenes as a mediator and makes a final decision based on evidence provided (photos, shipping documents).",
+      "s7Title": "7. VIP Subscriptions",
+      "s7Text": "Buyer and seller VIP subscriptions are billed monthly at €299 excl. VAT/month. The subscription is automatically renewed unless cancelled before the end of the current period. Cancellation takes effect at the end of the current month.",
+      "s8Title": "8. Applicable Law",
+      "s8Text": "These T&Cs are governed by French law. Any dispute not resolved amicably shall be submitted to the competent courts of Paris."
+    },
+    "mentions": {
+      "title": "Legal Notice",
+      "lastUpdated": "Last updated: March 2026",
+      "s1Title": "1. Website Publisher",
+      "s1Text": "The Vary website is published by Vary SAS, a simplified joint-stock company with a capital of [amount] euros, registered with the Paris Trade Register under number [number]. Registered office: [address]. Publication director: [name]. Contact: contact@vary.com",
+      "s2Title": "2. Hosting",
+      "s2Text": "The website is hosted by Lovable Cloud (Supabase infrastructure), headquartered in the United States. Data is stored on servers located within the European Union in compliance with the GDPR.",
+      "s3Title": "3. Intellectual Property",
+      "s3Text": "All elements of the Vary website (texts, images, logos, source code, database) are protected by intellectual property law. Any reproduction, even partial, is prohibited without prior written authorization from Vary SAS.",
+      "s4Title": "4. Liability",
+      "s4Text": "Vary acts as an intermediary between professional buyers and sellers. Vary cannot be held responsible for the quality, compliance, or delivery of goods sold on the platform. The escrow system aims to protect both parties."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: March 2026",
+      "s1Title": "1. Data Collected",
+      "s1Text": "We collect the following data: first name, last name, email, phone, company name, SIRET number, address, type of activity, and browsing data. This data is necessary for the operation of the platform and professional account verification.",
+      "s2Title": "2. Purpose of Processing",
+      "s2Text": "Your data is used for: account management, transaction processing, professional identity verification, order-related communication, service improvement, and compliance with our legal obligations.",
+      "s3Title": "3. Legal Basis",
+      "s3Text": "The processing of your data is based on: contract performance (T&Cs), your consent (cookies, newsletter), our legitimate interests (security, fraud prevention), and our legal obligations (billing, taxation).",
+      "s4Title": "4. Data Retention Period",
+      "s4Text": "Account data is retained for the duration of the business relationship and 3 years after the last activity. Billing data is retained for 10 years in compliance with accounting obligations. Browsing data is retained for a maximum of 13 months.",
+      "s5Title": "5. Your Rights",
+      "s5Text": "In accordance with the GDPR, you have the right to access, rectify, delete, port, limit, and object to the processing of your data. To exercise these rights, contact us at: privacy@vary.com",
+      "s6Title": "6. Data Transfer",
+      "s6Text": "Your data may be transferred to service providers located outside the EU (hosting, payment). These transfers are governed by standard contractual clauses approved by the European Commission.",
+      "s7Title": "7. Security",
+      "s7Text": "We implement technical and organizational measures to protect your data: encryption in transit and at rest, access control, regular security audits, and row-level security (RLS) policies in our database."
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "lastUpdated": "Last updated: March 2026",
+      "s1Title": "1. What is a Cookie?",
+      "s1Text": "A cookie is a small text file placed on your device when you visit our website. It allows us to store information related to your browsing.",
+      "s2Title": "2. Cookies Used",
+      "s2Text": "We use strictly necessary cookies (authentication, session, language preferences) and analytical cookies (audience measurement, service improvement). No advertising cookies are used on Vary.",
+      "s3Title": "3. Cookie Management",
+      "s3Text": "You can change your cookie preferences at any time through your browser settings. Disabling necessary cookies may affect the operation of the site.",
+      "s4Title": "4. Retention Period",
+      "s4Text": "Session cookies are deleted when the browser is closed. Persistent cookies (preferences, language) are retained for a maximum of 13 months in accordance with CNIL recommendations."
+    },
+    "footer": {
+      "cgv": "T&Cs",
+      "mentions": "Legal notice",
+      "privacy": "Privacy policy",
+      "cookies": "Cookies"
+    }
   }
 }
