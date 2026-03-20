@@ -215,11 +215,30 @@ const SellerRegistration = () => {
                   <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.describeActivity")}</label><Textarea placeholder="..." className="resize-none" rows={3} value={formData.description} onChange={(e) => update("description", e.target.value)} /></div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">{t("sellerReg.warehouseImage")}</label>
-                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/40 transition-colors cursor-pointer">
+                    <label className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/40 transition-colors cursor-pointer block">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files) setWarehouseFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+                        }}
+                      />
                       <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
                       <p className="text-sm text-muted-foreground">{t("sellerReg.uploadImage")}</p>
                       <p className="text-xs text-muted-foreground mt-1">{t("sellerReg.uploadFormat")}</p>
-                    </div>
+                    </label>
+                    {warehouseFiles.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {warehouseFiles.map((f, i) => (
+                          <div key={i} className="flex items-center gap-1 bg-muted rounded-lg px-3 py-1.5 text-sm text-foreground">
+                            <span className="truncate max-w-[150px]">{f.name}</span>
+                            <button type="button" onClick={() => setWarehouseFiles(prev => prev.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-foreground ml-1">✕</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
