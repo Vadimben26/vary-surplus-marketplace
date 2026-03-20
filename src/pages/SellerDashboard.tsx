@@ -393,6 +393,57 @@ const SellerDashboard = () => {
                         <Trash2 className="h-3 w-3" /> {t("sellerDashboard.deleteLot")}
                       </button>
                     </div>
+
+                    {/* Buyer interest section - VIP only */}
+                    {isVipSeller && interestsByLot[lot.id]?.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("sellerDashboard.buyerInterest")}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {interestsByLot[lot.id].map((interest: any, idx: number) => {
+                            const buyerProfile = interest.profiles;
+                            const isFav = interest.type === "favorite";
+                            return (
+                              <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-muted rounded-lg text-xs">
+                                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                  <User className="h-3 w-3 text-primary" />
+                                </div>
+                                <span className="text-foreground font-medium truncate max-w-[100px]">
+                                  {buyerProfile?.company_name || buyerProfile?.full_name || "Acheteur"}
+                                </span>
+                                {isFav ? (
+                                  <Heart className="h-3 w-3 text-destructive fill-destructive flex-shrink-0" />
+                                ) : (
+                                  <ShoppingCart className="h-3 w-3 text-primary flex-shrink-0" />
+                                )}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/messages?with=${buyerProfile?.id}`);
+                                  }}
+                                  className="p-0.5 text-primary hover:bg-primary/10 rounded transition-colors"
+                                  title={t("lotDetail.contactSeller")}
+                                >
+                                  <MessageCircle className="h-3 w-3" />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Non-VIP teaser */}
+                    {!isVipSeller && (
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); navigate("/seller/vip"); }}
+                          className="flex items-center gap-1.5 text-[10px] text-primary font-medium hover:underline"
+                        >
+                          <Lock className="h-3 w-3" />
+                          {t("sellerDashboard.vipBuyerInsight")}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               );
