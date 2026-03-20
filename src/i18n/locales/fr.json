@@ -375,6 +375,8 @@
     "deleteLotTitle": "Supprimer ce lot ?",
     "deleteIrreversible": "Cette action est irréversible.",
     "noLots": "Aucun lot dans cette catégorie.",
+    "buyerInterest": "Acheteurs intéressés",
+    "vipBuyerInsight": "VIP — Voir les acheteurs intéressés par vos lots",
     "categories": {
       "clothing": "Vêtements",
       "sneakers": "Sneakers",
