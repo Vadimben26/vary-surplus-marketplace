@@ -22,6 +22,10 @@ import Profile from "./pages/Profile.tsx";
 import BuyerVIP from "./pages/BuyerVIP.tsx";
 import RoleGateway from "./pages/RoleGateway.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import CGV from "./pages/CGV.tsx";
+import MentionsLegales from "./pages/MentionsLegales.tsx";
+import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite.tsx";
+import PolitiqueCookies from "./pages/PolitiqueCookies.tsx";
 
 const queryClient = new QueryClient();
 
