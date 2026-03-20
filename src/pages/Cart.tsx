@@ -1,19 +1,32 @@
 import { ShoppingCart, Trash2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import { useCart } from "@/contexts/CartContext";
-import { mockLots } from "@/data/mockLots";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const Cart = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { cartItems, removeFromCart, clearCart } = useCart();
-  const cartLots = mockLots.filter((lot) => cartItems.includes(lot.id));
 
-  const subtotal = cartLots.reduce((sum, lot) => sum + Math.round(parseFloat(lot.price.replace(/[^\d]/g, "")) * 1.19), 0);
+  const { data: cartLots = [] } = useQuery({
+    queryKey: ["cart-lots", cartItems],
+    queryFn: async () => {
+      if (cartItems.length === 0) return [];
+      const { data } = await supabase
+        .from("lots")
+        .select("*")
+        .in("id", cartItems);
+      return data || [];
+    },
+  });
+
+  const subtotal = cartLots.reduce((sum, lot) => sum + Number(lot.price), 0);
   const total = subtotal;
 
   const handleRemove = (id: string) => {
@@ -43,16 +56,18 @@ const Cart = () => {
               {cartLots.map((lot) => (
                 <motion.div key={lot.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-card rounded-2xl border border-border p-4 flex gap-4">
                   <Link to={`/lot/${lot.id}`} className="w-24 h-24 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-                    <img src={lot.image} alt={lot.title} className="w-full h-full object-cover" />
+                    {lot.images?.[0] && (
+                      <img src={lot.images[0]} alt={lot.title} className="w-full h-full object-cover" />
+                    )}
                   </Link>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-primary uppercase">{lot.brand}</p>
                     <Link to={`/lot/${lot.id}`}>
                       <h3 className="font-heading font-semibold text-foreground text-sm line-clamp-2 hover:text-primary transition-colors">{lot.title}</h3>
                     </Link>
-                    <p className="text-xs text-muted-foreground mt-1">{lot.units} {t("common.units")} · {lot.location}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{lot.units} {t("common.units")}</p>
                     <div className="flex items-center justify-between mt-2">
-                      <span className="font-heading font-bold text-foreground">{lot.price}</span>
+                      <span className="font-heading font-bold text-foreground">{Number(lot.price).toLocaleString("fr-FR")} €</span>
                       <button onClick={() => handleRemove(lot.id)} className="p-1.5 text-muted-foreground hover:text-destructive transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -74,8 +89,11 @@ const Cart = () => {
                   <span className="font-heading font-bold text-primary text-lg">{total.toLocaleString("fr-FR")} €</span>
                 </div>
               </div>
-              <button className="w-full mt-6 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary-dark transition-colors">
-                {t("cart.placeOrder")}
+              <button
+                onClick={() => navigate("/checkout")}
+                className="w-full mt-6 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary-dark transition-colors"
+              >
+                {t("checkout.proceedToPayment")}
               </button>
             </div>
           </div>

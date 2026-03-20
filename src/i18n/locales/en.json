@@ -505,6 +505,32 @@
       "mentions": "Legal notice",
       "privacy": "Privacy policy",
       "cookies": "Cookies"
+    },
+    "checkout": {
+      "title": "Payment",
+      "proceedToPayment": "Proceed to payment",
+      "payNow": "Pay now",
+      "escrowInfo": "Your funds are secured by Vary. They will only be released to the seller after you confirm receipt.",
+      "loginRequired": "Please log in to continue",
+      "stripeNotReady": "The payment system will be activated soon. Thank you for your patience.",
+      "error": "An error occurred during payment"
+    },
+    "orders": {
+      "title": "My orders",
+      "empty": "No orders yet",
+      "tracking": "Tracking",
+      "confirmReceipt": "Confirm receipt",
+      "receiptConfirmed": "Receipt confirmed! Funds will be released to the seller.",
+      "confirmError": "Error confirming receipt",
+      "statusPending": "Pending payment",
+      "statusPaid": "Paid",
+      "statusPreparing": "Preparing",
+      "statusShipped": "Shipped",
+      "statusDelivered": "Delivered",
+      "statusConfirmed": "Confirmed",
+      "statusDisputed": "Disputed",
+      "statusRefunded": "Refunded",
+      "statusCancelled": "Cancelled"
     }
   }
 }

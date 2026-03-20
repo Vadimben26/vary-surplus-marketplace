@@ -1,12 +1,17 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Crown, BarChart3, MessageSquare, Rocket, ArrowLeft, Check } from "lucide-react";
+import { Crown, BarChart3, MessageSquare, Rocket, ArrowLeft, Check, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 const SellerVIP = () => {
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const { t } = useTranslation();
 
   const benefits = [
@@ -23,8 +28,21 @@ const SellerVIP = () => {
     t("sellerVIP.included5"),
   ];
 
-  const handleSubscribe = () => {
-    toast.info(t("sellerVIP.comingSoon"));
+  const handleSubscribe = async () => {
+    if (!user) { toast.error(t("checkout.loginRequired")); return; }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-vip-subscription", {
+        body: { plan: "seller_vip" },
+      });
+      if (error) throw error;
+      if (data?.error?.includes("Stripe not configured")) {
+        toast.info(t("checkout.stripeNotReady"));
+        return;
+      }
+      if (data?.url) window.location.href = data.url;
+    } catch { toast.error(t("checkout.error")); }
+    finally { setLoading(false); }
   };
 
   return (
@@ -71,8 +89,8 @@ const SellerVIP = () => {
             ))}
           </div>
 
-          <button onClick={handleSubscribe} className="w-full py-3.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
-            <Crown className="h-4 w-4" />
+          <button onClick={handleSubscribe} disabled={loading} className="w-full py-3.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
             {t("sellerVIP.subscribe")}
           </button>
         </motion.div>

@@ -505,6 +505,32 @@
       "mentions": "Mentions légales",
       "privacy": "Politique de confidentialité",
       "cookies": "Cookies"
+    },
+    "checkout": {
+      "title": "Paiement",
+      "proceedToPayment": "Procéder au paiement",
+      "payNow": "Payer maintenant",
+      "escrowInfo": "Vos fonds sont sécurisés par Vary. Ils ne seront libérés au vendeur qu'après votre confirmation de réception.",
+      "loginRequired": "Connectez-vous pour continuer",
+      "stripeNotReady": "Le système de paiement sera activé prochainement. Merci de votre patience.",
+      "error": "Une erreur est survenue lors du paiement"
+    },
+    "orders": {
+      "title": "Mes commandes",
+      "empty": "Aucune commande pour le moment",
+      "tracking": "Suivi",
+      "confirmReceipt": "Confirmer la réception",
+      "receiptConfirmed": "Réception confirmée ! Les fonds seront libérés au vendeur.",
+      "confirmError": "Erreur lors de la confirmation",
+      "statusPending": "En attente de paiement",
+      "statusPaid": "Payé",
+      "statusPreparing": "En préparation",
+      "statusShipped": "Expédié",
+      "statusDelivered": "Livré",
+      "statusConfirmed": "Confirmé",
+      "statusDisputed": "Litige",
+      "statusRefunded": "Remboursé",
+      "statusCancelled": "Annulé"
     }
   }
 }

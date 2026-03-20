@@ -17,6 +17,8 @@ import ContactFAQ from "./pages/ContactFAQ.tsx";
 import LotDetail from "./pages/LotDetail.tsx";
 import Favorites from "./pages/Favorites.tsx";
 import Cart from "./pages/Cart.tsx";
+import Checkout from "./pages/Checkout.tsx";
+import Orders from "./pages/Orders.tsx";
 import Messages from "./pages/Messages.tsx";
 import Profile from "./pages/Profile.tsx";
 import BuyerVIP from "./pages/BuyerVIP.tsx";
@@ -87,6 +89,8 @@ const App = () => (
                 <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
                 <Route path="/favoris" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
                 <Route path="/panier" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                <Route path="/commandes" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
                 <Route path="/buyer/vip" element={<BuyerRoute><BuyerVIP /></BuyerRoute>} />
                 <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
                 <Route path="/seller/vip" element={<SellerRoute><SellerVIP /></SellerRoute>} />

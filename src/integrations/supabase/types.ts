@@ -229,6 +229,82 @@ export type Database = {
           },
         ]
       }
+      orders: {
+        Row: {
+          amount: number
+          buyer_id: string
+          commission: number
+          confirmed_at: string | null
+          created_at: string
+          delivered_at: string | null
+          id: string
+          lot_id: string
+          seller_id: string
+          shipped_at: string | null
+          status: Database["public"]["Enums"]["order_status"]
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          buyer_id: string
+          commission?: number
+          confirmed_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          lot_id: string
+          seller_id: string
+          shipped_at?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string
+          commission?: number
+          confirmed_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          lot_id?: string
+          seller_id?: string
+          shipped_at?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "lots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           company_description: string | null
@@ -271,6 +347,53 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -282,6 +405,17 @@ export type Database = {
     }
     Enums: {
       lot_status: "active" | "draft" | "sold"
+      order_status:
+        | "pending_payment"
+        | "paid"
+        | "preparing"
+        | "shipped"
+        | "delivered"
+        | "confirmed"
+        | "disputed"
+        | "refunded"
+        | "cancelled"
+      subscription_status: "active" | "cancelled" | "past_due" | "trialing"
       user_type: "buyer" | "seller" | "both"
     }
     CompositeTypes: {
@@ -411,6 +545,18 @@ export const Constants = {
   public: {
     Enums: {
       lot_status: ["active", "draft", "sold"],
+      order_status: [
+        "pending_payment",
+        "paid",
+        "preparing",
+        "shipped",
+        "delivered",
+        "confirmed",
+        "disputed",
+        "refunded",
+        "cancelled",
+      ],
+      subscription_status: ["active", "cancelled", "past_due", "trialing"],
       user_type: ["buyer", "seller", "both"],
     },
   },
