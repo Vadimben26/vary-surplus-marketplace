@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Plus, Package, TrendingUp, Eye, DollarSign,
+  Plus, Package, DollarSign,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
   Heart, ShoppingCart, MessageCircle, User, Lock
 } from "lucide-react";
