@@ -297,8 +297,8 @@ const SellerDashboard = () => {
           <div className={`grid grid-cols-2 md:grid-cols-4 gap-4${!isVipSeller ? " blur-[6px] select-none pointer-events-none" : ""}`} aria-hidden={!isVipSeller}>
             {[
               { label: t("sellerDashboard.activeLots"), value: lots.filter((l: any) => l.status === "active").length, icon: Package, color: "text-primary" },
-              { label: t("sellerDashboard.totalViews"), value: "—", icon: Eye, color: "text-blue-500" },
-              { label: t("sellerDashboard.inquiries"), value: "—", icon: TrendingUp, color: "text-green-500" },
+              { label: t("sellerDashboard.totalFavorites"), value: (buyerInterests as any[]).filter((i: any) => i.type === "favorite").length, icon: Heart, color: "text-destructive" },
+              { label: t("sellerDashboard.totalCarts"), value: (buyerInterests as any[]).filter((i: any) => i.type === "cart").length, icon: ShoppingCart, color: "text-green-500" },
               { label: t("sellerDashboard.totalRevenue"), value: "— €", icon: DollarSign, color: "text-amber-500" },
             ].map((stat) => (
               <div key={stat.label} className="bg-card rounded-2xl border border-border p-4">
