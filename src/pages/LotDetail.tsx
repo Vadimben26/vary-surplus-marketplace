@@ -39,6 +39,7 @@ const LotDetail = () => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isInCart, addToCart } = useCart();
+  const { profile } = useAuth();
   const [showAllItems, setShowAllItems] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
 
