@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, User, Package, Clock, CheckCircle, Edit2, Save, X, Building2 } from "lucide-react";
+import { ArrowLeft, User, Package, Clock, CheckCircle, Edit2, Save, X, Building2, Truck, AlertTriangle, MessageCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -9,20 +9,18 @@ import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import DevPanel from "@/components/DevPanel";
-
-const mockOrders = [
-  { id: "CMD-2026-001", lot: "Mix 1000 pièces vêtements été", brand: "Zara", total: "6 860 €", status: "delivered", date: "5 mars 2026" },
-  { id: "CMD-2026-002", lot: "Surplus 800 pièces denim premium", brand: "Levi's", total: "20 170 €", status: "shipped", date: "12 mars 2026" },
-  { id: "CMD-2026-003", lot: "Pack 50 sacs à main premium", brand: "Michael Kors", total: "13 150 €", status: "processing", date: "16 mars 2026" },
-];
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Profile = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { profile, canAccessSeller, updateProfile } = useAuth();
   const isSeller = canAccessSeller();
   const [editing, setEditing] = useState(false);
   const [tab, setTab] = useState<"profile" | "orders">("profile");
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     full_name: profile?.full_name || "",
     phone: profile?.phone || "",
@@ -30,10 +28,31 @@ const Profile = () => {
     company_description: profile?.company_description || "",
   });
 
-  const statusLabels: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
-    delivered: { label: t("profile.delivered"), color: "text-green-600 bg-green-50", icon: CheckCircle },
-    shipped: { label: t("profile.shipped"), color: "text-blue-600 bg-blue-50", icon: Package },
-    processing: { label: t("profile.processing"), color: "text-amber-600 bg-amber-50", icon: Clock },
+  const { data: orders = [], isLoading: ordersLoading } = useQuery({
+    queryKey: ["buyer-orders", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*, lots(title, brand, images)")
+        .eq("buyer_id", profile.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!profile?.id,
+  });
+
+  const statusConfig: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
+    pending_payment: { label: t("legal.orders.statusPending"), color: "text-muted-foreground bg-muted", icon: Clock },
+    paid: { label: t("legal.orders.statusPaid"), color: "text-amber-600 bg-amber-50", icon: Clock },
+    preparing: { label: t("legal.orders.statusPreparing"), color: "text-blue-600 bg-blue-50", icon: Package },
+    shipped: { label: t("legal.orders.statusShipped"), color: "text-blue-600 bg-blue-50", icon: Truck },
+    delivered: { label: t("legal.orders.statusDelivered"), color: "text-green-600 bg-green-50", icon: CheckCircle },
+    confirmed: { label: t("legal.orders.statusConfirmed"), color: "text-green-700 bg-green-50", icon: CheckCircle },
+    disputed: { label: t("legal.orders.statusDisputed"), color: "text-amber-700 bg-amber-50", icon: AlertTriangle },
+    refunded: { label: t("legal.orders.statusRefunded"), color: "text-muted-foreground bg-muted", icon: Clock },
+    cancelled: { label: t("legal.orders.statusCancelled"), color: "text-destructive bg-destructive/10", icon: X },
   };
 
   useEffect(() => {
@@ -65,6 +84,22 @@ const Profile = () => {
       company_description: profile?.company_description || "",
     });
     setEditing(false);
+  };
+
+  const handleConfirmReceipt = async (orderId: string) => {
+    setConfirmingId(orderId);
+    try {
+      const { error } = await supabase.functions.invoke("confirm-receipt", {
+        body: { order_id: orderId },
+      });
+      if (error) throw error;
+      toast.success(t("legal.orders.receiptConfirmed"));
+      queryClient.invalidateQueries({ queryKey: ["buyer-orders"] });
+    } catch {
+      toast.error(t("legal.orders.confirmError"));
+    } finally {
+      setConfirmingId(null);
+    }
   };
 
   return (
@@ -188,29 +223,75 @@ const Profile = () => {
 
         {tab === "orders" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-            {mockOrders.map((order) => {
-              const status = statusLabels[order.status];
-              const StatusIcon = status.icon;
-              return (
-                <div key={order.id} className="bg-card rounded-2xl border border-border p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <p className="text-xs text-muted-foreground">{order.id}</p>
-                      <h3 className="font-heading font-semibold text-foreground text-sm mt-0.5">{order.lot}</h3>
-                      <p className="text-xs text-primary font-medium">{order.brand}</p>
+            {ordersLoading ? (
+              <div className="text-center py-16 text-muted-foreground">{t("common.loading")}</div>
+            ) : orders.length === 0 ? (
+              <div className="text-center py-16">
+                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">{t("legal.orders.empty")}</p>
+              </div>
+            ) : (
+              orders.map((order: any) => {
+                const lot = order.lots;
+                const sc = statusConfig[order.status] || statusConfig.pending_payment;
+                const StatusIcon = sc.icon;
+                const isDelivered = order.status === "delivered";
+                const isDisputed = order.status === "disputed";
+
+                return (
+                  <div key={order.id} className={`bg-card rounded-2xl border p-5 ${isDisputed ? "border-amber-300" : "border-border"}`}>
+                    <div className="flex items-start gap-3 mb-3">
+                      {lot?.images?.[0] && (
+                        <img src={lot.images[0]} alt={lot.title} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-heading font-semibold text-foreground text-sm line-clamp-1">{lot?.title}</h3>
+                        <p className="text-xs text-primary font-medium">{lot?.brand}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {new Date(order.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                        </p>
+                      </div>
+                      <div className="text-right flex flex-col items-end gap-1.5">
+                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${sc.color}`}>
+                          <StatusIcon className="h-3.5 w-3.5" />
+                          {sc.label}
+                        </span>
+                        <span className="font-heading font-bold text-foreground text-sm">{Number(order.amount).toLocaleString("fr-FR")} €</span>
+                      </div>
                     </div>
-                    <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${status.color}`}>
-                      <StatusIcon className="h-3.5 w-3.5" />
-                      {status.label}
-                    </span>
+
+                    {order.tracking_number && (
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {t("legal.orders.tracking")}: <span className="font-mono font-semibold text-foreground">{order.tracking_number}</span>
+                      </p>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      {isDelivered && (
+                        <button
+                          onClick={() => handleConfirmReceipt(order.id)}
+                          disabled={confirmingId === order.id}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                        >
+                          <CheckCircle className="h-3 w-3" />
+                          {t("legal.orders.confirmReceipt")}
+                        </button>
+                      )}
+                      {(isDelivered || isDisputed) && (
+                        <button
+                          onClick={() => navigate(`/messages?with=${order.seller_id}&lot=${order.lot_id}`)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                        >
+                          <MessageCircle className="h-3 w-3" />
+                          {t("sellerDisputes.contactBuyer")}
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{order.date}</span>
-                    <span className="font-heading font-bold text-foreground">{order.total}</span>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </motion.div>
         )}
       </main>

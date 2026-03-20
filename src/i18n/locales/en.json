@@ -447,7 +447,9 @@
     "shipped": "Shipped",
     "delivered": "Delivered",
     "confirmed": "Confirmed",
-    "trackingNumber": "Tracking #"
+    "trackingNumber": "Tracking #",
+    "tabActive": "In progress",
+    "tabDisputes": "Disputes"
   },
   "sellerDisputes": {
     "title": "Disputes",

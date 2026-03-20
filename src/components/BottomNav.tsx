@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Heart, ShoppingCart, MessageCircle, Truck, AlertTriangle } from "lucide-react";
+import { Heart, ShoppingCart, MessageCircle, Truck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import varyLogo from "@/assets/vary-logo.png";
@@ -9,7 +9,7 @@ import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-const SELLER_PATHS = ["/seller", "/seller/vip", "/seller/suivi", "/seller/litiges"];
+const SELLER_PATHS = ["/seller", "/seller/vip", "/seller/suivi"];
 
 const BottomNav = () => {
   const { t } = useTranslation();
@@ -78,7 +78,6 @@ const BottomNav = () => {
   const sellerNavItems = [
     { icon: null, label: t("nav.home"), path: "/seller", isLogo: true },
     { icon: Truck, label: t("nav.tracking"), path: "/seller/suivi", isLogo: false },
-    { icon: AlertTriangle, label: t("nav.disputes"), path: "/seller/litiges", isLogo: false },
     { icon: MessageCircle, label: t("nav.messages"), path: "/messages", isLogo: false },
   ];
 

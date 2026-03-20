@@ -447,7 +447,9 @@
     "shipped": "Enviado",
     "delivered": "Entregado",
     "confirmed": "Confirmado",
-    "trackingNumber": "N° de seguimiento"
+    "trackingNumber": "N° de seguimiento",
+    "tabActive": "En curso",
+    "tabDisputes": "Disputas"
   },
   "sellerDisputes": {
     "title": "Disputas",

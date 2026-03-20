@@ -97,7 +97,7 @@ const App = () => (
                 <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
                 <Route path="/seller/vip" element={<SellerRoute><SellerVIP /></SellerRoute>} />
                 <Route path="/seller/suivi" element={<SellerRoute><SellerTracking /></SellerRoute>} />
-                <Route path="/seller/litiges" element={<SellerRoute><SellerDisputes /></SellerRoute>} />
+                <Route path="/seller/litiges" element={<Navigate to="/seller/suivi" replace />} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
