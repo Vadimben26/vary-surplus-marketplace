@@ -1,14 +1,23 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, Navigate } from "react-router-dom";
 import { ShieldCheck, ArrowRight, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
+import { useAuth } from "@/contexts/AuthContext";
 
 const RoleGateway = () => {
   const { t } = useTranslation();
   const { role } = useParams<{ role: "acheteur" | "vendeur" }>();
+  const { canAccessBuyer, canAccessSeller, loading } = useAuth();
   const isBuyer = role === "acheteur";
+
+  // If user already has this role, redirect directly
+  if (!loading) {
+    if (isBuyer && canAccessBuyer()) return <Navigate to="/marketplace" replace />;
+    if (!isBuyer && canAccessSeller()) return <Navigate to="/seller" replace />;
+  }
+
   const roleLabel = isBuyer ? t("nav.roleGatewayBuyer") : t("nav.roleGatewaySeller");
   const formPath = isBuyer ? "/inscription/acheteur" : "/inscription/vendeur";
   const backPath = isBuyer ? "/seller" : "/marketplace";
