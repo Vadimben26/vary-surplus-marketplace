@@ -39,6 +39,17 @@ const SellerDashboard = () => {
   const [editingLotId, setEditingLotId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [expandedLotId, setExpandedLotId] = useState<string | null>(null);
+  const [popover, setPopover] = useState<{ lotId: string; type: "favorite" | "cart" } | null>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  // Close popover on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) setPopover(null);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // Form state
   const [title, setTitle] = useState("");
