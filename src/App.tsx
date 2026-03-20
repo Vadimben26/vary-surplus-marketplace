@@ -96,6 +96,8 @@ const App = () => (
                 <Route path="/buyer/vip" element={<BuyerRoute><BuyerVIP /></BuyerRoute>} />
                 <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
                 <Route path="/seller/vip" element={<SellerRoute><SellerVIP /></SellerRoute>} />
+                <Route path="/seller/suivi" element={<SellerRoute><SellerTracking /></SellerRoute>} />
+                <Route path="/seller/litiges" element={<SellerRoute><SellerDisputes /></SellerRoute>} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
