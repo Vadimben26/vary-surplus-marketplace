@@ -29,7 +29,8 @@ const BottomNav = () => {
     }
   }, [location.pathname, isOnSellerPath]);
 
-  const isSellerInterface = isOnSellerPath || (location.pathname === "/messages" && sessionStorage.getItem("vary_last_interface") === "seller");
+  const lastInterface = sessionStorage.getItem("vary_last_interface") || sessionStorage.getItem("vary-active-role-tab");
+  const isSellerInterface = isOnSellerPath || (location.pathname === "/messages" && lastInterface === "seller");
 
   // Fetch unread message count
   useEffect(() => {
