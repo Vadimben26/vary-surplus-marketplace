@@ -249,17 +249,6 @@ const SellerRegistration = () => {
                 {stepHeader}
                 <div className="space-y-8">
                   <div>
-                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.speakEnglish")} *</label>
-                    <div className="flex gap-6 mt-3">
-                      {["yes", "no"].map((v) => (
-                        <label key={v} className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="english" checked={speaksEnglish === v} onChange={() => setSpeaksEnglish(v)} className="accent-primary w-4 h-4" />
-                          <span className="text-sm text-foreground">{t(`sellerReg.${v}`)}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
                     <label className="text-sm font-semibold text-foreground">{t("sellerReg.preferredChannel")} *</label>
                     <div className="flex gap-6 mt-3">
                       {channelKeys.map((c) => (
@@ -271,7 +260,7 @@ const SellerRegistration = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.howDidYouHear")} *</label>
+                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.howDidYouHear")}</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
                       {referralSources.map((r) => (
                         <label key={r} className="flex items-center gap-2 cursor-pointer">
