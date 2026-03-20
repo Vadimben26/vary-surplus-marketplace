@@ -233,6 +233,9 @@ const Messages = () => {
   const vipLink = isSeller ? "/seller/vip" : "/buyer/vip";
   const vipLabel = isSeller ? t("sellerVIP.messageTemplatesDesc") : t("buyerVIP.prioritySupportDesc");
 
+  // Detect if user came from seller interface
+  const isFromSeller = searchParams.get("lot") !== null || document.referrer.includes("/seller") || sessionStorage.getItem("vary_last_interface") === "seller";
+
   // No conversations state
   if (conversations.length === 0 && !searchParams.get("with")) {
     return (
@@ -244,12 +247,6 @@ const Messages = () => {
           </div>
           <h1 className="font-heading text-2xl font-bold text-foreground mb-3">{t("messages.title")}</h1>
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">{t("messages.empty")}</p>
-          <Link
-            to="/marketplace"
-            className="inline-block px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
-          >
-            {t("common.browseLots")}
-          </Link>
         </main>
         <BottomNav />
       </div>
