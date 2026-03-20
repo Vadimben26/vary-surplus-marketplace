@@ -38,6 +38,7 @@ const SellerDashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingLotId, setEditingLotId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [expandedLotId, setExpandedLotId] = useState<string | null>(null);
 
   // Form state
   const [title, setTitle] = useState("");
