@@ -106,6 +106,7 @@ const Registration = () => {
           </div>
         </motion.div>
       </div>
+      <LegalFooter />
     </div>
   );
 };
