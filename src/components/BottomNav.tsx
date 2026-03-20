@@ -9,7 +9,7 @@ import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-const SELLER_PATHS = ["/seller", "/seller/vip", "/seller/suivi", "/seller/litiges"];
+const SELLER_PATHS = ["/seller", "/seller/vip", "/seller/suivi"];
 
 const BottomNav = () => {
   const { t } = useTranslation();
