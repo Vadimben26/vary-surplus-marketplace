@@ -291,9 +291,9 @@ const SellerDashboard = () => {
           </button>
         </div>
 
-        {/* Stats - blurred with VIP upsell */}
+        {/* Stats - blurred with VIP upsell OR visible for VIP */}
         <div className="relative mb-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 blur-[6px] select-none pointer-events-none" aria-hidden="true">
+          <div className={`grid grid-cols-2 md:grid-cols-4 gap-4${!isVipSeller ? " blur-[6px] select-none pointer-events-none" : ""}`} aria-hidden={!isVipSeller}>
             {[
               { label: t("sellerDashboard.activeLots"), value: lots.filter((l: any) => l.status === "active").length, icon: Package, color: "text-primary" },
               { label: t("sellerDashboard.totalViews"), value: "—", icon: Eye, color: "text-blue-500" },
@@ -309,15 +309,17 @@ const SellerDashboard = () => {
               </div>
             ))}
           </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <button
-              onClick={() => navigate("/seller/vip")}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl shadow-lg hover:bg-primary/90 transition-colors"
-            >
-              <Crown className="h-4 w-4" />
-              {t("sellerDashboard.vipUnlock")}
-            </button>
-          </div>
+          {!isVipSeller && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <button
+                onClick={() => navigate("/seller/vip")}
+                className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl shadow-lg hover:bg-primary/90 transition-colors"
+              >
+                <Crown className="h-4 w-4" />
+                {t("sellerDashboard.vipUnlock")}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Tab filter */}
