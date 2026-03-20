@@ -6,7 +6,8 @@ import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import LotCard from "@/components/LotCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { mockLots } from "@/data/mockLots";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { Slider } from "@/components/ui/slider";
 
 const locations = ["", "France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique", "Royaume-Uni", "Pologne", "Roumanie", "Suède", "Autriche", "Grèce", "Suisse", "Tchéquie", "Danemark", "Irlande", "Hongrie", "Croatie"];
@@ -27,26 +28,39 @@ const Marketplace = () => {
   });
   const [activeCategory, setActiveCategory] = useState("");
 
+  // Fetch active lots from DB
+  const { data: dbLots = [] } = useQuery({
+    queryKey: ["marketplace-lots"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("lots")
+        .select("*, profiles!lots_seller_id_fkey(company_name, company_description)")
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   const filteredLots = useMemo(() => {
-    return mockLots.filter((lot) => {
-      if (activeCategory && lot.category !== activeCategory) return false;
+    return dbLots.filter((lot: any) => {
+      if (activeCategory && lot.category && !lot.category.toLowerCase().includes(activeCategory.toLowerCase())) return false;
       if (filters.search) {
         const q = filters.search.toLowerCase();
         if (!lot.title.toLowerCase().includes(q) && !lot.brand.toLowerCase().includes(q)) return false;
       }
-      if (filters.location && !lot.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
-      const price = parseFloat(lot.price.replace(/[^\d]/g, ""));
-      if (price < filters.priceRange[0] || price > filters.priceRange[1]) return false;
+      if (filters.location && lot.location && !lot.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
+      if (lot.price < filters.priceRange[0] || lot.price > filters.priceRange[1]) return false;
       if (filters.style) {
         const s = filters.style.toLowerCase();
-        if (!lot.title.toLowerCase().includes(s) && !lot.brand.toLowerCase().includes(s)) return false;
+        if (!lot.title.toLowerCase().includes(s) && !lot.brand.toLowerCase().includes(s) && !(lot.category || "").toLowerCase().includes(s)) return false;
       }
       return true;
     });
-  }, [filters, activeCategory]);
+  }, [filters, activeCategory, dbLots]);
 
   const firstName = profile?.full_name?.split(" ")[0];
-  const vipLots = mockLots.slice(0, 5);
+  const vipLots = dbLots.slice(0, 5);
 
   const hasActiveFilters = filters.location || filters.style || filters.priceRange[0] !== PRICE_MIN || filters.priceRange[1] !== PRICE_MAX;
 
@@ -54,7 +68,6 @@ const Marketplace = () => {
     <div className="min-h-screen bg-background">
       <TopNav filters={{ location: filters.location, priceRange: "", style: filters.style, search: filters.search }} onFiltersChange={(f) => setFilters(prev => ({ ...prev, location: f.location, style: f.style, search: f.search }))} showSearch />
 
-      {/* Welcome message */}
       {firstName && (
         <div className="px-4 md:px-8 max-w-[1600px] mx-auto pt-4">
           <h2 className="font-heading text-xl md:text-2xl font-bold text-foreground">
@@ -63,7 +76,7 @@ const Marketplace = () => {
         </div>
       )}
 
-      {/* VIP Exclusive Row — same grid as regular lots */}
+      {/* VIP Exclusive Row */}
       <div className="px-4 md:px-8 max-w-[1600px] mx-auto pt-6">
         <div className="rounded-2xl overflow-hidden border border-primary/20 bg-card p-4">
           <div className="flex items-center justify-between mb-3">
@@ -74,8 +87,8 @@ const Marketplace = () => {
           </div>
           <div className="relative">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 blur-[8px] select-none pointer-events-none" aria-hidden="true">
-              {vipLots.map((lot) => (
-                <LotCard key={`vip-${lot.id}`} {...lot} />
+              {vipLots.map((lot: any) => (
+                <LotCard key={`vip-${lot.id}`} id={lot.id} image={lot.images?.[0] || ""} title={lot.title} brand={lot.brand} price={`${Math.round(lot.price * 1.19).toLocaleString("fr-FR")} €`} units={lot.units} rating={lot.rating || 0} location={lot.location || ""} category={lot.category || ""} />
               ))}
             </div>
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
@@ -83,10 +96,7 @@ const Marketplace = () => {
                 <Lock className="h-4 w-4 text-primary" />
                 <span className="font-semibold text-foreground text-sm">{t("marketplace.vipOnly")}</span>
               </div>
-              <Link
-                to="/buyer/vip"
-                className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl text-sm hover:bg-primary/90 transition-colors shadow-lg"
-              >
+              <Link to="/buyer/vip" className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl text-sm hover:bg-primary/90 transition-colors shadow-lg">
                 <Crown className="h-4 w-4" />
                 {t("marketplace.becomeVip")}
               </Link>
@@ -110,7 +120,6 @@ const Marketplace = () => {
               ))}
             </select>
 
-            {/* Price range slider */}
             <div className="flex items-center gap-2 min-w-[260px]">
               <span className="text-xs text-muted-foreground whitespace-nowrap">💰 {filters.priceRange[0].toLocaleString()}€</span>
               <Slider
@@ -172,8 +181,19 @@ const Marketplace = () => {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-            {filteredLots.map((lot) => (
-              <LotCard key={lot.id} {...lot} />
+            {filteredLots.map((lot: any) => (
+              <LotCard
+                key={lot.id}
+                id={lot.id}
+                image={lot.images?.[0] || ""}
+                title={lot.title}
+                brand={lot.brand}
+                price={`${Math.round(lot.price * 1.19).toLocaleString("fr-FR")} €`}
+                units={lot.units}
+                rating={lot.rating || 0}
+                location={lot.location || ""}
+                category={lot.category || ""}
+              />
             ))}
           </div>
         )}

@@ -299,7 +299,8 @@ const SellerDashboard = () => {
                   key={lot.id}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-card rounded-2xl border border-border p-4 flex flex-col sm:flex-row gap-4"
+                  className="bg-card rounded-2xl border border-border p-4 flex flex-col sm:flex-row gap-4 cursor-pointer hover:border-primary/30 transition-colors"
+                  onClick={() => navigate(`/lot/${lot.id}`)}
                 >
                   <div className="w-full sm:w-28 h-28 rounded-xl overflow-hidden bg-muted flex-shrink-0">
                     {lotImage ? (
@@ -330,13 +331,13 @@ const SellerDashboard = () => {
                     </div>
                     <div className="flex gap-2 mt-3">
                       <button
-                        onClick={() => openEdit(lot)}
+                        onClick={(e) => { e.stopPropagation(); openEdit(lot); }}
                         className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
                       >
                         <Edit className="h-3 w-3" /> {t("sellerDashboard.editLot")}
                       </button>
                       <button
-                        onClick={() => setDeletingId(lot.id)}
+                        onClick={(e) => { e.stopPropagation(); setDeletingId(lot.id); }}
                         className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                       >
                         <Trash2 className="h-3 w-3" /> {t("sellerDashboard.deleteLot")}
