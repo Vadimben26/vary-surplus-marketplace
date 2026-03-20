@@ -135,10 +135,21 @@ const TopNav = ({ filters, onFiltersChange, showSearch = false }: TopNavProps) =
         <nav className="hidden md:flex items-center gap-1 mx-6">
           {tabs.map((tab) => {
             const active = isActive(tab.path);
+            const isRoleTab = tab.path === (isBuyer ? "/marketplace" : "/devenir/acheteur") || tab.path === (isSeller ? "/seller" : "/devenir/vendeur");
             return (
               <Link
                 key={tab.path}
                 to={tab.path}
+                onClick={() => {
+                  if (tab.path === (isBuyer ? "/marketplace" : "/devenir/acheteur")) {
+                    window.sessionStorage.setItem("vary-active-role-tab", "buyer");
+                    setActiveRoleTab("buyer");
+                  }
+                  if (tab.path === (isSeller ? "/seller" : "/devenir/vendeur")) {
+                    window.sessionStorage.setItem("vary-active-role-tab", "seller");
+                    setActiveRoleTab("seller");
+                  }
+                }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   active
                     ? "bg-primary text-primary-foreground"
