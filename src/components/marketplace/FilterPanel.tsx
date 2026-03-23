@@ -11,8 +11,9 @@ export interface B2BFilters {
   pricePerItemRange: [number, number];
   unitsRange: [number, number];
   minRating: number;
+  minDiscount: number;
   categories: string[];
-  categoryMode: "contains" | "mostly" | "mix";
+  categoryMode: "contains" | "mostly";
   brandsInclude: string[];
   brandsExclude: string[];
 }
@@ -24,6 +25,7 @@ export const DEFAULT_FILTERS: B2BFilters = {
   pricePerItemRange: [0, 100],
   unitsRange: [0, 5000],
   minRating: 0,
+  minDiscount: 0,
   categories: [],
   categoryMode: "contains",
   brandsInclude: [],
@@ -229,7 +231,28 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
         </div>
       </FilterDropdown>
 
-      {/* Category */}
+      {/* Discount */}
+      <FilterDropdown
+        label={t("filters.discount")}
+        icon={<Percent className="h-3.5 w-3.5" />}
+        active={filters.minDiscount > 0}
+      >
+        <div className="flex flex-wrap gap-2">
+          {[0, 20, 30, 50, 60, 70].map((d) => (
+            <button
+              key={d}
+              onClick={() => update({ minDiscount: d })}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                filters.minDiscount === d
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-foreground hover:bg-accent"
+              }`}
+            >
+              {d === 0 ? t("filters.all") : `≥ ${d}%`}
+            </button>
+          ))}
+        </div>
+      </FilterDropdown>
       <FilterDropdown
         label={t("filters.category")}
         icon={<Package className="h-3.5 w-3.5" />}
@@ -237,7 +260,7 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
       >
         <div className="space-y-3">
           <div className="flex gap-1 bg-muted rounded-lg p-1">
-            {(["contains", "mostly", "mix"] as const).map((mode) => (
+            {(["contains", "mostly"] as const).map((mode) => (
               <button
                 key={mode}
                 onClick={() => update({ categoryMode: mode })}
