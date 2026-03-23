@@ -52,6 +52,13 @@ const FilterChips = ({ filters, onChange, resultCount }: FilterChipsProps) => {
     })
   );
 
+  if (filters.minDiscount > 0) {
+    chips.push({
+      label: `🏷️ ≥ ${filters.minDiscount}%`,
+      onRemove: () => onChange({ ...filters, minDiscount: 0 }),
+    });
+  }
+
   filters.brandsInclude.forEach((b) =>
     chips.push({
       label: `✅ ${b}`,
