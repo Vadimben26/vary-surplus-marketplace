@@ -181,26 +181,6 @@ const LotDetail = () => {
                 <Package className="h-12 w-12 text-muted-foreground" />
               </div>
             )}
-            {seller && (
-              <div className="flex items-start gap-2.5 p-3 bg-muted rounded-xl">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <User className="h-4 w-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-foreground truncate">{seller.company_name || seller.full_name || "Vendeur"}</p>
-                  {seller.company_description && (
-                    <p className="text-[10px] text-muted-foreground leading-snug mt-1">{seller.company_description}</p>
-                  )}
-                  <button
-                    onClick={() => navigate(`/profil/${lot.seller_id}`)}
-                    className="flex items-center gap-1 mt-1.5 text-[10px] text-primary hover:underline"
-                  >
-                    <Star className="h-3 w-3" />
-                    {t("lotDetail.viewSellerReviews", "Voir la note et les avis")}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* CENTER: Details + Excel download */}
