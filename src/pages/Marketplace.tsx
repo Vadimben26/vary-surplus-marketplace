@@ -16,7 +16,7 @@ const Marketplace = () => {
   const { t } = useTranslation();
   const { profile } = useAuth();
   const [filters, setFilters] = useState<B2BFilters>(DEFAULT_FILTERS);
-  const [showFilters, setShowFilters] = useState(false);
+  
 
   const { data: dbLots = [] } = useQuery({
     queryKey: ["marketplace-lots"],
