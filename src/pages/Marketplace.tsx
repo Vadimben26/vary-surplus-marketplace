@@ -102,13 +102,6 @@ const Marketplace = () => {
     enabled: !!profile?.id,
   });
 
-  const hasActiveFilters = filters.countries.length > 0 ||
-    filters.priceRange[0] > 0 || filters.priceRange[1] < PRICE_MAX ||
-    filters.pricePerItemRange[0] > 0 || filters.pricePerItemRange[1] < PRICE_PER_ITEM_MAX ||
-    filters.unitsRange[0] > 0 || filters.unitsRange[1] < UNITS_MAX ||
-    filters.minRating > 0 || filters.categories.length > 0 ||
-    filters.brandsInclude.length > 0 || filters.brandsExclude.length > 0 ||
-    filters.search.length > 0;
 
   return (
     <div className="min-h-screen bg-background">
