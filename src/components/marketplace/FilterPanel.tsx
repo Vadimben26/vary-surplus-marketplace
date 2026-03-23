@@ -239,7 +239,7 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
       >
         <div className="space-y-3">
           <div className="flex gap-1 bg-muted rounded-lg p-1">
-            {(["contains", "mostly", "mix"] as const).map((mode) => (
+            {(["contains", "mostly"] as const).map((mode) => (
               <button
                 key={mode}
                 onClick={() => update({ categoryMode: mode })}
