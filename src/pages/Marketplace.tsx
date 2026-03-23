@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Crown, Lock, SlidersHorizontal, X } from "lucide-react";
+import { Crown, Lock, X } from "lucide-react";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import LotCard from "@/components/LotCard";
