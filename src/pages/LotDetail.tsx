@@ -81,11 +81,11 @@ const LotDetail = () => {
       [t("lotDetail.colRef", "Réf.")]: item.reference || "",
       [t("lotDetail.colQty", "Qté")]: item.quantity,
       [t("lotDetail.colRetail", "Prix retail")]: item.retail_price ? Number(item.retail_price) : "",
+      [t("lotDetail.colPhoto", "Photo")]: item.image_url || "",
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Inventaire");
-    // Auto-size columns
     const colWidths = Object.keys(rows[0]).map((k) => ({ wch: Math.max(k.length, 12) }));
     ws["!cols"] = colWidths;
     XLSX.writeFile(wb, `${lot.brand}_${lot.title.replace(/\s+/g, "_")}_inventaire.xlsx`);
@@ -203,10 +203,6 @@ const LotDetail = () => {
               <h1 className="font-heading text-lg font-bold text-foreground mt-1 leading-tight">{lot.title}</h1>
             </div>
 
-            {lot.description && (
-              <p className="text-muted-foreground text-xs leading-relaxed">{lot.description}</p>
-            )}
-
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-muted rounded-lg p-2 text-center">
                 <Package className="h-3 w-3 text-muted-foreground mx-auto mb-0.5" />
@@ -221,7 +217,7 @@ const LotDetail = () => {
               )}
             </div>
 
-            {/* Excel download button (replaces inventory table) */}
+            {/* Excel download */}
             {items.length > 0 && (
               <button
                 onClick={handleDownloadExcel}
@@ -238,6 +234,19 @@ const LotDetail = () => {
                 </div>
                 <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
               </button>
+            )}
+
+            {/* Retail value */}
+            {retailValue > 0 && (
+              <div className="flex items-center justify-between px-3 py-2 bg-muted rounded-lg">
+                <span className="text-xs text-muted-foreground">{t("lotDetail.retailValue", "Valeur retail")}</span>
+                <span className="text-xs font-semibold text-foreground">{retailValue.toLocaleString("fr-FR")} €</span>
+              </div>
+            )}
+
+            {/* Description */}
+            {lot.description && (
+              <p className="text-muted-foreground text-xs leading-relaxed">{lot.description}</p>
             )}
           </motion.div>
 
