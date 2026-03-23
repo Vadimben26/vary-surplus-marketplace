@@ -88,24 +88,42 @@ export type Database = {
       }
       lot_items: {
         Row: {
+          brand: string | null
+          category: string | null
+          gender: string | null
           id: string
+          image_url: string | null
           lot_id: string
           name: string
           quantity: number
+          reference: string | null
+          retail_price: number | null
           size: string | null
         }
         Insert: {
+          brand?: string | null
+          category?: string | null
+          gender?: string | null
           id?: string
+          image_url?: string | null
           lot_id: string
           name: string
           quantity?: number
+          reference?: string | null
+          retail_price?: number | null
           size?: string | null
         }
         Update: {
+          brand?: string | null
+          category?: string | null
+          gender?: string | null
           id?: string
+          image_url?: string | null
           lot_id?: string
           name?: string
           quantity?: number
+          reference?: string | null
+          retail_price?: number | null
           size?: string | null
         }
         Relationships: [
