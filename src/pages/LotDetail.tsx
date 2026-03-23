@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Heart, MapPin, Package, MessageCircle, ShoppingCart, User, ChevronLeft, ChevronRight, TrendingDown, Image, Download } from "lucide-react";
+import { ArrowLeft, Heart, MapPin, Package, MessageCircle, ShoppingCart, User, ChevronLeft, ChevronRight, TrendingDown, Image, Download, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
