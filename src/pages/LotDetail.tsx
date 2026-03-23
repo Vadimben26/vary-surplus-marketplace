@@ -81,11 +81,11 @@ const LotDetail = () => {
       [t("lotDetail.colRef", "Réf.")]: item.reference || "",
       [t("lotDetail.colQty", "Qté")]: item.quantity,
       [t("lotDetail.colRetail", "Prix retail")]: item.retail_price ? Number(item.retail_price) : "",
+      [t("lotDetail.colPhoto", "Photo")]: item.image_url || "",
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Inventaire");
-    // Auto-size columns
     const colWidths = Object.keys(rows[0]).map((k) => ({ wch: Math.max(k.length, 12) }));
     ws["!cols"] = colWidths;
     XLSX.writeFile(wb, `${lot.brand}_${lot.title.replace(/\s+/g, "_")}_inventaire.xlsx`);
