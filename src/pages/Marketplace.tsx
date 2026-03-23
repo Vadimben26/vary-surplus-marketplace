@@ -1,34 +1,23 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Crown, Lock } from "lucide-react";
+import { Crown, Lock, SlidersHorizontal, X } from "lucide-react";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import LotCard from "@/components/LotCard";
+import FilterPanel, { B2BFilters, DEFAULT_FILTERS, PRICE_MAX, PRICE_PER_ITEM_MAX, UNITS_MAX } from "@/components/marketplace/FilterPanel";
+import FilterChips from "@/components/marketplace/FilterChips";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Slider } from "@/components/ui/slider";
-
-const locations = ["", "France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique", "Royaume-Uni", "Pologne", "Roumanie", "Suède", "Autriche", "Grèce", "Suisse", "Tchéquie", "Danemark", "Irlande", "Hongrie", "Croatie"];
-const styles = ["", "Casual", "Business", "Sport", "Premium", "Denim"];
-
-const PRICE_MIN = 0;
-const PRICE_MAX = 50000;
-const PRICE_STEP = 200;
+import { motion, AnimatePresence } from "framer-motion";
 
 const Marketplace = () => {
   const { t } = useTranslation();
   const { profile } = useAuth();
-  const [filters, setFilters] = useState({
-    location: "",
-    priceRange: [PRICE_MIN, PRICE_MAX] as [number, number],
-    style: "",
-    search: "",
-  });
-  const [activeCategory, setActiveCategory] = useState("");
+  const [filters, setFilters] = useState<B2BFilters>(DEFAULT_FILTERS);
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch active lots from DB
   const { data: dbLots = [] } = useQuery({
     queryKey: ["marketplace-lots"],
     queryFn: async () => {
@@ -42,27 +31,61 @@ const Marketplace = () => {
     },
   });
 
+  // Compute available brands from data
+  const availableBrands = useMemo(() => {
+    const set = new Set<string>();
+    dbLots.forEach((lot: any) => { if (lot.brand) set.add(lot.brand); });
+    return Array.from(set).sort();
+  }, [dbLots]);
+
+  // Compute counts for filters
+  const lotCounts = useMemo(() => {
+    const countries: Record<string, number> = {};
+    const categories: Record<string, number> = {};
+    const brands: Record<string, number> = {};
+    dbLots.forEach((lot: any) => {
+      if (lot.location) countries[lot.location] = (countries[lot.location] || 0) + 1;
+      if (lot.category) categories[lot.category] = (categories[lot.category] || 0) + 1;
+      if (lot.brand) brands[lot.brand] = (brands[lot.brand] || 0) + 1;
+    });
+    return { countries, categories, brands, total: dbLots.length };
+  }, [dbLots]);
+
   const filteredLots = useMemo(() => {
     return dbLots.filter((lot: any) => {
-      if (activeCategory && lot.category && !lot.category.toLowerCase().includes(activeCategory.toLowerCase())) return false;
+      // Search
       if (filters.search) {
         const q = filters.search.toLowerCase();
         if (!lot.title.toLowerCase().includes(q) && !lot.brand.toLowerCase().includes(q)) return false;
       }
-      if (filters.location && lot.location && !lot.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
+      // Country
+      if (filters.countries.length > 0 && !filters.countries.includes(lot.location || "")) return false;
+      // Total price
       if (lot.price < filters.priceRange[0] || lot.price > filters.priceRange[1]) return false;
-      if (filters.style) {
-        const s = filters.style.toLowerCase();
-        if (!lot.title.toLowerCase().includes(s) && !lot.brand.toLowerCase().includes(s) && !(lot.category || "").toLowerCase().includes(s)) return false;
+      // Price per item
+      const ppi = lot.units > 0 ? lot.price / lot.units : 0;
+      if (ppi < filters.pricePerItemRange[0] || ppi > filters.pricePerItemRange[1]) return false;
+      // Units
+      if (lot.units < filters.unitsRange[0] || lot.units > filters.unitsRange[1]) return false;
+      // Rating
+      if (filters.minRating > 0 && (lot.rating || 0) < filters.minRating) return false;
+      // Category (contains mode for now — single category field)
+      if (filters.categories.length > 0) {
+        const lotCat = (lot.category || "").toLowerCase();
+        const match = filters.categories.some((c) => lotCat.includes(c.toLowerCase()));
+        if (!match) return false;
       }
+      // Brands include
+      if (filters.brandsInclude.length > 0 && !filters.brandsInclude.includes(lot.brand)) return false;
+      // Brands exclude
+      if (filters.brandsExclude.length > 0 && filters.brandsExclude.includes(lot.brand)) return false;
       return true;
     });
-  }, [filters, activeCategory, dbLots]);
+  }, [filters, dbLots]);
 
   const firstName = profile?.full_name?.split(" ")[0];
   const vipLots = dbLots.slice(0, 5);
 
-  // Check if buyer is VIP
   const { data: isBuyerVip = false } = useQuery({
     queryKey: ["buyer-vip-status", profile?.id],
     queryFn: async () => {
@@ -79,160 +102,220 @@ const Marketplace = () => {
     enabled: !!profile?.id,
   });
 
-  const hasActiveFilters = filters.location || filters.style || filters.priceRange[0] !== PRICE_MIN || filters.priceRange[1] !== PRICE_MAX;
+  const hasActiveFilters = filters.countries.length > 0 ||
+    filters.priceRange[0] > 0 || filters.priceRange[1] < PRICE_MAX ||
+    filters.pricePerItemRange[0] > 0 || filters.pricePerItemRange[1] < PRICE_PER_ITEM_MAX ||
+    filters.unitsRange[0] > 0 || filters.unitsRange[1] < UNITS_MAX ||
+    filters.minRating > 0 || filters.categories.length > 0 ||
+    filters.brandsInclude.length > 0 || filters.brandsExclude.length > 0 ||
+    filters.search.length > 0;
 
   return (
     <div className="min-h-screen bg-background">
-      <TopNav filters={{ location: filters.location, priceRange: "", style: filters.style, search: filters.search }} onFiltersChange={(f) => setFilters(prev => ({ ...prev, location: f.location, style: f.style, search: f.search }))} showSearch />
+      <TopNav
+        filters={{ location: "", priceRange: "", style: "", search: filters.search }}
+        onFiltersChange={(f) => setFilters((prev) => ({ ...prev, search: f.search }))}
+        showSearch
+      />
 
-      {firstName && (
-        <div className="px-4 md:px-8 max-w-[1600px] mx-auto pt-4">
-          <h2 className="font-heading text-xl md:text-2xl font-bold text-foreground">
-            {t("marketplace.welcome", { name: firstName })} 👋
-          </h2>
-        </div>
-      )}
+      <div className="max-w-[1600px] mx-auto">
+        {firstName && (
+          <div className="px-4 md:px-8 pt-4">
+            <h2 className="font-heading text-xl md:text-2xl font-bold text-foreground">
+              {t("marketplace.welcome", { name: firstName })} 👋
+            </h2>
+          </div>
+        )}
 
-      {/* VIP Exclusive Row */}
-      {!isBuyerVip && (
-        <div className="px-4 md:px-8 max-w-[1600px] mx-auto pt-6">
-          <div className="rounded-2xl overflow-hidden border border-primary/20 bg-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
+        {/* VIP Row */}
+        {!isBuyerVip && (
+          <div className="px-4 md:px-8 pt-6">
+            <div className="rounded-2xl overflow-hidden border border-primary/20 bg-card p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Crown className="h-5 w-5 text-primary" />
+                  <h3 className="font-heading font-bold text-foreground text-sm">{t("marketplace.vipExclusive")}</h3>
+                </div>
+              </div>
+              <div className="relative">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 blur-[8px] select-none pointer-events-none" aria-hidden="true">
+                  {vipLots.map((lot: any) => (
+                    <LotCard key={`vip-${lot.id}`} id={lot.id} image={lot.images?.[0] || ""} title={lot.title} brand={lot.brand} price={`${Math.round(lot.price * 1.19).toLocaleString("fr-FR")} €`} pricePerUnit={lot.units > 0 ? `${(lot.price * 1.19 / lot.units).toFixed(2)} €` : undefined} units={lot.units} rating={lot.rating || 0} location={lot.location || ""} category={lot.category || ""} />
+                  ))}
+                </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-card/90 backdrop-blur-sm border border-border rounded-xl shadow-lg">
+                    <Lock className="h-4 w-4 text-primary" />
+                    <span className="font-semibold text-foreground text-sm">{t("marketplace.vipOnly")}</span>
+                  </div>
+                  <Link to="/buyer/vip" className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl text-sm hover:bg-primary/90 transition-colors shadow-lg">
+                    <Crown className="h-4 w-4" />
+                    {t("marketplace.becomeVip")}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isBuyerVip && vipLots.length > 0 && (
+          <div className="px-4 md:px-8 pt-6">
+            <div className="rounded-2xl overflow-hidden border border-primary/20 bg-card p-4">
+              <div className="flex items-center gap-2 mb-3">
                 <Crown className="h-5 w-5 text-primary" />
                 <h3 className="font-heading font-bold text-foreground text-sm">{t("marketplace.vipExclusive")}</h3>
               </div>
-            </div>
-            <div className="relative">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 blur-[8px] select-none pointer-events-none" aria-hidden="true">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                 {vipLots.map((lot: any) => (
-                  <LotCard key={`vip-${lot.id}`} id={lot.id} image={lot.images?.[0] || ""} title={lot.title} brand={lot.brand} price={`${Math.round(lot.price * 1.19).toLocaleString("fr-FR")} €`} units={lot.units} rating={lot.rating || 0} location={lot.location || ""} category={lot.category || ""} />
+                  <LotCard key={`vip-${lot.id}`} id={lot.id} image={lot.images?.[0] || ""} title={lot.title} brand={lot.brand} price={`${Math.round(lot.price * 1.19).toLocaleString("fr-FR")} €`} pricePerUnit={lot.units > 0 ? `${(lot.price * 1.19 / lot.units).toFixed(2)} €` : undefined} units={lot.units} rating={lot.rating || 0} location={lot.location || ""} category={lot.category || ""} />
                 ))}
               </div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                <div className="flex items-center gap-2 px-4 py-2 bg-card/90 backdrop-blur-sm border border-border rounded-xl shadow-lg">
-                  <Lock className="h-4 w-4 text-primary" />
-                  <span className="font-semibold text-foreground text-sm">{t("marketplace.vipOnly")}</span>
-                </div>
-                <Link to="/buyer/vip" className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl text-sm hover:bg-primary/90 transition-colors shadow-lg">
-                  <Crown className="h-4 w-4" />
-                  {t("marketplace.becomeVip")}
-                </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Filter toggle + chips bar */}
+        <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
+          <div className="px-4 md:px-8 py-3">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
+                  showFilters
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-foreground border-border hover:border-primary"
+                }`}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                {t("filters.title")}
+                {hasActiveFilters && (
+                  <span className="flex items-center justify-center h-5 w-5 rounded-full bg-primary-foreground text-primary text-[10px] font-bold">
+                    {filters.countries.length + filters.categories.length + filters.brandsInclude.length + filters.brandsExclude.length + (filters.minRating > 0 ? 1 : 0) + (filters.priceRange[0] > 0 || filters.priceRange[1] < PRICE_MAX ? 1 : 0) + (filters.pricePerItemRange[0] > 0 || filters.pricePerItemRange[1] < PRICE_PER_ITEM_MAX ? 1 : 0) + (filters.unitsRange[0] > 0 || filters.unitsRange[1] < UNITS_MAX ? 1 : 0)}
+                  </span>
+                )}
+              </button>
+              <div className="flex-1 overflow-x-auto scrollbar-hide">
+                <FilterChips filters={filters} onChange={setFilters} resultCount={filteredLots.length} />
               </div>
             </div>
           </div>
         </div>
-      )}
 
-      {isBuyerVip && vipLots.length > 0 && (
-        <div className="px-4 md:px-8 max-w-[1600px] mx-auto pt-6">
-          <div className="rounded-2xl overflow-hidden border border-primary/20 bg-card p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Crown className="h-5 w-5 text-primary" />
-              <h3 className="font-heading font-bold text-foreground text-sm">{t("marketplace.vipExclusive")}</h3>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-              {vipLots.map((lot: any) => (
-                <LotCard key={`vip-${lot.id}`} id={lot.id} image={lot.images?.[0] || ""} title={lot.title} brand={lot.brand} price={`${Math.round(lot.price * 1.19).toLocaleString("fr-FR")} €`} units={lot.units} rating={lot.rating || 0} location={lot.location || ""} category={lot.category || ""} />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Sticky filter bar */}
-      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="px-4 md:px-8 max-w-[1600px] mx-auto py-3">
-          <div className="flex flex-wrap gap-3 items-center">
-            <select
-              className="h-9 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-ring"
-              value={filters.location}
-              onChange={(e) => setFilters((f) => ({ ...f, location: e.target.value }))}
-            >
-              <option value="">{t("marketplace.allCountries")}</option>
-              {locations.filter(Boolean).map((loc) => (
-                <option key={loc} value={loc}>{loc}</option>
-              ))}
-            </select>
-
-            <div className="flex items-center gap-2 min-w-[260px]">
-              <span className="text-xs text-muted-foreground whitespace-nowrap">💰 {filters.priceRange[0].toLocaleString()}€</span>
-              <Slider
-                min={PRICE_MIN}
-                max={PRICE_MAX}
-                step={PRICE_STEP}
-                value={filters.priceRange}
-                onValueChange={(val) => setFilters((f) => ({ ...f, priceRange: val as [number, number] }))}
-                className="flex-1"
-              />
-              <span className="text-xs text-muted-foreground whitespace-nowrap">{filters.priceRange[1].toLocaleString()}€</span>
-            </div>
-
-            <select
-              className="h-9 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-ring"
-              value={filters.style}
-              onChange={(e) => setFilters((f) => ({ ...f, style: e.target.value }))}
-            >
-              <option value="">{t("marketplace.allStyles")}</option>
-              {styles.filter(Boolean).map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-            {hasActiveFilters && (
-              <button
-                onClick={() => setFilters((f) => ({ ...f, location: "", priceRange: [PRICE_MIN, PRICE_MAX], style: "" }))}
-                className="h-9 px-3 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors font-medium"
-              >
-                {t("marketplace.reset")}
+        {/* Mobile search */}
+        <div className="md:hidden px-4 pt-3">
+          <div className="flex items-center bg-muted rounded-full border border-border px-4 py-2.5">
+            <input
+              type="text"
+              placeholder={t("marketplace.searchPlaceholder")}
+              className="bg-transparent text-sm outline-none w-full text-foreground placeholder:text-muted-foreground"
+              value={filters.search}
+              onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+            />
+            {filters.search && (
+              <button onClick={() => setFilters((f) => ({ ...f, search: "" }))}>
+                <X className="h-4 w-4 text-muted-foreground" />
               </button>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Mobile search */}
-      <div className="md:hidden px-4 pt-3">
-        <div className="flex items-center bg-muted rounded-full border border-border px-4 py-2.5">
-          <input
-            type="text"
-            placeholder={t("marketplace.searchPlaceholder")}
-            className="bg-transparent text-sm outline-none w-full text-foreground placeholder:text-muted-foreground"
-            value={filters.search}
-            onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
-          />
+        {/* Main content with sidebar */}
+        <div className="flex gap-6 px-4 md:px-8 py-4 pb-24">
+          {/* Filter sidebar */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.aside
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: 280, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="hidden md:block flex-shrink-0 overflow-hidden"
+              >
+                <div className="w-[280px] sticky top-36">
+                  <FilterPanel
+                    filters={filters}
+                    onChange={setFilters}
+                    lotCounts={lotCounts}
+                    availableBrands={availableBrands}
+                  />
+                </div>
+              </motion.aside>
+            )}
+          </AnimatePresence>
+
+          {/* Mobile filter drawer */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="md:hidden fixed inset-0 z-50 bg-foreground/40"
+                onClick={() => setShowFilters(false)}
+              >
+                <motion.div
+                  initial={{ x: "-100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "-100%" }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="absolute left-0 top-0 bottom-0 w-[85%] max-w-[320px] bg-background overflow-y-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="sticky top-0 bg-background border-b border-border p-4 flex items-center justify-between">
+                    <span className="font-heading font-bold text-foreground">{t("filters.title")}</span>
+                    <button onClick={() => setShowFilters(false)}>
+                      <X className="h-5 w-5 text-foreground" />
+                    </button>
+                  </div>
+                  <FilterPanel
+                    filters={filters}
+                    onChange={setFilters}
+                    lotCounts={lotCounts}
+                    availableBrands={availableBrands}
+                  />
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Lot grid */}
+          <main className="flex-1 min-w-0">
+            {filteredLots.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground text-lg">{t("marketplace.noResults")}</p>
+                <button
+                  onClick={() => setFilters(DEFAULT_FILTERS)}
+                  className="mt-4 text-primary hover:underline font-medium"
+                >
+                  {t("marketplace.resetFilters")}
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                {filteredLots.map((lot: any) => {
+                  const totalTTC = Math.round(lot.price * 1.19);
+                  const ppu = lot.units > 0 ? (lot.price * 1.19 / lot.units).toFixed(2) : null;
+                  return (
+                    <LotCard
+                      key={lot.id}
+                      id={lot.id}
+                      image={lot.images?.[0] || ""}
+                      title={lot.title}
+                      brand={lot.brand}
+                      price={`${totalTTC.toLocaleString("fr-FR")} €`}
+                      pricePerUnit={ppu ? `${ppu} €` : undefined}
+                      units={lot.units}
+                      rating={lot.rating || 0}
+                      location={lot.location || ""}
+                      category={lot.category || ""}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </main>
         </div>
       </div>
-
-      <main className="px-4 md:px-8 py-4 pb-24 max-w-[1600px] mx-auto">
-        {filteredLots.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground text-lg">{t("marketplace.noResults")}</p>
-            <button
-              onClick={() => setFilters({ location: "", priceRange: [PRICE_MIN, PRICE_MAX], style: "", search: "" })}
-              className="mt-4 text-primary hover:underline font-medium"
-            >
-              {t("marketplace.resetFilters")}
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-            {filteredLots.map((lot: any) => (
-              <LotCard
-                key={lot.id}
-                id={lot.id}
-                image={lot.images?.[0] || ""}
-                title={lot.title}
-                brand={lot.brand}
-                price={`${Math.round(lot.price * 1.19).toLocaleString("fr-FR")} €`}
-                units={lot.units}
-                rating={lot.rating || 0}
-                location={lot.location || ""}
-                category={lot.category || ""}
-              />
-            ))}
-          </div>
-        )}
-      </main>
       <BottomNav />
     </div>
   );
