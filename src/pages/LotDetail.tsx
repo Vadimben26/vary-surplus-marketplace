@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Heart, Star, MapPin, Package, MessageCircle, ShoppingCart, User, ChevronDown, ChevronLeft, ChevronRight, TrendingDown, Image } from "lucide-react";
+import { ArrowLeft, Heart, MapPin, Package, MessageCircle, ShoppingCart, User, ChevronLeft, ChevronRight, TrendingDown, Image, Download } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,27 +12,7 @@ import LotCard from "@/components/LotCard";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const MOCK_REVIEWS = [
-  { author: "Sophie M.", rating: 5, date: "2026-03-12", comment: "Qualité excellente, emballage soigné. Je recommande ce vendeur sans hésitation." },
-  { author: "Marco R.", rating: 4, date: "2026-03-08", comment: "Bon lot dans l'ensemble, quelques pièces légèrement différentes de la description mais rapport qualité-prix correct." },
-  { author: "Elena K.", rating: 5, date: "2026-02-28", comment: "Livraison rapide et conforme. Les tailles correspondent bien, mes clients sont ravis." },
-  { author: "Thomas D.", rating: 4, date: "2026-02-20", comment: "Deuxième commande chez ce vendeur. Toujours fiable, bonne communication." },
-  { author: "Amira B.", rating: 3, date: "2026-02-15", comment: "Correct mais un peu long à recevoir. Qualité des produits satisfaisante." },
-  { author: "Lucas P.", rating: 5, date: "2026-01-30", comment: "Parfait pour mon magasin. Les clients adorent, je repasse commande bientôt !" },
-];
-
-const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) => {
-  const s = size === "md" ? "h-4 w-4" : "h-3 w-3";
-  return (
-    <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Star key={star} className={`${s} ${star <= Math.round(rating) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
-      ))}
-    </div>
-  );
-};
+import * as XLSX from "xlsx";
 
 const LotDetail = () => {
   const { t } = useTranslation();
@@ -78,27 +58,38 @@ const LotDetail = () => {
     enabled: !!lot,
   });
 
-  const reviews = useMemo(() => {
-    if (!id) return [];
-    const seed = id.charCodeAt(0) + id.charCodeAt(id.length - 1);
-    const count = 3 + (seed % 4);
-    const shuffled = [...MOCK_REVIEWS].sort((a, b) => (a.author.charCodeAt(0) + seed) - (b.author.charCodeAt(0) + seed));
-    return shuffled.slice(0, count);
-  }, [id]);
-
   const images = lot?.images?.length ? lot.images : [];
   const items: any[] = lot?.lot_items || [];
   const seller = lot?.profiles as any;
 
-  // Compute retail value & discount
   const retailValue = useMemo(() => items.reduce((sum, item) => sum + (item.retail_price || 0) * (item.quantity || 0), 0), [items]);
   const discount = retailValue > 0 ? Math.round((1 - (lot?.price || 0) / retailValue) * 100) : 0;
 
-  // Product images from lot_items
   const productImages = useMemo(() => items.filter((item) => item.image_url).map((item) => ({ url: item.image_url, name: item.name })), [items]);
 
   const prevImage = useCallback(() => setActiveImage((i) => (i === 0 ? images.length - 1 : i - 1)), [images.length]);
   const nextImage = useCallback(() => setActiveImage((i) => (i === images.length - 1 ? 0 : i + 1)), [images.length]);
+
+  const handleDownloadExcel = useCallback(() => {
+    if (!items.length || !lot) return;
+    const rows = items.map((item: any) => ({
+      [t("lotDetail.colBrand", "Marque")]: item.brand || lot.brand || "",
+      [t("lotDetail.colName", "Article")]: item.name,
+      [t("lotDetail.colCategory", "Catégorie")]: item.category || "",
+      [t("lotDetail.colGender", "Genre")]: item.gender || "",
+      [t("lotDetail.colSize", "Taille")]: item.size || "",
+      [t("lotDetail.colRef", "Réf.")]: item.reference || "",
+      [t("lotDetail.colQty", "Qté")]: item.quantity,
+      [t("lotDetail.colRetail", "Prix retail")]: item.retail_price ? Number(item.retail_price) : "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Inventaire");
+    // Auto-size columns
+    const colWidths = Object.keys(rows[0]).map((k) => ({ wch: Math.max(k.length, 12) }));
+    ws["!cols"] = colWidths;
+    XLSX.writeFile(wb, `${lot.brand}_${lot.title.replace(/\s+/g, "_")}_inventaire.xlsx`);
+  }, [items, lot, t]);
 
   if (isLoading) {
     return (
@@ -122,8 +113,6 @@ const LotDetail = () => {
   const liked = isFavorite(lot.id);
   const inCart = isInCart(lot.id);
   const total = Math.round(lot.price * 1.19);
-  const lotRating = lot.rating || 0;
-  const avgReviewRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) : 0;
 
   const handleAddToCart = () => {
     addToCart(lot.id);
@@ -207,18 +196,11 @@ const LotDetail = () => {
             )}
           </div>
 
-          {/* CENTER: Details + Inventory table + Products */}
+          {/* CENTER: Details + Excel download */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="md:col-span-5 space-y-3">
             <div>
               <span className="text-xs font-semibold text-primary uppercase tracking-wide">{lot.brand}</span>
               <h1 className="font-heading text-lg font-bold text-foreground mt-1 leading-tight">{lot.title}</h1>
-              {lotRating > 0 && (
-                <div className="flex items-center gap-2 mt-1.5">
-                  <StarRating rating={lotRating} size="md" />
-                  <span className="text-sm font-semibold text-foreground">{lotRating.toFixed(1)}</span>
-                  <span className="text-xs text-muted-foreground">({reviews.length} {t("lotDetail.reviews")})</span>
-                </div>
-              )}
             </div>
 
             {lot.description && (
@@ -239,81 +221,23 @@ const LotDetail = () => {
               )}
             </div>
 
-            {/* Inventory Table (replaces "Contenu du lot") */}
+            {/* Excel download button (replaces inventory table) */}
             {items.length > 0 && (
-              <div className="border border-border rounded-xl overflow-hidden">
-                <div className="bg-muted px-3 py-2 flex items-center justify-between">
-                  <h3 className="font-heading font-semibold text-foreground text-xs">{t("lotDetail.inventory", "Inventaire")}</h3>
-                  <span className="text-[10px] text-muted-foreground">{items.length} {t("lotDetail.references", "références")}</span>
+              <button
+                onClick={handleDownloadExcel}
+                className="w-full flex items-center justify-between px-4 py-3 bg-muted hover:bg-muted/80 rounded-xl border border-border transition-colors group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-green-600/10 flex items-center justify-center">
+                    <Download className="h-4 w-4 text-green-600" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs font-semibold text-foreground">{t("lotDetail.downloadInventory", "Télécharger l'inventaire")}</p>
+                    <p className="text-[10px] text-muted-foreground">{items.length} {t("lotDetail.references", "références")} • Excel (.xlsx)</p>
+                  </div>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/50">
-                        <th className="text-left px-3 py-1.5 font-semibold text-muted-foreground">{t("lotDetail.colBrand", "Marque")}</th>
-                        <th className="text-left px-3 py-1.5 font-semibold text-muted-foreground">{t("lotDetail.colName", "Article")}</th>
-                        <th className="text-left px-3 py-1.5 font-semibold text-muted-foreground">{t("lotDetail.colSize", "Taille")}</th>
-                        <th className="text-left px-3 py-1.5 font-semibold text-muted-foreground">{t("lotDetail.colCategory", "Catégorie")}</th>
-                        <th className="text-left px-3 py-1.5 font-semibold text-muted-foreground">{t("lotDetail.colGender", "Genre")}</th>
-                        <th className="text-right px-3 py-1.5 font-semibold text-muted-foreground">{t("lotDetail.colQty", "Qté")}</th>
-                        <th className="text-left px-3 py-1.5 font-semibold text-muted-foreground">{t("lotDetail.colRef", "Réf.")}</th>
-                        <th className="text-right px-3 py-1.5 font-semibold text-muted-foreground">{t("lotDetail.colRetail", "Prix retail")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((item: any, i: number) => (
-                        <tr key={i} className="border-b border-border/50 last:border-0 hover:bg-muted/30">
-                          <td className="px-3 py-1.5 text-foreground font-medium">{item.brand || lot.brand || "—"}</td>
-                          <td className="px-3 py-1.5 text-foreground">{item.name}</td>
-                          <td className="px-3 py-1.5 text-muted-foreground">{item.size || "—"}</td>
-                          <td className="px-3 py-1.5 text-muted-foreground">{item.category || "—"}</td>
-                          <td className="px-3 py-1.5 text-muted-foreground">{item.gender || "—"}</td>
-                          <td className="px-3 py-1.5 text-right font-heading font-bold text-primary">{item.quantity}</td>
-                          <td className="px-3 py-1.5 text-muted-foreground font-mono text-[10px]">{item.reference || "—"}</td>
-                          <td className="px-3 py-1.5 text-right text-foreground">{item.retail_price ? `${Number(item.retail_price).toLocaleString("fr-FR")} €` : "—"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    {retailValue > 0 && (
-                      <tfoot>
-                        <tr className="bg-muted/50 border-t border-border">
-                          <td colSpan={5} className="px-3 py-1.5 font-semibold text-foreground text-xs">{t("lotDetail.totalRetail", "Valeur retail totale")}</td>
-                          <td className="px-3 py-1.5 text-right font-heading font-bold text-foreground">{items.reduce((s: number, i: any) => s + (i.quantity || 0), 0)}</td>
-                          <td></td>
-                          <td className="px-3 py-1.5 text-right font-heading font-bold text-foreground">{retailValue.toLocaleString("fr-FR")} €</td>
-                        </tr>
-                      </tfoot>
-                    )}
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Products gallery (replaces buyer reviews position) */}
-            {productImages.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Image className="h-4 w-4 text-muted-foreground" />
-                  <h3 className="font-heading font-semibold text-foreground text-xs">{t("lotDetail.products", "Produits")}</h3>
-                  <span className="text-[10px] text-muted-foreground">({productImages.length})</span>
-                </div>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                  {productImages.map((img, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setSelectedProductImage(img.url)}
-                      className="aspect-square rounded-lg overflow-hidden bg-muted hover:ring-2 hover:ring-primary transition-all"
-                    >
-                      <img src={img.url} alt={img.name} className="w-full h-full object-cover" loading="lazy" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Compact reviews as collapsible at bottom */}
-            {reviews.length > 0 && (
-              <ReviewsCompact reviews={reviews} avgRating={avgReviewRating} />
+                <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+              </button>
             )}
           </motion.div>
 
@@ -369,6 +293,28 @@ const LotDetail = () => {
           </div>
         </div>
 
+        {/* Products gallery — before similar lots */}
+        {productImages.length > 0 && (
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Image className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-heading font-semibold text-foreground text-sm">{t("lotDetail.products", "Produits")}</h3>
+              <span className="text-xs text-muted-foreground">({productImages.length})</span>
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+              {productImages.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedProductImage(img.url)}
+                  className="aspect-square rounded-lg overflow-hidden bg-muted hover:ring-2 hover:ring-primary transition-all"
+                >
+                  <img src={img.url} alt={img.name} className="w-full h-full object-cover" loading="lazy" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Similar lots */}
         {similarLots.length > 0 && (
           <div className="mt-8">
@@ -383,7 +329,6 @@ const LotDetail = () => {
                   brand={l.brand}
                   price={`${Math.round(l.price * 1.19).toLocaleString("fr-FR")} €`}
                   units={l.units}
-                  rating={l.rating || 0}
                   location={l.location || ""}
                   category={l.category || ""}
                   discount={l.discount > 0 ? l.discount : undefined}
@@ -420,44 +365,6 @@ const LotDetail = () => {
       </div>
 
       <BottomNav />
-    </div>
-  );
-};
-
-/* Compact reviews component — collapsible */
-const ReviewsCompact = ({ reviews, avgRating }: { reviews: any[]; avgRating: number }) => {
-  const [expanded, setExpanded] = useState(false);
-  const { t } = useTranslation();
-
-  return (
-    <div className="border border-border rounded-xl overflow-hidden">
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-3 py-2.5 bg-muted hover:bg-muted/80 transition-colors"
-      >
-        <div className="flex items-center gap-2">
-          <StarRating rating={avgRating} size="sm" />
-          <span className="text-xs font-semibold text-foreground">{avgRating.toFixed(1)}</span>
-          <span className="text-[10px] text-muted-foreground">• {reviews.length} {t("lotDetail.reviews")}</span>
-        </div>
-        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
-      </button>
-      {expanded && (
-        <div className="divide-y divide-border/50">
-          {reviews.map((review, i) => (
-            <div key={i} className="px-3 py-2.5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-medium text-foreground">{review.author}</span>
-                  <StarRating rating={review.rating} />
-                </div>
-                <span className="text-[10px] text-muted-foreground">{new Date(review.date).toLocaleDateString("fr-FR")}</span>
-              </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">{review.comment}</p>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
