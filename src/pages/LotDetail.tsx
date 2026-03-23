@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import LotCard from "@/components/LotCard";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
+import LegalFooter from "@/components/LegalFooter";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 
