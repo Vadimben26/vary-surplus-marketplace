@@ -74,6 +74,12 @@ const LotCard = ({
             </span>
           )}
         </div>
+        <button
+          onClick={(e) => { e.stopPropagation(); navigate(`/lot/${id}`); }}
+          className="w-full mt-2 py-1.5 text-xs font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          Voir lot
+        </button>
       </div>
     </motion.div>
   );
