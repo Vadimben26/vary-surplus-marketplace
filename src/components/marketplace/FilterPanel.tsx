@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, ChevronUp, MapPin, DollarSign, Package, Star, Percent, X, Plus, Minus } from "lucide-react";
+import { MapPin, DollarSign, Package, Star, Percent, X, Plus, Minus, ChevronDown } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import { motion, AnimatePresence } from "framer-motion";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export interface B2BFilters {
   search: string;
@@ -45,39 +45,38 @@ const CATEGORIES = [
   "Vêtements", "Sacs", "Sneakers", "Beauté", "Sport", "Électronique",
 ];
 
-interface FilterSectionProps {
-  title: string;
+interface FilterDropdownProps {
+  label: string;
   icon: React.ReactNode;
+  active: boolean;
   children: React.ReactNode;
-  defaultOpen?: boolean;
+  wide?: boolean;
 }
 
-const FilterSection = ({ title, icon, children, defaultOpen = false }: FilterSectionProps) => {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="border-b border-border last:border-b-0">
+const FilterDropdown = ({ label, icon, active, children, wide }: FilterDropdownProps) => (
+  <Popover>
+    <PopoverTrigger asChild>
       <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted/50 transition-colors"
+        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all border whitespace-nowrap ${
+          active
+            ? "bg-primary text-primary-foreground border-primary"
+            : "bg-card text-foreground border-border hover:border-primary/50"
+        }`}
       >
-        <span className="flex items-center gap-2">{icon}{title}</span>
-        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+        {icon}
+        {label}
+        <ChevronDown className="h-3 w-3 ml-0.5" />
       </button>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-4 space-y-2">{children}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
+    </PopoverTrigger>
+    <PopoverContent
+      className={`p-3 ${wide ? "w-[360px]" : "w-[280px]"}`}
+      align="start"
+      sideOffset={8}
+    >
+      {children}
+    </PopoverContent>
+  </Popover>
+);
 
 interface FilterPanelProps {
   filters: B2BFilters;
@@ -108,9 +107,14 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
     .slice(0, 15);
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
+    <div className="flex flex-wrap items-center gap-2">
       {/* Country */}
-      <FilterSection title={t("filters.country")} icon={<MapPin className="h-4 w-4 text-primary" />} defaultOpen>
+      <FilterDropdown
+        label={t("filters.country")}
+        icon={<MapPin className="h-3.5 w-3.5" />}
+        active={filters.countries.length > 0}
+        wide
+      >
         <div className="flex flex-wrap gap-1.5">
           {COUNTRIES.map((c) => {
             const count = lotCounts.countries[c] || 0;
@@ -136,10 +140,14 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
             );
           })}
         </div>
-      </FilterSection>
+      </FilterDropdown>
 
-      {/* Total lot price */}
-      <FilterSection title={t("filters.totalPrice")} icon={<DollarSign className="h-4 w-4 text-primary" />} defaultOpen>
+      {/* Total price */}
+      <FilterDropdown
+        label={t("filters.totalPrice")}
+        icon={<DollarSign className="h-3.5 w-3.5" />}
+        active={filters.priceRange[0] > 0 || filters.priceRange[1] < PRICE_MAX}
+      >
         <div className="space-y-3">
           <Slider
             min={0}
@@ -153,10 +161,14 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
             <span>{filters.priceRange[1].toLocaleString("fr-FR")} €</span>
           </div>
         </div>
-      </FilterSection>
+      </FilterDropdown>
 
       {/* Price per item */}
-      <FilterSection title={t("filters.pricePerItem")} icon={<DollarSign className="h-4 w-4 text-primary" />}>
+      <FilterDropdown
+        label={t("filters.pricePerItem")}
+        icon={<DollarSign className="h-3.5 w-3.5" />}
+        active={filters.pricePerItemRange[0] > 0 || filters.pricePerItemRange[1] < PRICE_PER_ITEM_MAX}
+      >
         <div className="space-y-3">
           <Slider
             min={0}
@@ -166,14 +178,18 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
             onValueChange={(val) => update({ pricePerItemRange: val as [number, number] })}
           />
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{filters.pricePerItemRange[0]} €/pièce</span>
-            <span>{filters.pricePerItemRange[1]} €/pièce</span>
+            <span>{filters.pricePerItemRange[0]} €/pc</span>
+            <span>{filters.pricePerItemRange[1]} €/pc</span>
           </div>
         </div>
-      </FilterSection>
+      </FilterDropdown>
 
-      {/* Number of items */}
-      <FilterSection title={t("filters.totalUnits")} icon={<Package className="h-4 w-4 text-primary" />}>
+      {/* Units */}
+      <FilterDropdown
+        label={t("filters.totalUnits")}
+        icon={<Package className="h-3.5 w-3.5" />}
+        active={filters.unitsRange[0] > 0 || filters.unitsRange[1] < UNITS_MAX}
+      >
         <div className="space-y-3">
           <Slider
             min={0}
@@ -187,10 +203,14 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
             <span>{filters.unitsRange[1].toLocaleString("fr-FR")} pcs</span>
           </div>
         </div>
-      </FilterSection>
+      </FilterDropdown>
 
-      {/* Seller rating */}
-      <FilterSection title={t("filters.sellerRating")} icon={<Star className="h-4 w-4 text-primary" />}>
+      {/* Rating */}
+      <FilterDropdown
+        label={t("filters.sellerRating")}
+        icon={<Star className="h-3.5 w-3.5" />}
+        active={filters.minRating > 0}
+      >
         <div className="flex gap-2">
           {[0, 3, 3.5, 4, 4.5].map((r) => (
             <button
@@ -207,12 +227,15 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
             </button>
           ))}
         </div>
-      </FilterSection>
+      </FilterDropdown>
 
-      {/* Categories with composition mode */}
-      <FilterSection title={t("filters.category")} icon={<Package className="h-4 w-4 text-primary" />} defaultOpen>
+      {/* Category */}
+      <FilterDropdown
+        label={t("filters.category")}
+        icon={<Package className="h-3.5 w-3.5" />}
+        active={filters.categories.length > 0}
+      >
         <div className="space-y-3">
-          {/* Composition mode */}
           <div className="flex gap-1 bg-muted rounded-lg p-1">
             {(["contains", "mostly", "mix"] as const).map((mode) => (
               <button
@@ -228,7 +251,6 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
               </button>
             ))}
           </div>
-
           <div className="flex flex-wrap gap-1.5">
             {CATEGORIES.map((cat) => {
               const count = lotCounts.categories[cat] || 0;
@@ -255,10 +277,14 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
             })}
           </div>
         </div>
-      </FilterSection>
+      </FilterDropdown>
 
-      {/* Brands include/exclude */}
-      <FilterSection title={t("filters.brands")} icon={<Percent className="h-4 w-4 text-primary" />}>
+      {/* Brands */}
+      <FilterDropdown
+        label={t("filters.brands")}
+        icon={<Percent className="h-3.5 w-3.5" />}
+        active={filters.brandsInclude.length > 0 || filters.brandsExclude.length > 0}
+      >
         <div className="space-y-3">
           <input
             type="text"
@@ -268,7 +294,6 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
             onChange={(e) => setBrandSearch(e.target.value)}
           />
 
-          {/* Included brands */}
           {filters.brandsInclude.length > 0 && (
             <div className="space-y-1">
               <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t("filters.included")}</span>
@@ -276,16 +301,13 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
                 {filters.brandsInclude.map((b) => (
                   <span key={b} className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-md font-medium">
                     {b}
-                    <button onClick={() => toggleArrayItem("brandsInclude", b)}>
-                      <X className="h-3 w-3" />
-                    </button>
+                    <button onClick={() => toggleArrayItem("brandsInclude", b)}><X className="h-3 w-3" /></button>
                   </span>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Excluded brands */}
           {filters.brandsExclude.length > 0 && (
             <div className="space-y-1">
               <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t("filters.excluded")}</span>
@@ -293,9 +315,7 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
                 {filters.brandsExclude.map((b) => (
                   <span key={b} className="flex items-center gap-1 px-2 py-1 bg-destructive/10 text-destructive text-xs rounded-md font-medium">
                     {b}
-                    <button onClick={() => toggleArrayItem("brandsExclude", b)}>
-                      <X className="h-3 w-3" />
-                    </button>
+                    <button onClick={() => toggleArrayItem("brandsExclude", b)}><X className="h-3 w-3" /></button>
                   </span>
                 ))}
               </div>
@@ -310,8 +330,7 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
               return (
                 <div key={brand} className="flex items-center justify-between py-1.5 px-1 rounded hover:bg-muted/50 group">
                   <span className={`text-xs ${isExcluded ? "line-through text-muted-foreground" : "text-foreground"}`}>
-                    {brand}
-                    <span className="text-muted-foreground ml-1">({count})</span>
+                    {brand} <span className="text-muted-foreground">({count})</span>
                   </span>
                   <div className="flex gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                     <button
@@ -340,7 +359,7 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
             })}
           </div>
         </div>
-      </FilterSection>
+      </FilterDropdown>
     </div>
   );
 };

@@ -174,30 +174,16 @@ const Marketplace = () => {
           </div>
         )}
 
-        {/* Filter toggle + chips bar */}
+        {/* Horizontal filter bar */}
         <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
-          <div className="px-4 md:px-8 py-3">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
-                  showFilters
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-foreground border-border hover:border-primary"
-                }`}
-              >
-                <SlidersHorizontal className="h-4 w-4" />
-                {t("filters.title")}
-                {hasActiveFilters && (
-                  <span className="flex items-center justify-center h-5 w-5 rounded-full bg-primary-foreground text-primary text-[10px] font-bold">
-                    {filters.countries.length + filters.categories.length + filters.brandsInclude.length + filters.brandsExclude.length + (filters.minRating > 0 ? 1 : 0) + (filters.priceRange[0] > 0 || filters.priceRange[1] < PRICE_MAX ? 1 : 0) + (filters.pricePerItemRange[0] > 0 || filters.pricePerItemRange[1] < PRICE_PER_ITEM_MAX ? 1 : 0) + (filters.unitsRange[0] > 0 || filters.unitsRange[1] < UNITS_MAX ? 1 : 0)}
-                  </span>
-                )}
-              </button>
-              <div className="flex-1 overflow-x-auto scrollbar-hide">
-                <FilterChips filters={filters} onChange={setFilters} resultCount={filteredLots.length} />
-              </div>
-            </div>
+          <div className="px-4 md:px-8 py-3 space-y-2">
+            <FilterPanel
+              filters={filters}
+              onChange={setFilters}
+              lotCounts={lotCounts}
+              availableBrands={availableBrands}
+            />
+            <FilterChips filters={filters} onChange={setFilters} resultCount={filteredLots.length} />
           </div>
         </div>
 
@@ -219,102 +205,42 @@ const Marketplace = () => {
           </div>
         </div>
 
-        {/* Main content with sidebar */}
-        <div className="flex gap-6 px-4 md:px-8 py-4 pb-24">
-          {/* Filter sidebar */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.aside
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 280, opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="hidden md:block flex-shrink-0 overflow-hidden"
+        {/* Lot grid */}
+        <main className="px-4 md:px-8 py-4 pb-24">
+          {filteredLots.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground text-lg">{t("marketplace.noResults")}</p>
+              <button
+                onClick={() => setFilters(DEFAULT_FILTERS)}
+                className="mt-4 text-primary hover:underline font-medium"
               >
-                <div className="w-[280px] sticky top-36">
-                  <FilterPanel
-                    filters={filters}
-                    onChange={setFilters}
-                    lotCounts={lotCounts}
-                    availableBrands={availableBrands}
+                {t("marketplace.resetFilters")}
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+              {filteredLots.map((lot: any) => {
+                const totalTTC = Math.round(lot.price * 1.19);
+                const ppu = lot.units > 0 ? (lot.price * 1.19 / lot.units).toFixed(2) : null;
+                return (
+                  <LotCard
+                    key={lot.id}
+                    id={lot.id}
+                    image={lot.images?.[0] || ""}
+                    title={lot.title}
+                    brand={lot.brand}
+                    price={`${totalTTC.toLocaleString("fr-FR")} €`}
+                    pricePerUnit={ppu ? `${ppu} €` : undefined}
+                    units={lot.units}
+                    rating={lot.rating || 0}
+                    location={lot.location || ""}
+                    category={lot.category || ""}
                   />
-                </div>
-              </motion.aside>
-            )}
-          </AnimatePresence>
-
-          {/* Mobile filter drawer */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="md:hidden fixed inset-0 z-50 bg-foreground/40"
-                onClick={() => setShowFilters(false)}
-              >
-                <motion.div
-                  initial={{ x: "-100%" }}
-                  animate={{ x: 0 }}
-                  exit={{ x: "-100%" }}
-                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                  className="absolute left-0 top-0 bottom-0 w-[85%] max-w-[320px] bg-background overflow-y-auto"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="sticky top-0 bg-background border-b border-border p-4 flex items-center justify-between">
-                    <span className="font-heading font-bold text-foreground">{t("filters.title")}</span>
-                    <button onClick={() => setShowFilters(false)}>
-                      <X className="h-5 w-5 text-foreground" />
-                    </button>
-                  </div>
-                  <FilterPanel
-                    filters={filters}
-                    onChange={setFilters}
-                    lotCounts={lotCounts}
-                    availableBrands={availableBrands}
-                  />
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Lot grid */}
-          <main className="flex-1 min-w-0">
-            {filteredLots.length === 0 ? (
-              <div className="text-center py-16">
-                <p className="text-muted-foreground text-lg">{t("marketplace.noResults")}</p>
-                <button
-                  onClick={() => setFilters(DEFAULT_FILTERS)}
-                  className="mt-4 text-primary hover:underline font-medium"
-                >
-                  {t("marketplace.resetFilters")}
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {filteredLots.map((lot: any) => {
-                  const totalTTC = Math.round(lot.price * 1.19);
-                  const ppu = lot.units > 0 ? (lot.price * 1.19 / lot.units).toFixed(2) : null;
-                  return (
-                    <LotCard
-                      key={lot.id}
-                      id={lot.id}
-                      image={lot.images?.[0] || ""}
-                      title={lot.title}
-                      brand={lot.brand}
-                      price={`${totalTTC.toLocaleString("fr-FR")} €`}
-                      pricePerUnit={ppu ? `${ppu} €` : undefined}
-                      units={lot.units}
-                      rating={lot.rating || 0}
-                      location={lot.location || ""}
-                      category={lot.category || ""}
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </main>
-        </div>
+                );
+              })}
+            </div>
+          )}
+        </main>
       </div>
       <BottomNav />
     </div>
