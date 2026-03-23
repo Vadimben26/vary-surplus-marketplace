@@ -391,6 +391,7 @@ const LotDetail = () => {
         </div>
       </div>
 
+      <LegalFooter />
       <BottomNav />
     </div>
   );
