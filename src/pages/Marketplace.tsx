@@ -5,7 +5,7 @@ import { Crown, Lock, X } from "lucide-react";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import LotCard from "@/components/LotCard";
-import FilterPanel, { B2BFilters, DEFAULT_FILTERS, PRICE_MAX, PRICE_PER_ITEM_MAX, UNITS_MAX } from "@/components/marketplace/FilterPanel";
+import FilterPanel, { B2BFilters, DEFAULT_FILTERS } from "@/components/marketplace/FilterPanel";
 import FilterChips from "@/components/marketplace/FilterChips";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
