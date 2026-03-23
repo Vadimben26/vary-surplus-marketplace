@@ -250,6 +250,27 @@
     "vipOnly": "VIP subscribers only",
     "becomeVip": "Go VIP — €299/month"
   },
+  "filters": {
+    "title": "Filters",
+    "country": "Country of stock",
+    "totalPrice": "Total lot price",
+    "pricePerItem": "Price per item",
+    "totalUnits": "Number of items",
+    "sellerRating": "Seller rating",
+    "category": "Category",
+    "brands": "Brands",
+    "searchBrand": "Search a brand...",
+    "included": "Included",
+    "excluded": "Excluded",
+    "include": "Include",
+    "exclude": "Exclude",
+    "all": "All",
+    "results": "results",
+    "clearAll": "Clear all",
+    "mode_contains": "Contains",
+    "mode_mostly": "Mostly",
+    "mode_mix": "Mix"
+  },
   "buyerVIP": {
     "badge": "VIP Buyer",
     "title": "Access offers before everyone else",

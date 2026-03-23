@@ -250,6 +250,27 @@
     "vipOnly": "Solo para suscriptores VIP",
     "becomeVip": "Ser VIP — 299 €/mes"
   },
+  "filters": {
+    "title": "Filtros",
+    "country": "País de stock",
+    "totalPrice": "Precio total del lote",
+    "pricePerItem": "Precio por pieza",
+    "totalUnits": "Número de piezas",
+    "sellerRating": "Valoración vendedor",
+    "category": "Categoría",
+    "brands": "Marcas",
+    "searchBrand": "Buscar una marca...",
+    "included": "Incluidas",
+    "excluded": "Excluidas",
+    "include": "Incluir",
+    "exclude": "Excluir",
+    "all": "Todos",
+    "results": "resultados",
+    "clearAll": "Borrar todo",
+    "mode_contains": "Contiene",
+    "mode_mostly": "Mayoritario",
+    "mode_mix": "Mix"
+  },
   "buyerVIP": {
     "badge": "Comprador VIP",
     "title": "Accede a las ofertas antes que nadie",
