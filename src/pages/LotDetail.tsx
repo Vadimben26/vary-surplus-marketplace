@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Heart, MapPin, Package, MessageCircle, ShoppingCart, User, ChevronLeft, ChevronRight, TrendingDown, Image, Download } from "lucide-react";
+import { ArrowLeft, Heart, MapPin, Package, MessageCircle, ShoppingCart, User, ChevronLeft, ChevronRight, TrendingDown, Image, Download, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -191,6 +191,13 @@ const LotDetail = () => {
                   {seller.company_description && (
                     <p className="text-[10px] text-muted-foreground leading-snug mt-1">{seller.company_description}</p>
                   )}
+                  <button
+                    onClick={() => navigate(`/profil/${lot.seller_id}`)}
+                    className="flex items-center gap-1 mt-1.5 text-[10px] text-primary hover:underline"
+                  >
+                    <Star className="h-3 w-3" />
+                    {t("lotDetail.viewSellerReviews", "Voir la note et les avis")}
+                  </button>
                 </div>
               </div>
             )}
@@ -217,6 +224,14 @@ const LotDetail = () => {
               )}
             </div>
 
+            {/* Retail value */}
+            {retailValue > 0 && (
+              <div className="flex items-center justify-between px-3 py-2 bg-muted rounded-lg">
+                <span className="text-xs text-muted-foreground">{t("lotDetail.retailValue", "Valeur retail")}</span>
+                <span className="text-xs font-semibold text-foreground">{retailValue.toLocaleString("fr-FR")} €</span>
+              </div>
+            )}
+
             {/* Excel download */}
             {items.length > 0 && (
               <button
@@ -234,14 +249,6 @@ const LotDetail = () => {
                 </div>
                 <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
               </button>
-            )}
-
-            {/* Retail value */}
-            {retailValue > 0 && (
-              <div className="flex items-center justify-between px-3 py-2 bg-muted rounded-lg">
-                <span className="text-xs text-muted-foreground">{t("lotDetail.retailValue", "Valeur retail")}</span>
-                <span className="text-xs font-semibold text-foreground">{retailValue.toLocaleString("fr-FR")} €</span>
-              </div>
             )}
 
             {/* Description */}
