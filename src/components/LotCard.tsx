@@ -1,4 +1,4 @@
-import { Heart, Star, MapPin, Package } from "lucide-react";
+import { Heart, Star, MapPin, Package, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useFavorites } from "@/contexts/FavoritesContext";
@@ -15,10 +15,11 @@ interface LotCardProps {
   location: string;
   category: string;
   isNew?: boolean;
+  discount?: number;
 }
 
 const LotCard = ({
-  id, image, title, brand, price, pricePerUnit, units, rating, location, isNew,
+  id, image, title, brand, price, pricePerUnit, units, rating, location, isNew, discount,
 }: LotCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -44,7 +45,12 @@ const LotCard = ({
         {isNew && (
           <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md text-xs font-semibold bg-primary text-primary-foreground">Nouveau</span>
         )}
-        {/* Country badge */}
+        {discount != null && discount > 0 && (
+          <span className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold bg-green-600 text-white">
+            <TrendingDown className="h-3 w-3" />
+            -{discount}%
+          </span>
+        )}
         {location && (
           <span className="absolute bottom-3 left-3 flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold bg-card/90 backdrop-blur-sm text-foreground">
             <MapPin className="h-3 w-3" />
