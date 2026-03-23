@@ -25,6 +25,7 @@ export const DEFAULT_FILTERS: B2BFilters = {
   pricePerItemRange: [0, 100],
   unitsRange: [0, 5000],
   minRating: 0,
+  minDiscount: 0,
   categories: [],
   categoryMode: "contains",
   brandsInclude: [],
