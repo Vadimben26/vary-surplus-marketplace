@@ -217,6 +217,14 @@ const LotDetail = () => {
               )}
             </div>
 
+            {/* Retail value */}
+            {retailValue > 0 && (
+              <div className="flex items-center justify-between px-3 py-2 bg-muted rounded-lg">
+                <span className="text-xs text-muted-foreground">{t("lotDetail.retailValue", "Valeur retail")}</span>
+                <span className="text-xs font-semibold text-foreground">{retailValue.toLocaleString("fr-FR")} €</span>
+              </div>
+            )}
+
             {/* Excel download */}
             {items.length > 0 && (
               <button
@@ -234,14 +242,6 @@ const LotDetail = () => {
                 </div>
                 <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
               </button>
-            )}
-
-            {/* Retail value */}
-            {retailValue > 0 && (
-              <div className="flex items-center justify-between px-3 py-2 bg-muted rounded-lg">
-                <span className="text-xs text-muted-foreground">{t("lotDetail.retailValue", "Valeur retail")}</span>
-                <span className="text-xs font-semibold text-foreground">{retailValue.toLocaleString("fr-FR")} €</span>
-              </div>
             )}
 
             {/* Description */}
