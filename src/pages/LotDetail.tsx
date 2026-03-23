@@ -191,6 +191,13 @@ const LotDetail = () => {
                   {seller.company_description && (
                     <p className="text-[10px] text-muted-foreground leading-snug mt-1">{seller.company_description}</p>
                   )}
+                  <button
+                    onClick={() => navigate(`/profil/${lot.seller_id}`)}
+                    className="flex items-center gap-1 mt-1.5 text-[10px] text-primary hover:underline"
+                  >
+                    <Star className="h-3 w-3" />
+                    {t("lotDetail.viewSellerReviews", "Voir la note et les avis")}
+                  </button>
                 </div>
               </div>
             )}
