@@ -244,7 +244,15 @@ const LotDetail = () => {
                   <User className="h-4 w-4 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-foreground truncate">{seller.company_name || seller.full_name || "Vendeur"}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-bold text-foreground truncate">{seller.company_name || seller.full_name || "Vendeur"}</p>
+                    {lot.rating && (
+                      <span className="flex items-center gap-0.5 text-[10px] font-semibold text-amber-500">
+                        <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                        {lot.rating.toFixed(1)}
+                      </span>
+                    )}
+                  </div>
                   {seller.company_description && (
                     <p className="text-[10px] text-muted-foreground leading-snug mt-1">{seller.company_description}</p>
                   )}
