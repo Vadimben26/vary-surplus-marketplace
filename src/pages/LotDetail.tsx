@@ -203,10 +203,6 @@ const LotDetail = () => {
               <h1 className="font-heading text-lg font-bold text-foreground mt-1 leading-tight">{lot.title}</h1>
             </div>
 
-            {lot.description && (
-              <p className="text-muted-foreground text-xs leading-relaxed">{lot.description}</p>
-            )}
-
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-muted rounded-lg p-2 text-center">
                 <Package className="h-3 w-3 text-muted-foreground mx-auto mb-0.5" />
@@ -221,7 +217,7 @@ const LotDetail = () => {
               )}
             </div>
 
-            {/* Excel download button (replaces inventory table) */}
+            {/* Excel download */}
             {items.length > 0 && (
               <button
                 onClick={handleDownloadExcel}
@@ -238,6 +234,19 @@ const LotDetail = () => {
                 </div>
                 <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
               </button>
+            )}
+
+            {/* Retail value */}
+            {retailValue > 0 && (
+              <div className="flex items-center justify-between px-3 py-2 bg-muted rounded-lg">
+                <span className="text-xs text-muted-foreground">{t("lotDetail.retailValue", "Valeur retail")}</span>
+                <span className="text-xs font-semibold text-foreground">{retailValue.toLocaleString("fr-FR")} €</span>
+              </div>
+            )}
+
+            {/* Description */}
+            {lot.description && (
+              <p className="text-muted-foreground text-xs leading-relaxed">{lot.description}</p>
             )}
           </motion.div>
 
