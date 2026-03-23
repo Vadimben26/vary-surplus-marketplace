@@ -215,17 +215,15 @@ const BuyerRegistration = () => {
                     <label className="text-sm font-semibold text-foreground">Téléphone *</label>
                     <Input type="tel" placeholder="+33 6 12 34 56 78" value={formData.phone} onChange={(e) => update("phone", e.target.value)} />
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">Email *</label>
+                    <Input type="email" placeholder="jean@entreprise.com" value={isAlreadyLoggedIn ? (user?.email || "") : formData.email} onChange={(e) => update("email", e.target.value)} disabled={isAlreadyLoggedIn} />
+                  </div>
                   {!isAlreadyLoggedIn && (
-                    <>
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-foreground">Email *</label>
-                        <Input type="email" placeholder="jean@entreprise.com" value={formData.email} onChange={(e) => update("email", e.target.value)} />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-foreground">Mot de passe *</label>
-                        <Input type="password" placeholder="6 caractères minimum" value={formData.password} onChange={(e) => update("password", e.target.value)} />
-                      </div>
-                    </>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">Mot de passe *</label>
+                      <Input type="password" placeholder="6 caractères minimum" value={formData.password} onChange={(e) => update("password", e.target.value)} />
+                    </div>
                   )}
                 </div>
               </motion.div>
