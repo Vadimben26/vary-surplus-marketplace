@@ -11,8 +11,9 @@ export interface B2BFilters {
   pricePerItemRange: [number, number];
   unitsRange: [number, number];
   minRating: number;
+  minDiscount: number;
   categories: string[];
-  categoryMode: "contains" | "mostly" | "mix";
+  categoryMode: "contains" | "mostly";
   brandsInclude: string[];
   brandsExclude: string[];
 }
