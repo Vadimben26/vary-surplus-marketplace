@@ -1,4 +1,4 @@
-import { Heart, Star, MapPin, Package, TrendingDown } from "lucide-react";
+import { Heart, MapPin, Package, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useFavorites } from "@/contexts/FavoritesContext";
@@ -11,7 +11,6 @@ interface LotCardProps {
   price: string;
   pricePerUnit?: string;
   units: number;
-  rating: number;
   location: string;
   category: string;
   isNew?: boolean;
@@ -19,7 +18,7 @@ interface LotCardProps {
 }
 
 const LotCard = ({
-  id, image, title, brand, price, pricePerUnit, units, rating, location, isNew, discount,
+  id, image, title, brand, price, pricePerUnit, units, location, isNew, discount,
 }: LotCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -59,13 +58,7 @@ const LotCard = ({
         )}
       </div>
       <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-primary uppercase tracking-wide">{brand}</span>
-          <div className="flex items-center gap-1">
-            <Star className="h-3.5 w-3.5 fill-primary text-primary" />
-            <span className="text-xs font-medium text-foreground">{rating.toFixed(1)}</span>
-          </div>
-        </div>
+        <span className="text-xs font-semibold text-primary uppercase tracking-wide">{brand}</span>
         <h3 className="font-heading font-semibold text-foreground text-sm leading-snug line-clamp-2">{title}</h3>
         <div className="flex items-center gap-3 text-muted-foreground">
           <span className="flex items-center gap-1 text-xs">
