@@ -659,7 +659,9 @@
     "excelError": "Error al leer el archivo Excel",
     "references": "referencias",
     "clearItems": "Eliminar todo",
-    "moreItems": "artículos adicionales"
+    "moreItems": "artículos adicionales",
+    "brandAutoNote": "Marca automática desde tu perfil",
+    "autoProfileNote": "Información automática desde tu perfil"
   },
   "sellerVIP": {
     "badge": "Vendedor VIP",
