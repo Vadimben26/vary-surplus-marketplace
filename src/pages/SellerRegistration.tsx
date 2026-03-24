@@ -317,7 +317,11 @@ const SellerRegistration = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                    </div>
+                </div>
+              </motion.div>
+            )}
+
             {step === 4 && (
               <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
