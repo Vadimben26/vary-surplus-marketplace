@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { MessageCircle, Send, ArrowLeft, Crown, User } from "lucide-react";
+import { MessageCircle, Send, ArrowLeft, Crown, User, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ import { useTranslateMessage } from "@/hooks/useTranslateMessage";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import { Link } from "react-router-dom";
+import MessageTemplates from "@/components/messages/MessageTemplates";
 
 interface Message {
   id: string;
@@ -44,6 +45,17 @@ const Messages = () => {
 
   const isSeller = canAccessSeller();
   const lotId = searchParams.get("lot") || null;
+
+  // Check VIP status
+  const { data: isVip = false } = useQuery({
+    queryKey: ["is-vip", profile?.id, isSeller],
+    queryFn: async () => {
+      const fn = isSeller ? "is_vip_seller" : "is_vip_buyer";
+      const { data } = await supabase.rpc(fn);
+      return !!data;
+    },
+    enabled: !!profile?.id,
+  });
 
   // Fetch all messages for this user
   const { data: allMessages = [], refetch: refetchMessages } = useQuery({
@@ -297,14 +309,23 @@ const Messages = () => {
             })}
           </div>
 
-          {/* VIP CTA in sidebar */}
-          <Link
-            to={vipLink}
-            className="flex items-center gap-2 mx-3 mb-3 p-2.5 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
-          >
-            <Crown className="h-4 w-4 text-primary flex-shrink-0" />
-            <span className="text-xs text-primary font-medium leading-tight">{t("messages.vipTemplates")}</span>
-          </Link>
+          {/* VIP templates or CTA in sidebar */}
+          {isVip ? (
+            <MessageTemplates isSeller={isSeller} onSelectTemplate={setNewMessage}>
+              <button className="flex items-center gap-2 mx-3 mb-3 p-2.5 rounded-lg border border-primary/20 bg-primary/10 hover:bg-primary/15 transition-colors w-[calc(100%-1.5rem)]">
+                <FileText className="h-4 w-4 text-primary flex-shrink-0" />
+                <span className="text-xs text-primary font-semibold leading-tight">{t("messageTemplates.openTemplates")}</span>
+              </button>
+            </MessageTemplates>
+          ) : (
+            <Link
+              to={vipLink}
+              className="flex items-center gap-2 mx-3 mb-3 p-2.5 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
+            >
+              <Crown className="h-4 w-4 text-primary flex-shrink-0" />
+              <span className="text-xs text-primary font-medium leading-tight">{t("messages.vipTemplates")}</span>
+            </Link>
+          )}
         </div>
 
         {/* Conversation view */}
@@ -367,14 +388,23 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* VIP CTA inline */}
-              <Link
-                to={vipLink}
-                className="flex items-center gap-2 mx-4 mb-2 px-3 py-2 rounded-lg border border-primary/15 bg-primary/5 hover:bg-primary/10 transition-colors"
-              >
-                <Crown className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                <span className="text-[11px] text-primary font-medium">{t("messages.vipTemplates")}</span>
-              </Link>
+              {/* VIP templates or CTA inline */}
+              {isVip ? (
+                <MessageTemplates isSeller={isSeller} onSelectTemplate={setNewMessage}>
+                  <button className="flex items-center gap-2 mx-4 mb-2 px-3 py-2 rounded-lg border border-primary/15 bg-primary/10 hover:bg-primary/15 transition-colors">
+                    <FileText className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                    <span className="text-[11px] text-primary font-semibold">{t("messageTemplates.openTemplates")}</span>
+                  </button>
+                </MessageTemplates>
+              ) : (
+                <Link
+                  to={vipLink}
+                  className="flex items-center gap-2 mx-4 mb-2 px-3 py-2 rounded-lg border border-primary/15 bg-primary/5 hover:bg-primary/10 transition-colors"
+                >
+                  <Crown className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                  <span className="text-[11px] text-primary font-medium">{t("messages.vipTemplates")}</span>
+                </Link>
+              )}
 
               {/* Input */}
               <div className="px-4 pb-3 pt-1">

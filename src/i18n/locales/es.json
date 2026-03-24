@@ -837,5 +837,40 @@
       "statusRefunded": "Reembolsado",
       "statusCancelled": "Cancelado"
     }
+  },
+  "messageTemplates": {
+    "title": "Plantillas VIP",
+    "subtitleBuyer": "Mensajes optimizados para negociar y comprar eficazmente",
+    "subtitleSeller": "Mensajes optimizados para convertir y fidelizar a tus compradores",
+    "openTemplates": "📋 Plantillas de mensajes",
+    "inserted": "Plantilla copiada en el campo de mensaje",
+    "use": "Usar esta plantilla",
+    "variant": "Variante",
+    "buyer": {
+      "reservation": "Solicitud de reserva",
+      "negotiation": "Negociación de precio",
+      "multiLot": "Descuento multi-lote",
+      "issue": "Reportar un problema"
+    },
+    "seller": {
+      "followUp": "Seguimiento comprador",
+      "followUpVariant": "Seguimiento urgente",
+      "upsell": "Venta adicional",
+      "upsellVariant": "Upsell con descuento",
+      "counterOffer": "Contraoferta",
+      "counterOfferVariant": "Cierre rápido",
+      "review": "Solicitud de reseña",
+      "reviewVariant": "Reseña + fidelización"
+    },
+    "tags": {
+      "reservation": "Reserva",
+      "negotiation": "Negociación",
+      "multiLot": "Multi-lote",
+      "issue": "Problema",
+      "followUp": "Seguimiento",
+      "upsell": "Upsell",
+      "counterOffer": "Negociación",
+      "review": "Reseña"
+    }
   }
 }
