@@ -59,6 +59,13 @@ const BuyerRegistration = () => {
   const { signUp, user, profile, updateProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const isAlreadyLoggedIn = !!user;
+
+  useEffect(() => {
+    if (user?.email) {
+      setFormData(prev => ({ ...prev, email: user.email || "" }));
+    }
+  }, [user]);
 
   // Step 1
   const [formData, setFormData] = useState({
