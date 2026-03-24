@@ -154,8 +154,9 @@ const SellerDashboard = () => {
   const openEdit = (lot: any) => {
     setEditingLotId(lot.id);
     setTitle(lot.title);
-    setBrands(lot.brand);
     setPrice(String(lot.price));
+    const rv = (lot.lot_items || []).reduce((s: number, it: any) => s + (it.retail_price || 0) * (it.quantity || 0), 0);
+    setRetailPrice(rv > 0 ? String(rv) : "");
     setUnits(String(lot.units));
     setCategories(lot.category ? lot.category.split(",").map((c: string) => c.trim()) : []);
     setDescription(lot.description || "");
