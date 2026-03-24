@@ -236,7 +236,7 @@ const SellerDashboard = () => {
           title, brand: brandName, price: parseFloat(price),
           units: parseInt(units) || 0,
           category: categories.join(", "),
-          location,
+          location: autoLocation,
           description,
           images: allImages,
         }).eq("id", editingLotId);
