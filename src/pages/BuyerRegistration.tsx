@@ -7,9 +7,13 @@ import varyLogo from "@/assets/vary-logo.png";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import LegalFooter from "@/components/LegalFooter";
+
+const STORAGE_KEY = "vary_buyer_reg_draft";
 
 const storeTypeKeys = ["physical", "online", "marketplace", "social", "wholesale"] as const;
 const storeTypesRequiringPhotosKeys = ["physical"];
@@ -26,11 +30,6 @@ const euCountries = [
 const genderKeys = ["women", "men", "kids"] as const;
 const categoryKeys = ["clothing", "shoes", "accessories", "bags", "lingerie", "sportswear"] as const;
 const styleKeys = ["streetwear", "casual", "sport", "chic"] as const;
-const revenueKeys = ["under50k", "50k200k", "200k500k", "500k1m", "over1m"] as const;
-const activityDurationKeys = ["lessThan1y", "1to3y", "3to5y", "moreThan5y"] as const;
-const budgetKeys = ["under1k", "1k5k", "5k15k", "15k50k", "over50k"] as const;
-const pricePerPieceKeys = ["under5", "5to15", "15to30", "30to60", "over60"] as const;
-const piecesPerLotKeys = ["under100", "100to500", "500to2000", "2000to5000", "over5000"] as const;
 
 const RadioOption = ({ name, value, selected, onChange, label }: { name: string; value: string; selected: string; onChange: (v: string) => void; label: string }) => (
   <label className="flex items-center gap-2 cursor-pointer">
@@ -59,7 +58,19 @@ const BuyerRegistration = () => {
   const { signUp, user, profile, updateProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const isAlreadyLoggedIn = !!user;
+
+  // Restore draft from localStorage
+  const loadDraft = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return null;
+  };
+
+  const draft = loadDraft();
 
   useEffect(() => {
     if (user?.email) {
@@ -67,40 +78,66 @@ const BuyerRegistration = () => {
     }
   }, [user]);
 
-  // Step 1
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(draft?.formData ?? {
     firstName: "", lastName: "", phone: "", email: "", password: "",
-    // Step 2
     companyName: "", vatCode: "", address: "", city: "", country: "France", postalCode: "",
-    // Step 5
     deliveryAddress: "", perfectLot: "",
   });
 
-  // Step 3 — Activity
-  const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
-  const [storeLink, setStoreLink] = useState("");
+  const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>(draft?.selectedStoreTypes ?? []);
+  const [storeLink, setStoreLink] = useState(draft?.storeLink ?? "");
   const [storePhotos, setStorePhotos] = useState<File[]>([]);
-  const [selectedRevenue, setSelectedRevenue] = useState("");
-  const [selectedActivityDuration, setSelectedActivityDuration] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
-
-  // Step 4 — Buying needs
-  const [selectedBudget, setSelectedBudget] = useState("");
-  const [selectedPricePerPiece, setSelectedPricePerPiece] = useState("");
-  const [selectedPiecesPerLot, setSelectedPiecesPerLot] = useState("");
-  const [searchedBrands, setSearchedBrands] = useState("");
-  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
-
-  // Step 5
-  const [selectedReferral, setSelectedReferral] = useState("");
-  const [marketingConsent, setMarketingConsent] = useState(false);
+  const [selectedRevenue, setSelectedRevenue] = useState(draft?.selectedRevenue ?? "");
+  const [selectedActivityDuration, setSelectedActivityDuration] = useState(draft?.selectedActivityDuration ?? "");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(draft?.selectedCategories ?? []);
+  const [selectedGenders, setSelectedGenders] = useState<string[]>(draft?.selectedGenders ?? []);
+  const [selectedBudget, setSelectedBudget] = useState(draft?.selectedBudget ?? "");
+  const [selectedPricePerPiece, setSelectedPricePerPiece] = useState(draft?.selectedPricePerPiece ?? "");
+  const [selectedPiecesPerLot, setSelectedPiecesPerLot] = useState(draft?.selectedPiecesPerLot ?? "");
+  const [searchedBrands, setSearchedBrands] = useState(draft?.searchedBrands ?? "");
+  const [selectedStyles, setSelectedStyles] = useState<string[]>(draft?.selectedStyles ?? []);
+  const [selectedReferral, setSelectedReferral] = useState(draft?.selectedReferral ?? "");
+  const [marketingConsent, setMarketingConsent] = useState(draft?.marketingConsent ?? false);
 
   const totalSteps = 5;
 
-  const update = (field: string, value: string) => setFormData((prev) => ({ ...prev, [field]: value }));
+  // Auto-save to localStorage on step change
+  useEffect(() => {
+    const data = {
+      formData, selectedStoreTypes, storeLink, selectedRevenue, selectedActivityDuration,
+      selectedCategories, selectedGenders, selectedBudget, selectedPricePerPiece,
+      selectedPiecesPerLot, searchedBrands, selectedStyles, selectedReferral, marketingConsent,
+      step,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, [step, formData, selectedStoreTypes, storeLink, selectedRevenue, selectedActivityDuration,
+    selectedCategories, selectedGenders, selectedBudget, selectedPricePerPiece,
+    selectedPiecesPerLot, searchedBrands, selectedStyles, selectedReferral, marketingConsent]);
+
+  // Restore step
+  useEffect(() => {
+    if (draft?.step && draft.step <= totalSteps) setStep(draft.step);
+  }, []);
+
+  const update = (field: string, value: string) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
+    setFieldErrors(prev => ({ ...prev, [field]: "" }));
+  };
   const toggle = (arr: string[], setArr: React.Dispatch<React.SetStateAction<string[]>>, val: string) => {
     setArr(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
+  };
+
+  const validateField = (field: string, value: string) => {
+    if (!value.trim()) {
+      setFieldErrors(prev => ({ ...prev, [field]: "Ce champ est requis" }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const FieldError = ({ field }: { field: string }) => {
+    if (!fieldErrors[field]) return null;
+    return <p className="text-xs text-destructive mt-1">{fieldErrors[field]}</p>;
   };
 
   const validateStep = (): string | null => {
@@ -138,6 +175,33 @@ const BuyerRegistration = () => {
     return null;
   };
 
+  const saveBuyerPreferences = async (userId: string) => {
+    const { error } = await supabase.from("buyer_preferences" as any).upsert({
+      user_id: userId,
+      store_types: selectedStoreTypes,
+      store_link: storeLink,
+      revenue: selectedRevenue,
+      activity_duration: selectedActivityDuration,
+      categories: selectedCategories,
+      genders: selectedGenders,
+      budget: selectedBudget,
+      price_per_piece: selectedPricePerPiece,
+      pieces_per_lot: selectedPiecesPerLot,
+      searched_brands: searchedBrands,
+      styles: selectedStyles,
+      delivery_address: formData.deliveryAddress,
+      perfect_lot: formData.perfectLot,
+      referral_source: selectedReferral,
+      marketing_consent: marketingConsent,
+      country: formData.country,
+      vat_code: formData.vatCode,
+      address: formData.address,
+      city: formData.city,
+      postal_code: formData.postalCode,
+    } as any, { onConflict: "user_id" } as any);
+    if (error) console.error("Error saving buyer preferences:", error);
+  };
+
   const nextStep = async () => {
     const error = validateStep();
     if (error) { toast.error(error); return; }
@@ -148,6 +212,7 @@ const BuyerRegistration = () => {
         if (isAlreadyLoggedIn) {
           const newType = profile?.user_type === "seller" ? "both" : "buyer";
           await updateProfile({ user_type: newType as any, full_name: `${formData.firstName} ${formData.lastName}`, phone: formData.phone, company_name: formData.companyName });
+          await saveBuyerPreferences(user!.id);
           toast.success("Profil acheteur activé !");
         } else {
           const { error } = await signUp(formData.email, formData.password);
@@ -156,9 +221,11 @@ const BuyerRegistration = () => {
           const { data: { user: newUser } } = await supabase.auth.getUser();
           if (newUser) {
             await supabase.from("profiles").update({ user_type: "buyer", full_name: `${formData.firstName} ${formData.lastName}`, phone: formData.phone, company_name: formData.companyName }).eq("user_id", newUser.id);
+            await saveBuyerPreferences(newUser.id);
           }
           toast.success("Vérifiez votre email pour confirmer votre compte.");
         }
+        localStorage.removeItem(STORAGE_KEY);
       } catch (err: any) { toast.error(err.message || "Erreur"); setSubmitting(false); return; }
       setSubmitting(false);
       setStep(totalSteps + 1);
@@ -168,6 +235,8 @@ const BuyerRegistration = () => {
   };
 
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+
+  const progressPercent = Math.round((step / totalSteps) * 100);
 
   const renderStepHeader = () => (
     <div className="mb-6">
@@ -182,11 +251,14 @@ const BuyerRegistration = () => {
           </div>
         ))}
       </div>
-      <h2 className="font-heading text-xl font-bold text-foreground mt-4">{stepTitles[step - 1]}</h2>
+      <div className="mt-3 mb-1">
+        <Progress value={progressPercent} className="h-2" />
+        <p className="text-xs text-muted-foreground mt-1">{progressPercent}% complété</p>
+      </div>
+      <h2 className="font-heading text-xl font-bold text-foreground mt-3">{stepTitles[step - 1]}</h2>
       <div className="h-px bg-border mt-3" />
     </div>
   );
-
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -203,7 +275,6 @@ const BuyerRegistration = () => {
           </div>
 
           <AnimatePresence mode="wait">
-            {/* STEP 1 — Identité */}
             {step === 1 && (
               <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {renderStepHeader()}
@@ -211,32 +282,36 @@ const BuyerRegistration = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground">Prénom *</label>
-                      <Input placeholder="Jean" value={formData.firstName} onChange={(e) => update("firstName", e.target.value)} />
+                      <Input placeholder="Jean" value={formData.firstName} onChange={(e) => update("firstName", e.target.value)} onBlur={() => validateField("firstName", formData.firstName)} />
+                      <FieldError field="firstName" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground">Nom *</label>
-                      <Input placeholder="Dupont" value={formData.lastName} onChange={(e) => update("lastName", e.target.value)} />
+                      <Input placeholder="Dupont" value={formData.lastName} onChange={(e) => update("lastName", e.target.value)} onBlur={() => validateField("lastName", formData.lastName)} />
+                      <FieldError field="lastName" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Téléphone *</label>
-                    <Input type="tel" placeholder="+33 6 12 34 56 78" value={formData.phone} onChange={(e) => update("phone", e.target.value)} />
+                    <Input type="tel" placeholder="+33 6 12 34 56 78" value={formData.phone} onChange={(e) => update("phone", e.target.value)} onBlur={() => validateField("phone", formData.phone)} />
+                    <FieldError field="phone" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Email *</label>
-                    <Input type="email" placeholder="jean@entreprise.com" value={formData.email} onChange={(e) => update("email", e.target.value)} />
+                    <Input type="email" placeholder="jean@entreprise.com" value={formData.email} onChange={(e) => update("email", e.target.value)} onBlur={() => validateField("email", formData.email)} />
+                    <FieldError field="email" />
                   </div>
                   {!isAlreadyLoggedIn && (
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground">Mot de passe *</label>
-                      <Input type="password" placeholder="6 caractères minimum" value={formData.password} onChange={(e) => update("password", e.target.value)} />
+                      <Input type="password" placeholder="6 caractères minimum" value={formData.password} onChange={(e) => update("password", e.target.value)} onBlur={() => validateField("password", formData.password)} />
+                      <FieldError field="password" />
                     </div>
                   )}
                 </div>
               </motion.div>
             )}
 
-            {/* STEP 2 — Entreprise */}
             {step === 2 && (
               <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {renderStepHeader()}
@@ -244,29 +319,29 @@ const BuyerRegistration = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground">Nom de l'entreprise *</label>
-                      <Input placeholder="Mon Entreprise SAS" value={formData.companyName} onChange={(e) => update("companyName", e.target.value)} />
+                      <Input placeholder="Mon Entreprise SAS" value={formData.companyName} onChange={(e) => update("companyName", e.target.value)} onBlur={() => validateField("companyName", formData.companyName)} />
+                      <FieldError field="companyName" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground">Code TVA *</label>
-                      <Input placeholder="FR07830946877" value={formData.vatCode} onChange={(e) => update("vatCode", e.target.value)} />
+                      <Input placeholder="FR07830946877" value={formData.vatCode} onChange={(e) => update("vatCode", e.target.value)} onBlur={() => validateField("vatCode", formData.vatCode)} />
+                      <FieldError field="vatCode" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Adresse de facturation *</label>
-                    <Input placeholder="8 Avenue du Stade de France" value={formData.address} onChange={(e) => update("address", e.target.value)} />
+                    <Input placeholder="8 Avenue du Stade de France" value={formData.address} onChange={(e) => update("address", e.target.value)} onBlur={() => validateField("address", formData.address)} />
+                    <FieldError field="address" />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground">Ville *</label>
-                      <Input placeholder="Paris" value={formData.city} onChange={(e) => update("city", e.target.value)} />
+                      <Input placeholder="Paris" value={formData.city} onChange={(e) => update("city", e.target.value)} onBlur={() => validateField("city", formData.city)} />
+                      <FieldError field="city" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground">Pays *</label>
-                      <select
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-foreground"
-                        value={formData.country}
-                        onChange={(e) => update("country", e.target.value)}
-                      >
+                      <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-foreground" value={formData.country} onChange={(e) => update("country", e.target.value)}>
                         {euCountries.map((c) => (<option key={c}>{c}</option>))}
                       </select>
                     </div>
@@ -279,12 +354,10 @@ const BuyerRegistration = () => {
               </motion.div>
             )}
 
-            {/* STEP 3 — Votre activité */}
             {step === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {renderStepHeader()}
                 <div className="space-y-7">
-                  {/* Store type */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Type de magasin *</label>
                     <div className="space-y-2 mt-3">
@@ -303,7 +376,6 @@ const BuyerRegistration = () => {
                     </div>
                   </div>
 
-                  {/* Conditional: link or photos */}
                   {selectedStoreTypes.some((st) => storeTypesRequiringLinkKeys.includes(st)) && (
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground">Lien de votre site / page *</label>
@@ -323,7 +395,6 @@ const BuyerRegistration = () => {
                     </div>
                   )}
 
-                  {/* Revenue */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Chiffre d'affaires annuel *</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
@@ -335,7 +406,6 @@ const BuyerRegistration = () => {
                     </div>
                   </div>
 
-                  {/* Activity duration */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Depuis combien de temps êtes-vous actif ? *</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
@@ -346,7 +416,6 @@ const BuyerRegistration = () => {
                     </div>
                   </div>
 
-                  {/* Categories */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Quelles catégories vendez-vous actuellement ? *</label>
                     <div className="flex flex-wrap gap-4 mt-3">
@@ -366,7 +435,6 @@ const BuyerRegistration = () => {
                     </div>
                   </div>
 
-                  {/* Gender segment */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Segment principal *</label>
                     <div className="flex flex-wrap gap-4 mt-3">
@@ -386,7 +454,6 @@ const BuyerRegistration = () => {
               </motion.div>
             )}
 
-            {/* STEP 4 — Vos besoins d'achat */}
             {step === 4 && (
               <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {renderStepHeader()}
@@ -394,7 +461,6 @@ const BuyerRegistration = () => {
                   <p className="text-xs text-primary font-medium">🔥 Ces réponses nous permettent de vous proposer les meilleurs lots automatiquement</p>
                 </div>
                 <div className="space-y-7">
-                  {/* Budget */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Budget moyen par commande *</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
@@ -406,7 +472,6 @@ const BuyerRegistration = () => {
                     </div>
                   </div>
 
-                  {/* Price per piece */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Prix cible par pièce *</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
@@ -418,7 +483,6 @@ const BuyerRegistration = () => {
                     </div>
                   </div>
 
-                  {/* Pieces per lot */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Nombre de pièces idéal par lot *</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
@@ -430,13 +494,11 @@ const BuyerRegistration = () => {
                     </div>
                   </div>
 
-                  {/* Searched brands */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Marques recherchées</label>
                     <Input placeholder="Nike, Adidas, Zara…" value={searchedBrands} onChange={(e) => setSearchedBrands(e.target.value)} />
                   </div>
 
-                  {/* Styles */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Styles préférés</label>
                     <div className="flex flex-wrap gap-4 mt-3">
@@ -457,24 +519,18 @@ const BuyerRegistration = () => {
               </motion.div>
             )}
 
-            {/* STEP 5 — Logistique & préférences */}
             {step === 5 && (
               <motion.div key="s5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {renderStepHeader()}
                 <div className="space-y-7">
-                  {/* Delivery address */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Adresse de livraison (si différente)</label>
                     <Input placeholder="12 Rue de l'Entrepôt, 69001 Lyon" value={formData.deliveryAddress} onChange={(e) => update("deliveryAddress", e.target.value)} />
                   </div>
-
-                  {/* Perfect lot */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Si vous pouviez décrire le lot parfait, ce serait quoi ?</label>
                     <Textarea placeholder="Ex: 500 pièces Nike/Adidas, mix homme-femme, streetwear, prix sous 10€/pièce…" className="resize-none" rows={4} value={formData.perfectLot} onChange={(e) => update("perfectLot", e.target.value)} />
                   </div>
-
-                  {/* Referral */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">Comment avez-vous entendu parler de nous ? *</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
@@ -486,8 +542,6 @@ const BuyerRegistration = () => {
                       ))}
                     </div>
                   </div>
-
-                  {/* Marketing consent */}
                   <div className="pt-2">
                     <label className="flex items-start gap-3 cursor-pointer">
                       <Checkbox checked={marketingConsent} onCheckedChange={(v) => setMarketingConsent(v === true)} className="mt-0.5" />
@@ -501,7 +555,6 @@ const BuyerRegistration = () => {
               </motion.div>
             )}
 
-            {/* SUCCESS */}
             {step === totalSteps + 1 && (
               <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="py-12 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -511,10 +564,7 @@ const BuyerRegistration = () => {
                 <p className="text-muted-foreground mb-2 max-w-md mx-auto">
                   {isAlreadyLoggedIn ? "Votre profil acheteur est activé." : "Vérifiez votre email pour confirmer votre compte."}
                 </p>
-                <button
-                  onClick={() => navigate(isAlreadyLoggedIn ? "/marketplace" : "/connexion")}
-                  className="mt-6 px-8 py-3 bg-foreground text-background font-semibold rounded-md hover:opacity-90 transition-opacity"
-                >
+                <button onClick={() => navigate(isAlreadyLoggedIn ? "/marketplace" : "/connexion")} className="mt-6 px-8 py-3 bg-foreground text-background font-semibold rounded-md hover:opacity-90 transition-opacity">
                   {isAlreadyLoggedIn ? "Accéder au marketplace" : "Se connecter"}
                 </button>
               </motion.div>
@@ -535,6 +585,8 @@ const BuyerRegistration = () => {
           )}
         </div>
       </div>
+
+      <LegalFooter />
     </div>
   );
 };
