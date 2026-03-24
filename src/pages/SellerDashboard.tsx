@@ -514,6 +514,12 @@ const SellerDashboard = () => {
                         <Package className="h-3 w-3" />
                         {lot.units} pcs
                       </span>
+                      {lot.location && (
+                        <span className="flex items-center gap-1 text-xs">
+                          <MapPin className="h-3 w-3" />
+                          {lot.location}
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-baseline gap-2 pt-1">
                       <span className="font-heading font-bold text-foreground">{totalTTC.toLocaleString("fr-FR")} €</span>

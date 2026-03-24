@@ -261,7 +261,7 @@ const LotDetail = () => {
                     className="flex items-center gap-1 mt-1.5 text-[10px] text-primary hover:underline"
                   >
                     <Star className="h-3 w-3" />
-                    {t("lotDetail.viewSellerReviews", "Voir la note et les avis")}
+                    {t("lotDetail.viewSellerReviews", "Voir les avis")}
                   </button>
                 </div>
               </div>
