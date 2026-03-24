@@ -661,7 +661,10 @@
     "clearItems": "Clear all",
     "moreItems": "more items",
     "brandAutoNote": "Brand auto-filled from your profile",
-    "autoProfileNote": "Auto-filled from your profile"
+    "autoProfileNote": "Auto-filled from your profile",
+    "yourPrice": "Your price (excl. tax)",
+    "pricePerUnitHT": "Price / unit excl. tax",
+    "commissionNote": "The buyer will see a price with Vary commission included"
   },
   "sellerVIP": {
     "badge": "VIP Seller",

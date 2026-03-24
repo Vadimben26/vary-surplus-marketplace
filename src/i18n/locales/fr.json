@@ -661,7 +661,10 @@
     "clearItems": "Supprimer tout",
     "moreItems": "articles supplémentaires",
     "brandAutoNote": "Marque automatique depuis votre profil",
-    "autoProfileNote": "Infos automatiques depuis votre profil"
+    "autoProfileNote": "Infos automatiques depuis votre profil",
+    "yourPrice": "Votre prix HT",
+    "pricePerUnitHT": "Prix / pièce HT",
+    "commissionNote": "L'acheteur verra un prix avec commission Vary incluse"
   },
   "sellerVIP": {
     "badge": "Vendeur VIP",

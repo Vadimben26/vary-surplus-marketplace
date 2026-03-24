@@ -661,7 +661,10 @@
     "clearItems": "Eliminar todo",
     "moreItems": "artículos adicionales",
     "brandAutoNote": "Marca automática desde tu perfil",
-    "autoProfileNote": "Información automática desde tu perfil"
+    "autoProfileNote": "Información automática desde tu perfil",
+    "yourPrice": "Tu precio sin IVA",
+    "pricePerUnitHT": "Precio / unidad sin IVA",
+    "commissionNote": "El comprador verá un precio con comisión Vary incluida"
   },
   "sellerVIP": {
     "badge": "Vendedor VIP",
