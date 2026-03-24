@@ -88,7 +88,23 @@ const SellerDashboard = () => {
     enabled: !!profile?.id,
   });
 
-  // Check if seller is VIP
+  // Fetch seller preferences (for auto location)
+  const { data: sellerPrefs } = useQuery({
+    queryKey: ["seller-prefs", profile?.user_id],
+    queryFn: async () => {
+      if (!profile?.user_id) return null;
+      const { data } = await supabase
+        .from("seller_preferences")
+        .select("warehouse_location, country, city")
+        .eq("user_id", profile.user_id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!profile?.user_id,
+  });
+
+  const autoLocation = sellerPrefs?.warehouse_location || sellerPrefs?.city || sellerPrefs?.country || "";
+
   const { data: isVipSeller = false } = useQuery({
     queryKey: ["seller-vip-status", profile?.id],
     queryFn: async () => {
