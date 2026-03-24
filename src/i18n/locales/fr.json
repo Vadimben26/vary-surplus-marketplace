@@ -837,5 +837,40 @@
       "statusRefunded": "Remboursé",
       "statusCancelled": "Annulé"
     }
+  },
+  "messageTemplates": {
+    "title": "Templates VIP",
+    "subtitleBuyer": "Messages optimisés pour négocier et acheter efficacement",
+    "subtitleSeller": "Messages optimisés pour convertir et fidéliser vos acheteurs",
+    "openTemplates": "📋 Templates de messages",
+    "inserted": "Template copié dans le champ message",
+    "use": "Utiliser ce template",
+    "variant": "Variante",
+    "buyer": {
+      "reservation": "Demande de réservation",
+      "negotiation": "Négociation prix",
+      "multiLot": "Remise multi-lots",
+      "issue": "Signaler un problème"
+    },
+    "seller": {
+      "followUp": "Relance acheteur",
+      "followUpVariant": "Relance urgente",
+      "upsell": "Vente additionnelle",
+      "upsellVariant": "Upsell avec remise",
+      "counterOffer": "Contre-offre",
+      "counterOfferVariant": "Closing rapide",
+      "review": "Demande d'avis",
+      "reviewVariant": "Avis + fidélisation"
+    },
+    "tags": {
+      "reservation": "Réservation",
+      "negotiation": "Négociation",
+      "multiLot": "Multi-lots",
+      "issue": "Litige",
+      "followUp": "Relance",
+      "upsell": "Upsell",
+      "counterOffer": "Négociation",
+      "review": "Avis"
+    }
   }
 }

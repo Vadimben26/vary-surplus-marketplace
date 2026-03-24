@@ -837,5 +837,40 @@
       "statusRefunded": "Refunded",
       "statusCancelled": "Cancelled"
     }
+  },
+  "messageTemplates": {
+    "title": "VIP Templates",
+    "subtitleBuyer": "Optimized messages to negotiate and buy effectively",
+    "subtitleSeller": "Optimized messages to convert and retain your buyers",
+    "openTemplates": "📋 Message templates",
+    "inserted": "Template copied to message field",
+    "use": "Use this template",
+    "variant": "Variant",
+    "buyer": {
+      "reservation": "Reservation request",
+      "negotiation": "Price negotiation",
+      "multiLot": "Multi-lot discount",
+      "issue": "Report an issue"
+    },
+    "seller": {
+      "followUp": "Buyer follow-up",
+      "followUpVariant": "Urgent follow-up",
+      "upsell": "Upsell",
+      "upsellVariant": "Upsell with discount",
+      "counterOffer": "Counter-offer",
+      "counterOfferVariant": "Quick closing",
+      "review": "Review request",
+      "reviewVariant": "Review + retention"
+    },
+    "tags": {
+      "reservation": "Reservation",
+      "negotiation": "Negotiation",
+      "multiLot": "Multi-lot",
+      "issue": "Issue",
+      "followUp": "Follow-up",
+      "upsell": "Upsell",
+      "counterOffer": "Negotiation",
+      "review": "Review"
+    }
   }
 }
