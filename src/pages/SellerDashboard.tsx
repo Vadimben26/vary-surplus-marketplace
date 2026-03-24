@@ -62,6 +62,7 @@ const SellerDashboard = () => {
   const [retailPrice, setRetailPrice] = useState("");
   const [units, setUnits] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
+  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [lotItems, setLotItems] = useState<LotItem[]>([{ ...emptyItem }]);
   const [photos, setPhotos] = useState<File[]>([]);
