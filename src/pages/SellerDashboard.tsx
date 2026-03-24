@@ -142,7 +142,7 @@ const SellerDashboard = () => {
   };
 
   const resetForm = () => {
-    setTitle(""); setBrands(""); setPrice(""); setUnits("");
+    setTitle(""); setPrice(""); setRetailPrice(""); setUnits("");
     setCategories([]); setDescription("");
     setLotItems([{ ...emptyItem }]);
     setPhotos([]); setExistingImages([]);
