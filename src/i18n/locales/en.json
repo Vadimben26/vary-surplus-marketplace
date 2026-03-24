@@ -144,8 +144,92 @@
       "storeLink": "Website link required",
       "storePhotos": "Store photos required",
       "channel": "Select a communication channel",
-      "referral": "Please tell us how you heard about us"
-    }
+      "referral": "Please tell us how you heard about us",
+      "budget": "Average budget required",
+      "pricePerPiece": "Target price per piece required",
+      "piecesPerLot": "Number of pieces per lot required",
+      "gender": "Select at least one segment",
+      "activityDuration": "Activity duration required"
+    },
+    "stepTitles": {
+      "identity": "Identity",
+      "company": "Company",
+      "activity": "Your activity",
+      "needs": "Your purchasing needs",
+      "logistics": "Logistics & preferences"
+    },
+    "categories": {
+      "clothing": "Clothing",
+      "shoes": "Shoes",
+      "accessories": "Accessories",
+      "bags": "Bags",
+      "lingerie": "Lingerie",
+      "sportswear": "Sportswear"
+    },
+    "activityDuration": {
+      "title": "How long have you been active?",
+      "lessThan1y": "Less than 1 year",
+      "1to3y": "1 to 3 years",
+      "3to5y": "3 to 5 years",
+      "moreThan5y": "More than 5 years"
+    },
+    "budgetOptions": {
+      "title": "Average budget per order",
+      "under1k": "Less than €1,000",
+      "1k5k": "€1,000 – €5,000",
+      "5k15k": "€5,000 – €15,000",
+      "15k50k": "€15,000 – €50,000",
+      "over50k": "More than €50,000"
+    },
+    "pricePerPieceOptions": {
+      "title": "Target price per piece",
+      "under5": "Less than €5",
+      "5to15": "€5 – €15",
+      "15to30": "€15 – €30",
+      "30to60": "€30 – €60",
+      "over60": "More than €60"
+    },
+    "piecesPerLotOptions": {
+      "title": "Ideal number of pieces per lot",
+      "under100": "Less than 100",
+      "100to500": "100 – 500",
+      "500to2000": "500 – 2,000",
+      "2000to5000": "2,000 – 5,000",
+      "over5000": "More than 5,000"
+    },
+    "styles": {
+      "title": "Preferred styles",
+      "streetwear": "Streetwear",
+      "casual": "Casual",
+      "sport": "Sport",
+      "chic": "Chic"
+    },
+    "referralSources": {
+      "google": "Google",
+      "facebook": "Facebook / Instagram",
+      "tiktok": "TikTok",
+      "linkedin": "LinkedIn",
+      "ai": "ChatGPT / Claude / Gemini",
+      "blog": "Blog",
+      "friend": "Friend recommendation",
+      "sales": "A sales rep contacted me"
+    },
+    "deliveryAddress": "Delivery address (if different)",
+    "perfectLot": "If you could describe the perfect lot, what would it be?",
+    "perfectLotPlaceholder": "E.g. 500 pieces Nike/Adidas, men-women mix, streetwear, under €10/piece…",
+    "searchedBrands": "Searched brands",
+    "searchedBrandsPlaceholder": "Nike, Adidas, Zara…",
+    "segment": "Main segment",
+    "marketingConsentLabel": "I agree to receive offers and news by email",
+    "marketingConsentDesc": "You can unsubscribe at any time. We don't spam.",
+    "matchingTip": "🔥 These answers help us automatically suggest the best lots for you",
+    "progressComplete": "completed",
+    "fieldRequired": "This field is required",
+    "pageTitle": "Buyer Registration",
+    "pageSubtitle": "Create your account to access the B2B marketplace",
+    "storeLinkLabel": "Link to your website / page",
+    "storePhotosLabel": "Photos of your store",
+    "storeLinkOptionalLabel": "Website link (optional)"
   },
   "sellerReg": {
     "title": "Seller profile details",
@@ -346,7 +430,16 @@
     "noAccount": "Don't have an account?",
     "fillAll": "Please fill in all fields",
     "success": "Login successful!",
-    "invalidCredentials": "Incorrect email or password"
+    "invalidCredentials": "Incorrect email or password",
+    "forgotPassword": "Forgot password?",
+    "resetTitle": "Reset password",
+    "resetSubtitle": "Enter your email to receive a reset link",
+    "resetSubmit": "Send reset link",
+    "resetSending": "Sending...",
+    "resetSent": "A password reset email has been sent to your address.",
+    "resetError": "Error sending reset link",
+    "backToLogin": "Back to login",
+    "orContinueWith": "or continue with"
   },
   "marketplace": {
     "welcome": "Welcome, {{name}}",

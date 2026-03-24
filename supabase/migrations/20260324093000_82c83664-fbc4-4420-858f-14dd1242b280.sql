@@ -1,0 +1,1 @@
+ALTER TABLE public.buyer_preferences ADD COLUMN IF NOT EXISTS store_photos text[] DEFAULT '{}'::text[];

@@ -10,6 +10,7 @@ import Registration from "./pages/Registration.tsx";
 import BuyerRegistration from "./pages/BuyerRegistration.tsx";
 import SellerRegistration from "./pages/SellerRegistration.tsx";
 import Login from "./pages/Login.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 import Marketplace from "./pages/Marketplace.tsx";
 import SellerDashboard from "./pages/SellerDashboard.tsx";
 import SellerVIP from "./pages/SellerVIP.tsx";
@@ -75,6 +76,7 @@ const App = () => (
                 <Route path="/inscription/acheteur" element={<BuyerRegistration />} />
                 <Route path="/inscription/vendeur" element={<SellerRegistration />} />
                 <Route path="/connexion" element={<Login />} />
+                <Route path="/mot-de-passe-oublie" element={<ResetPassword />} />
 
                 {/* Public pages */}
                 <Route path="/marketplace" element={<Marketplace />} />
