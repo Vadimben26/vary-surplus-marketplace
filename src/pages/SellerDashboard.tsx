@@ -248,7 +248,7 @@ const SellerDashboard = () => {
         // Insert items
         if (validItems.length > 0) {
           await supabase.from("lot_items").insert(
-            validItems.map(it => ({ lot_id: newLot.id, name: it.name, quantity: it.quantity, size: it.size }))
+            validItems.map(it => ({ lot_id: newLot.id, name: it.name, quantity: it.quantity, size: it.size, brand: it.brand, category: it.category, gender: it.gender, reference: it.reference, retail_price: it.retail_price || null, image_url: it.image_url || null }))
           );
         }
       }
