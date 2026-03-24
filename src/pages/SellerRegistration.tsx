@@ -7,9 +7,13 @@ import varyLogo from "@/assets/vary-logo.png";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import LegalFooter from "@/components/LegalFooter";
+
+const STORAGE_KEY = "vary_seller_reg_draft";
 
 const EU_COUNTRIES = ["France", "Belgique", "Allemagne", "Espagne", "Italie", "Pays-Bas", "Portugal", "Royaume-Uni", "Pologne", "Roumanie", "Suède", "Autriche", "Grèce", "Tchéquie", "Danemark", "Irlande", "Hongrie", "Croatie", "Bulgarie", "Finlande", "Slovaquie", "Lituanie", "Lettonie", "Slovénie", "Estonie", "Chypre", "Luxembourg", "Malte"];
 
@@ -50,8 +54,19 @@ const SellerRegistration = () => {
   const { signUp, user, profile, updateProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const totalSteps = 5;
   const isAlreadyLoggedIn = !!user;
+
+  const loadDraft = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return null;
+  };
+
+  const draft = loadDraft();
 
   useEffect(() => {
     if (user?.email) {
@@ -59,41 +74,65 @@ const SellerRegistration = () => {
     }
   }, [user]);
 
-  // Step 1
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(draft?.formData ?? {
     firstName: "", lastName: "", email: "", phone: "", password: "",
     companyName: "", vatCode: "", siret: "", website: "", address: "", city: "",
     country: "France", postalCode: "", warehouseLocation: "", description: "", avgRetailPrice: "",
   });
 
-  // Step 2
-  const [businessType, setBusinessType] = useState("");
-
-  // Step 3
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [monthlyVolume, setMonthlyVolume] = useState("");
-  const [lotSize, setLotSize] = useState("");
-  const [brandsText, setBrandsText] = useState("");
-  const [sellsUnbranded, setSellsUnbranded] = useState("");
-
-  // Step 4
-  const [yearsInBusiness, setYearsInBusiness] = useState("");
-  const [clientTypes, setClientTypes] = useState<string[]>([]);
+  const [businessType, setBusinessType] = useState(draft?.businessType ?? "");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(draft?.selectedCategories ?? []);
+  const [monthlyVolume, setMonthlyVolume] = useState(draft?.monthlyVolume ?? "");
+  const [lotSize, setLotSize] = useState(draft?.lotSize ?? "");
+  const [brandsText, setBrandsText] = useState(draft?.brandsText ?? "");
+  const [sellsUnbranded, setSellsUnbranded] = useState(draft?.sellsUnbranded ?? "");
+  const [yearsInBusiness, setYearsInBusiness] = useState(draft?.yearsInBusiness ?? "");
+  const [clientTypes, setClientTypes] = useState<string[]>(draft?.clientTypes ?? []);
   const [warehouseFiles, setWarehouseFiles] = useState<File[]>([]);
+  const [consent, setConsent] = useState(draft?.consent ?? false);
+  const [selectedReferral, setSelectedReferral] = useState(draft?.selectedReferral ?? "");
+  const [buyerTypes, setBuyerTypes] = useState<string[]>(draft?.buyerTypes ?? []);
+  const [buyerBudget, setBuyerBudget] = useState(draft?.buyerBudget ?? "");
+  const [minOrderSize, setMinOrderSize] = useState(draft?.minOrderSize ?? "");
+  const [targetMarket, setTargetMarket] = useState(draft?.targetMarket ?? "");
+  const [targetCountries, setTargetCountries] = useState<string[]>(draft?.targetCountries ?? []);
+  const [visibilityMode, setVisibilityMode] = useState<"all" | "filtered">(draft?.visibilityMode ?? "all");
 
-  // Step 5
-  const [consent, setConsent] = useState(false);
-  const [selectedReferral, setSelectedReferral] = useState("");
-  const [buyerTypes, setBuyerTypes] = useState<string[]>([]);
-  const [buyerBudget, setBuyerBudget] = useState("");
-  const [minOrderSize, setMinOrderSize] = useState("");
-  const [targetMarket, setTargetMarket] = useState("");
-  const [targetCountries, setTargetCountries] = useState<string[]>([]);
-  const [visibilityMode, setVisibilityMode] = useState<"all" | "filtered">("all");
+  // Auto-save
+  useEffect(() => {
+    const data = {
+      formData, businessType, selectedCategories, monthlyVolume, lotSize, brandsText,
+      sellsUnbranded, yearsInBusiness, clientTypes, consent, selectedReferral,
+      buyerTypes, buyerBudget, minOrderSize, targetMarket, targetCountries, visibilityMode, step,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, [step, formData, businessType, selectedCategories, monthlyVolume, lotSize, brandsText,
+    sellsUnbranded, yearsInBusiness, clientTypes, consent, selectedReferral,
+    buyerTypes, buyerBudget, minOrderSize, targetMarket, targetCountries, visibilityMode]);
 
-  const update = (field: string, value: string) => setFormData((prev) => ({ ...prev, [field]: value }));
+  useEffect(() => {
+    if (draft?.step && draft.step <= totalSteps) setStep(draft.step);
+  }, []);
+
+  const update = (field: string, value: string) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
+    setFieldErrors(prev => ({ ...prev, [field]: "" }));
+  };
   const toggle = (arr: string[], setArr: React.Dispatch<React.SetStateAction<string[]>>, val: string) => {
     setArr(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
+  };
+
+  const validateField = (field: string, value: string) => {
+    if (!value.trim()) {
+      setFieldErrors(prev => ({ ...prev, [field]: t("sellerReg.validation.required") || "Ce champ est requis" }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const FieldError = ({ field }: { field: string }) => {
+    if (!fieldErrors[field]) return null;
+    return <p className="text-xs text-destructive mt-1">{fieldErrors[field]}</p>;
   };
 
   const validateStep = (): string | null => {
@@ -122,6 +161,38 @@ const SellerRegistration = () => {
     return null;
   };
 
+  const saveSellerPreferences = async (userId: string) => {
+    const { error } = await supabase.from("seller_preferences" as any).upsert({
+      user_id: userId,
+      business_type: businessType,
+      website: formData.website,
+      categories: selectedCategories,
+      monthly_volume: monthlyVolume,
+      lot_size: lotSize,
+      avg_retail_price: formData.avgRetailPrice,
+      brands_text: brandsText,
+      sells_unbranded: sellsUnbranded,
+      warehouse_location: formData.warehouseLocation,
+      years_in_business: yearsInBusiness,
+      client_types: clientTypes,
+      description: formData.description,
+      consent,
+      buyer_types: buyerTypes,
+      buyer_budget: buyerBudget,
+      min_order_size: minOrderSize,
+      target_market: targetMarket,
+      target_countries: targetCountries,
+      visibility_mode: visibilityMode,
+      referral_source: selectedReferral,
+      country: formData.country,
+      vat_code: formData.vatCode,
+      address: formData.address,
+      city: formData.city,
+      postal_code: formData.postalCode,
+    } as any, { onConflict: "user_id" } as any);
+    if (error) console.error("Error saving seller preferences:", error);
+  };
+
   const nextStep = async () => {
     const error = validateStep();
     if (error) { toast.error(error); return; }
@@ -132,6 +203,7 @@ const SellerRegistration = () => {
         if (isAlreadyLoggedIn) {
           const newType = profile?.user_type === "buyer" ? "both" : "seller";
           await updateProfile({ user_type: newType as any, full_name: `${formData.firstName} ${formData.lastName}`, phone: formData.phone, company_name: formData.companyName, company_description: formData.description, siret: formData.siret });
+          await saveSellerPreferences(user!.id);
           toast.success(t("sellerReg.profileActivated"));
         } else {
           const { error } = await signUp(formData.email, formData.password);
@@ -140,9 +212,11 @@ const SellerRegistration = () => {
           const { data: { user: newUser } } = await supabase.auth.getUser();
           if (newUser) {
             await supabase.from("profiles").update({ user_type: "seller", full_name: `${formData.firstName} ${formData.lastName}`, phone: formData.phone, company_name: formData.companyName, company_description: formData.description, siret: formData.siret }).eq("user_id", newUser.id);
+            await saveSellerPreferences(newUser.id);
           }
           toast.success(t("sellerReg.checkEmail"));
         }
+        localStorage.removeItem(STORAGE_KEY);
       } catch (err: any) { toast.error(err.message || "Error"); setSubmitting(false); return; }
       setSubmitting(false);
       setStep(totalSteps + 1);
@@ -161,6 +235,8 @@ const SellerRegistration = () => {
     t("sellerReg.stepTitles.preferences"),
   ];
 
+  const progressPercent = Math.round((step / totalSteps) * 100);
+
   const stepHeader = (
     <div className="mb-6">
       <div className="flex items-center gap-3 mb-4">
@@ -174,10 +250,13 @@ const SellerRegistration = () => {
           </div>
         ))}
       </div>
-      <h2 className="font-heading text-lg font-bold text-foreground">{stepTitlesArr[step - 1]}</h2>
+      <div className="mt-1 mb-1">
+        <Progress value={progressPercent} className="h-2" />
+        <p className="text-xs text-muted-foreground mt-1">{progressPercent}% {t("common.completed") || "complété"}</p>
+      </div>
+      <h2 className="font-heading text-lg font-bold text-foreground mt-3">{stepTitlesArr[step - 1]}</h2>
     </div>
   );
-
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -194,33 +273,52 @@ const SellerRegistration = () => {
           </div>
 
           <AnimatePresence mode="wait">
-            {/* ===== STEP 1 — Personal Information ===== */}
             {step === 1 && (
               <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
                 <div className="space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.firstName")} *</label><Input placeholder="Jean" value={formData.firstName} onChange={(e) => update("firstName", e.target.value)} /></div>
-                    <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.lastName")} *</label><Input placeholder="Dupont" value={formData.lastName} onChange={(e) => update("lastName", e.target.value)} /></div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">{t("sellerReg.firstName")} *</label>
+                      <Input placeholder="Jean" value={formData.firstName} onChange={(e) => update("firstName", e.target.value)} onBlur={() => validateField("firstName", formData.firstName)} />
+                      <FieldError field="firstName" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">{t("sellerReg.lastName")} *</label>
+                      <Input placeholder="Dupont" value={formData.lastName} onChange={(e) => update("lastName", e.target.value)} onBlur={() => validateField("lastName", formData.lastName)} />
+                      <FieldError field="lastName" />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">{t("sellerReg.email")} *</label>
-                    <Input type="email" placeholder="jean@entreprise.com" value={formData.email} onChange={(e) => update("email", e.target.value)} />
+                    <Input type="email" placeholder="jean@entreprise.com" value={formData.email} onChange={(e) => update("email", e.target.value)} onBlur={() => validateField("email", formData.email)} />
+                    <FieldError field="email" />
                   </div>
                   {!isAlreadyLoggedIn && (
-                    <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.password")} *</label><Input type="password" placeholder={t("sellerReg.passwordPlaceholder")} value={formData.password} onChange={(e) => update("password", e.target.value)} /></div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">{t("sellerReg.password")} *</label>
+                      <Input type="password" placeholder={t("sellerReg.passwordPlaceholder")} value={formData.password} onChange={(e) => update("password", e.target.value)} onBlur={() => validateField("password", formData.password)} />
+                      <FieldError field="password" />
+                    </div>
                   )}
-                  <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.phone")} *</label><Input type="tel" placeholder="+33 6 12 34 56 78" value={formData.phone} onChange={(e) => update("phone", e.target.value)} /></div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.phone")} *</label>
+                    <Input type="tel" placeholder="+33 6 12 34 56 78" value={formData.phone} onChange={(e) => update("phone", e.target.value)} onBlur={() => validateField("phone", formData.phone)} />
+                    <FieldError field="phone" />
+                  </div>
                 </div>
               </motion.div>
             )}
 
-            {/* ===== STEP 2 — Company Details ===== */}
             {step === 2 && (
               <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
                 <div className="space-y-5">
-                  <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.companyName")} *</label><Input placeholder="Mon Entreprise SAS" value={formData.companyName} onChange={(e) => update("companyName", e.target.value)} /></div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.companyName")} *</label>
+                    <Input placeholder="Mon Entreprise SAS" value={formData.companyName} onChange={(e) => update("companyName", e.target.value)} onBlur={() => validateField("companyName", formData.companyName)} />
+                    <FieldError field="companyName" />
+                  </div>
                   <div>
                     <label className="text-sm font-semibold text-foreground">{t("sellerReg.businessType")} *</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
@@ -230,13 +328,28 @@ const SellerRegistration = () => {
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.vatCode")} *</label><Input placeholder="FR07830946877" value={formData.vatCode} onChange={(e) => update("vatCode", e.target.value)} /></div>
-                    <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.siret")}</label><Input placeholder="123 456 789 00001" value={formData.siret} onChange={(e) => update("siret", e.target.value)} /></div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">{t("sellerReg.vatCode")} *</label>
+                      <Input placeholder="FR07830946877" value={formData.vatCode} onChange={(e) => update("vatCode", e.target.value)} onBlur={() => validateField("vatCode", formData.vatCode)} />
+                      <FieldError field="vatCode" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">{t("sellerReg.siret")}</label>
+                      <Input placeholder="123 456 789 00001" value={formData.siret} onChange={(e) => update("siret", e.target.value)} />
+                    </div>
                   </div>
                   <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.website")}</label><Input placeholder="https://monsite.com" value={formData.website} onChange={(e) => update("website", e.target.value)} /></div>
-                  <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.address")} *</label><Input placeholder="8 Avenue du Stade de France" value={formData.address} onChange={(e) => update("address", e.target.value)} /></div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.address")} *</label>
+                    <Input placeholder="8 Avenue du Stade de France" value={formData.address} onChange={(e) => update("address", e.target.value)} onBlur={() => validateField("address", formData.address)} />
+                    <FieldError field="address" />
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.city")} *</label><Input placeholder="Paris" value={formData.city} onChange={(e) => update("city", e.target.value)} /></div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">{t("sellerReg.city")} *</label>
+                      <Input placeholder="Paris" value={formData.city} onChange={(e) => update("city", e.target.value)} onBlur={() => validateField("city", formData.city)} />
+                      <FieldError field="city" />
+                    </div>
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground">{t("sellerReg.country")} *</label>
                       <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-foreground" value={formData.country} onChange={(e) => update("country", e.target.value)}>
@@ -249,12 +362,10 @@ const SellerRegistration = () => {
               </motion.div>
             )}
 
-            {/* ===== STEP 3 — Products & Inventory ===== */}
             {step === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
                 <div className="space-y-8">
-                  {/* Categories */}
                   <div>
                     <SectionTitle icon="🧥" label={t("sellerReg.productCategories.title")} />
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
@@ -266,8 +377,6 @@ const SellerRegistration = () => {
                       ))}
                     </div>
                   </div>
-
-                  {/* Volume */}
                   <div>
                     <SectionTitle icon="📦" label={t("sellerReg.volumeSection")} />
                     <label className="text-sm font-semibold text-foreground mt-3 block">{t("sellerReg.monthlyVolume")} *</label>
@@ -277,8 +386,6 @@ const SellerRegistration = () => {
                       ))}
                     </div>
                   </div>
-
-                  {/* Average retail selling price */}
                   <div>
                     <SectionTitle icon="💰" label={t("sellerReg.avgRetailPrice")} />
                     <div className="space-y-2 mt-3">
@@ -286,8 +393,6 @@ const SellerRegistration = () => {
                       <Input type="text" placeholder="Ex: 45 €" value={formData.avgRetailPrice} onChange={(e) => update("avgRetailPrice", e.target.value)} />
                     </div>
                   </div>
-
-                  {/* Lot structure */}
                   <div>
                     <SectionTitle icon="📦" label={t("sellerReg.lotStructure")} />
                     <div className="space-y-4 mt-3">
@@ -301,8 +406,6 @@ const SellerRegistration = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* Brands */}
                   <div>
                     <SectionTitle icon="🏷️" label={t("sellerReg.brandsSection")} />
                     <div className="space-y-4 mt-3">
@@ -318,7 +421,7 @@ const SellerRegistration = () => {
                         </div>
                       </div>
                     </div>
-                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -327,15 +430,16 @@ const SellerRegistration = () => {
               <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
                 <div className="space-y-8">
-                  {/* Logistics */}
                   <div>
                     <SectionTitle icon={<Truck className="h-5 w-5 text-primary" />} label={t("sellerReg.logisticsSection")} />
                     <div className="space-y-4 mt-3">
-                      <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.warehouseLocation")} *</label><Input placeholder="Ex: Paris, France" value={formData.warehouseLocation} onChange={(e) => update("warehouseLocation", e.target.value)} /></div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.warehouseLocation")} *</label>
+                        <Input placeholder="Ex: Paris, France" value={formData.warehouseLocation} onChange={(e) => update("warehouseLocation", e.target.value)} onBlur={() => validateField("warehouseLocation", formData.warehouseLocation)} />
+                        <FieldError field="warehouseLocation" />
+                      </div>
                     </div>
                   </div>
-
-                  {/* Business credibility */}
                   <div>
                     <SectionTitle icon="🏢" label={t("sellerReg.credibilitySection")} />
                     <div className="space-y-4 mt-3">
@@ -360,8 +464,6 @@ const SellerRegistration = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* Warehouse image */}
                   <div>
                     <SectionTitle icon="📷" label={t("sellerReg.uploadsSection")} />
                     <div className="space-y-2 mt-3">
@@ -385,8 +487,6 @@ const SellerRegistration = () => {
                       )}
                     </div>
                   </div>
-
-                  {/* Description */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">📝 {t("sellerReg.describeActivity")}</label>
                     <Textarea placeholder={t("sellerReg.descriptionPlaceholder")} className="resize-none" rows={3} value={formData.description} onChange={(e) => update("description", e.target.value)} />
@@ -395,12 +495,10 @@ const SellerRegistration = () => {
               </motion.div>
             )}
 
-            {/* ===== STEP 5 — Preferences & Targeting ===== */}
             {step === 5 && (
               <motion.div key="s5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
                 <div className="space-y-8">
-                  {/* Marketing consent */}
                   <div>
                     <SectionTitle icon="📩" label={t("sellerReg.marketingConsent")} />
                     <div className="mt-3">
@@ -413,8 +511,6 @@ const SellerRegistration = () => {
                       </label>
                     </div>
                   </div>
-
-                  {/* Buyer targeting */}
                   <div>
                     <SectionTitle icon={<Target className="h-5 w-5 text-primary" />} label={t("sellerReg.buyerTargeting")} />
                     <div className="space-y-4 mt-3">
@@ -457,8 +553,6 @@ const SellerRegistration = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* Visibility */}
                   <div>
                     <SectionTitle icon={<Eye className="h-5 w-5 text-primary" />} label={t("sellerReg.visibilityTitle")} />
                     <div className="space-y-4 mt-3">
@@ -478,8 +572,6 @@ const SellerRegistration = () => {
                       </label>
                     </div>
                   </div>
-
-                  {/* Referral */}
                   <div>
                     <label className="text-sm font-semibold text-foreground">{t("sellerReg.howDidYouHear")}</label>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
@@ -492,7 +584,6 @@ const SellerRegistration = () => {
               </motion.div>
             )}
 
-            {/* ===== SUCCESS ===== */}
             {step === totalSteps + 1 && (
               <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="py-12 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -523,6 +614,8 @@ const SellerRegistration = () => {
           )}
         </div>
       </div>
+
+      <LegalFooter />
     </div>
   );
 };
