@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { MessageCircle, Send, ArrowLeft, Crown, User } from "lucide-react";
+import { MessageCircle, Send, ArrowLeft, Crown, User, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ import { useTranslateMessage } from "@/hooks/useTranslateMessage";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import { Link } from "react-router-dom";
+import MessageTemplates from "@/components/messages/MessageTemplates";
 
 interface Message {
   id: string;
