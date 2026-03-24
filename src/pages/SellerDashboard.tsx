@@ -256,7 +256,7 @@ const SellerDashboard = () => {
           seller_id: profile.id, title, brand: brandName,
           price: parseFloat(price), units: parseInt(units) || 0,
           category: categories.join(", "), description,
-          location,
+          location: autoLocation,
           status: "active",
           images: [],
         }).select().single();
