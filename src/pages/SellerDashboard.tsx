@@ -203,7 +203,8 @@ const SellerDashboard = () => {
       if (validItems.length === 0) {
         throw new Error(t("sellerDashboard.needItems"));
       }
-      if (!title || !brands || !price) {
+      const brandName = profile?.company_name || "—";
+      if (!title || !price) {
         throw new Error(t("sellerDashboard.fillRequired"));
       }
 
