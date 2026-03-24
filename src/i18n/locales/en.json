@@ -430,7 +430,16 @@
     "noAccount": "Don't have an account?",
     "fillAll": "Please fill in all fields",
     "success": "Login successful!",
-    "invalidCredentials": "Incorrect email or password"
+    "invalidCredentials": "Incorrect email or password",
+    "forgotPassword": "Forgot password?",
+    "resetTitle": "Reset password",
+    "resetSubtitle": "Enter your email to receive a reset link",
+    "resetSubmit": "Send reset link",
+    "resetSending": "Sending...",
+    "resetSent": "A password reset email has been sent to your address.",
+    "resetError": "Error sending reset link",
+    "backToLogin": "Back to login",
+    "orContinueWith": "or continue with"
   },
   "marketplace": {
     "welcome": "Welcome, {{name}}",

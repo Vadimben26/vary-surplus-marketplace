@@ -35,6 +35,7 @@ export type Database = {
           revenue: string | null
           searched_brands: string | null
           store_link: string | null
+          store_photos: string[] | null
           store_types: string[] | null
           styles: string[] | null
           updated_at: string
@@ -61,6 +62,7 @@ export type Database = {
           revenue?: string | null
           searched_brands?: string | null
           store_link?: string | null
+          store_photos?: string[] | null
           store_types?: string[] | null
           styles?: string[] | null
           updated_at?: string
@@ -87,6 +89,7 @@ export type Database = {
           revenue?: string | null
           searched_brands?: string | null
           store_link?: string | null
+          store_photos?: string[] | null
           store_types?: string[] | null
           styles?: string[] | null
           updated_at?: string

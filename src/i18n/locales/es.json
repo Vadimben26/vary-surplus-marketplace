@@ -430,7 +430,16 @@
     "noAccount": "¿No tienes cuenta?",
     "fillAll": "Por favor, rellena todos los campos",
     "success": "¡Inicio de sesión exitoso!",
-    "invalidCredentials": "Email o contraseña incorrectos"
+    "invalidCredentials": "Email o contraseña incorrectos",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "resetTitle": "Restablecer contraseña",
+    "resetSubtitle": "Ingresa tu email para recibir un enlace de restablecimiento",
+    "resetSubmit": "Enviar enlace",
+    "resetSending": "Enviando...",
+    "resetSent": "Se ha enviado un email de restablecimiento a su dirección.",
+    "resetError": "Error al enviar el enlace",
+    "backToLogin": "Volver al inicio de sesión",
+    "orContinueWith": "o continuar con"
   },
   "marketplace": {
     "welcome": "Bienvenido/a, {{name}}",
