@@ -58,8 +58,8 @@ const SellerDashboard = () => {
 
   // Form state
   const [title, setTitle] = useState("");
-  const [brands, setBrands] = useState("");
   const [price, setPrice] = useState("");
+  const [retailPrice, setRetailPrice] = useState("");
   const [units, setUnits] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
   const [description, setDescription] = useState("");
@@ -142,7 +142,7 @@ const SellerDashboard = () => {
   };
 
   const resetForm = () => {
-    setTitle(""); setBrands(""); setPrice(""); setUnits("");
+    setTitle(""); setPrice(""); setRetailPrice(""); setUnits("");
     setCategories([]); setDescription("");
     setLotItems([{ ...emptyItem }]);
     setPhotos([]); setExistingImages([]);
@@ -154,8 +154,9 @@ const SellerDashboard = () => {
   const openEdit = (lot: any) => {
     setEditingLotId(lot.id);
     setTitle(lot.title);
-    setBrands(lot.brand);
     setPrice(String(lot.price));
+    const rv = (lot.lot_items || []).reduce((s: number, it: any) => s + (it.retail_price || 0) * (it.quantity || 0), 0);
+    setRetailPrice(rv > 0 ? String(rv) : "");
     setUnits(String(lot.units));
     setCategories(lot.category ? lot.category.split(",").map((c: string) => c.trim()) : []);
     setDescription(lot.description || "");
@@ -202,7 +203,8 @@ const SellerDashboard = () => {
       if (validItems.length === 0) {
         throw new Error(t("sellerDashboard.needItems"));
       }
-      if (!title || !brands || !price) {
+      const brandName = profile?.company_name || "—";
+      if (!title || !price) {
         throw new Error(t("sellerDashboard.fillRequired"));
       }
 
@@ -214,7 +216,7 @@ const SellerDashboard = () => {
           allImages = [...allImages, ...newUrls];
         }
         const { error } = await supabase.from("lots").update({
-          title, brand: brands, price: parseFloat(price),
+          title, brand: brandName, price: parseFloat(price),
           units: parseInt(units) || 0,
           category: categories.join(", "),
           description,
@@ -233,7 +235,7 @@ const SellerDashboard = () => {
       } else {
         // Create lot
         const { data: newLot, error } = await supabase.from("lots").insert({
-          seller_id: profile.id, title, brand: brands,
+          seller_id: profile.id, title, brand: brandName,
           price: parseFloat(price), units: parseInt(units) || 0,
           category: categories.join(", "), description,
           status: "active",
@@ -661,17 +663,27 @@ const SellerDashboard = () => {
                   <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Ex: Lot de 200 t-shirts Nike" />
                 </div>
 
-                {/* Brand + Price */}
+                {/* Price + Retail Price + Auto discount */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.brands")} *</label>
-                    <Input value={brands} onChange={e => setBrands(e.target.value)} placeholder="Nike, Adidas" />
-                  </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotPrice")} *</label>
                     <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="5000" />
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.retailPrice")}</label>
+                    <Input type="number" value={retailPrice} onChange={e => setRetailPrice(e.target.value)} placeholder="12000" />
+                  </div>
                 </div>
+                {price && retailPrice && parseFloat(retailPrice) > 0 && (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <span className="text-sm font-semibold text-green-700 dark:text-green-400">
+                      {t("sellerDashboard.autoDiscount")}: -{Math.round((1 - parseFloat(price) / parseFloat(retailPrice)) * 100)}%
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      ({t("sellerDashboard.vsRetail")})
+                    </span>
+                  </div>
+                )}
 
                 {/* Units */}
                 <div className="space-y-2">
@@ -729,40 +741,18 @@ const SellerDashboard = () => {
                     </label>
                   </div>
 
-                  {/* Preview of imported items */}
+                  {/* Import status */}
                   {lotItems.length > 0 && lotItems[0].name && (
-                    <div className="bg-muted/50 rounded-xl p-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <FileSpreadsheet className="h-4 w-4 text-primary" />
-                          <span className="text-xs font-semibold text-foreground">
-                            {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
-                          </span>
-                        </div>
-                        <button type="button" onClick={() => setLotItems([{ ...emptyItem }])} className="text-xs text-destructive hover:underline">
-                          {t("sellerDashboard.clearItems")}
-                        </button>
+                    <div className="flex items-center justify-between px-3 py-2 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <FileSpreadsheet className="h-4 w-4 text-primary" />
+                        <span className="text-xs font-semibold text-foreground">
+                          {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
+                        </span>
                       </div>
-                      <div className="max-h-40 overflow-y-auto space-y-1">
-                        {lotItems.filter(it => it.name.trim()).slice(0, 20).map((item, idx) => (
-                          <div key={idx} className="flex items-center justify-between py-1.5 px-2 bg-card rounded text-xs">
-                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                              <span className="text-foreground font-medium truncate">{item.name}</span>
-                              {item.brand && <span className="text-primary text-[10px] uppercase">{item.brand}</span>}
-                              {item.size && <span className="text-muted-foreground">({item.size})</span>}
-                            </div>
-                            <div className="flex items-center gap-3 flex-shrink-0">
-                              <span className="font-semibold text-foreground">{item.quantity} pcs</span>
-                              {item.retail_price > 0 && <span className="text-muted-foreground">{item.retail_price} €</span>}
-                            </div>
-                          </div>
-                        ))}
-                        {lotItems.filter(it => it.name.trim()).length > 20 && (
-                          <p className="text-[10px] text-muted-foreground text-center pt-1">
-                            +{lotItems.filter(it => it.name.trim()).length - 20} {t("sellerDashboard.moreItems")}
-                          </p>
-                        )}
-                      </div>
+                      <button type="button" onClick={() => setLotItems([{ ...emptyItem }])} className="text-xs text-destructive hover:underline">
+                        {t("sellerDashboard.clearItems")}
+                      </button>
                     </div>
                   )}
                 </div>
