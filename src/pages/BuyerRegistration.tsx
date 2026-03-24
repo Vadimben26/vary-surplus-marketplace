@@ -174,12 +174,6 @@ const BuyerRegistration = () => {
     </div>
   );
 
-  const RadioOption = ({ name, value, selected, onChange, label }: { name: string; value: string; selected: string; onChange: (v: string) => void; label: string }) => (
-    <label className="flex items-center gap-2 cursor-pointer">
-      <input type="radio" name={name} checked={selected === value} onChange={() => onChange(value)} className="accent-primary w-4 h-4" />
-      <span className="text-sm text-foreground">{label}</span>
-    </label>
-  );
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
