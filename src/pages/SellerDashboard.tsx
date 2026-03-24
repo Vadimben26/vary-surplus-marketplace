@@ -62,7 +62,6 @@ const SellerDashboard = () => {
   const [retailPrice, setRetailPrice] = useState("");
   const [units, setUnits] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
-  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [lotItems, setLotItems] = useState<LotItem[]>([{ ...emptyItem }]);
   const [photos, setPhotos] = useState<File[]>([]);
@@ -88,7 +87,23 @@ const SellerDashboard = () => {
     enabled: !!profile?.id,
   });
 
-  // Check if seller is VIP
+  // Fetch seller preferences (for auto location)
+  const { data: sellerPrefs } = useQuery({
+    queryKey: ["seller-prefs", profile?.user_id],
+    queryFn: async () => {
+      if (!profile?.user_id) return null;
+      const { data } = await supabase
+        .from("seller_preferences")
+        .select("warehouse_location, country, city")
+        .eq("user_id", profile.user_id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!profile?.user_id,
+  });
+
+  const autoLocation = sellerPrefs?.warehouse_location || sellerPrefs?.city || sellerPrefs?.country || "";
+
   const { data: isVipSeller = false } = useQuery({
     queryKey: ["seller-vip-status", profile?.id],
     queryFn: async () => {
@@ -144,7 +159,7 @@ const SellerDashboard = () => {
 
   const resetForm = () => {
     setTitle(""); setPrice(""); setRetailPrice(""); setUnits("");
-    setCategories([]); setLocation(""); setDescription("");
+    setCategories([]); setDescription("");
     setLotItems([{ ...emptyItem }]);
     setPhotos([]); setExistingImages([]);
     setEditingLotId(null);
@@ -160,7 +175,7 @@ const SellerDashboard = () => {
     setRetailPrice(rv > 0 ? String(rv) : "");
     setUnits(String(lot.units));
     setCategories(lot.category ? lot.category.split(",").map((c: string) => c.trim()) : []);
-    setLocation(lot.location || "");
+    
     setDescription(lot.description || "");
     setExistingImages(lot.images || []);
     setPhotos([]);
@@ -221,7 +236,7 @@ const SellerDashboard = () => {
           title, brand: brandName, price: parseFloat(price),
           units: parseInt(units) || 0,
           category: categories.join(", "),
-          location,
+          location: autoLocation,
           description,
           images: allImages,
         }).eq("id", editingLotId);
@@ -241,7 +256,7 @@ const SellerDashboard = () => {
           seller_id: profile.id, title, brand: brandName,
           price: parseFloat(price), units: parseInt(units) || 0,
           category: categories.join(", "), description,
-          location,
+          location: autoLocation,
           status: "active",
           images: [],
         }).select().single();
@@ -722,6 +737,22 @@ const SellerDashboard = () => {
                   <p className="text-xs text-muted-foreground text-center">
                     {photos.length + existingImages.length}/4 {t("sellerDashboard.photosMin")}
                   </p>
+
+                  {/* Seller info block (auto, read-only) */}
+                  {profile && (
+                    <div className="flex items-start gap-2.5 p-3 bg-muted rounded-xl">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <User className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-foreground truncate">{profile.company_name || profile.full_name || "Vendeur"}</p>
+                        {profile.company_description && (
+                          <p className="text-[10px] text-muted-foreground leading-snug mt-1">{profile.company_description}</p>
+                        )}
+                        <p className="text-[10px] text-muted-foreground mt-1 italic">{t("sellerDashboard.autoProfileNote")}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* CENTER COL — Details (mirrors LotDetail center) */}
@@ -763,11 +794,14 @@ const SellerDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Location */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.location", "Localisation")} *</label>
-                    <Input value={location} onChange={e => setLocation(e.target.value)} placeholder="Ex: France, Paris" className="bg-muted/50 border-none rounded-lg" />
-                  </div>
+                  {/* Location (auto from profile - read only) */}
+                  {autoLocation && (
+                    <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
+                      <MapPin className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs font-semibold text-foreground">{autoLocation}</span>
+                      <span className="text-[10px] text-muted-foreground italic ml-auto">{t("sellerDashboard.autoProfileNote")}</span>
+                    </div>
+                  )}
 
                   {/* Description */}
                   <div className="space-y-1.5">
@@ -884,21 +918,6 @@ const SellerDashboard = () => {
                     )}
                   </div>
 
-                  {/* Seller info block (auto, read-only — mirrors buyer view) */}
-                  {profile && (
-                    <div className="flex items-start gap-2.5 p-3 bg-muted rounded-xl">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <User className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-foreground truncate">{profile.company_name || profile.full_name || "Vendeur"}</p>
-                        {profile.company_description && (
-                          <p className="text-[10px] text-muted-foreground leading-snug mt-1">{profile.company_description}</p>
-                        )}
-                        <p className="text-[10px] text-muted-foreground mt-1 italic">{t("sellerDashboard.autoProfileNote", "Infos automatiques depuis votre profil")}</p>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* RIGHT COL — Sticky price panel (mirrors LotDetail right panel) */}
