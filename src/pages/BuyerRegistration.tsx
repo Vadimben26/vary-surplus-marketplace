@@ -32,6 +32,13 @@ const budgetKeys = ["under1k", "1k5k", "5k15k", "15k50k", "over50k"] as const;
 const pricePerPieceKeys = ["under5", "5to15", "15to30", "30to60", "over60"] as const;
 const piecesPerLotKeys = ["under100", "100to500", "500to2000", "2000to5000", "over5000"] as const;
 
+const RadioOption = ({ name, value, selected, onChange, label }: { name: string; value: string; selected: string; onChange: (v: string) => void; label: string }) => (
+  <label className="flex items-center gap-2 cursor-pointer">
+    <input type="radio" name={name} checked={selected === value} onChange={() => onChange(value)} className="accent-primary w-4 h-4" />
+    <span className="text-sm text-foreground">{label}</span>
+  </label>
+);
+
 const referralSources = [
   "Google", "Facebook / Instagram", "TikTok", "LinkedIn",
   "Chat GPT / Claude / Gemini", "Blog", "Recommandation d'un ami",
@@ -174,12 +181,6 @@ const BuyerRegistration = () => {
     </div>
   );
 
-  const RadioOption = ({ name, value, selected, onChange, label }: { name: string; value: string; selected: string; onChange: (v: string) => void; label: string }) => (
-    <label className="flex items-center gap-2 cursor-pointer">
-      <input type="radio" name={name} checked={selected === value} onChange={() => onChange(value)} className="accent-primary w-4 h-4" />
-      <span className="text-sm text-foreground">{label}</span>
-    </label>
-  );
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
