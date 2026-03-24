@@ -349,137 +349,137 @@ const SellerDashboard = () => {
           ))}
         </div>
 
-        {/* Lots list */}
+        {/* Lots grid - same style as marketplace */}
         {isLoading ? (
           <div className="text-center py-16 text-muted-foreground">{t("common.loading")}</div>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
             {filteredLots.map((lot: any) => {
               const sc = statusConfig[lot.status as keyof typeof statusConfig];
               const StatusIcon = sc.icon;
               const lotImage = lot.images?.[0];
+              const totalTTC = Math.round(lot.price * 1.19);
+              const ppu = lot.units > 0 ? (lot.price * 1.19 / lot.units).toFixed(2) : null;
+              const retailValue = (lot.lot_items || []).reduce(
+                (sum: number, item: any) => sum + (item.retail_price || 0) * (item.quantity || 0), 0
+              );
+              const discount = retailValue > 0 ? Math.round((1 - lot.price / retailValue) * 100) : 0;
+
               return (
                 <motion.div
                   key={lot.id}
-                  initial={{ opacity: 0, y: 8 }}
+                  className="group"
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`bg-card rounded-2xl border transition-colors ${expandedLotId === lot.id ? "border-primary/40" : "border-border hover:border-primary/30"}`}
+                  whileHover={{ y: -4 }}
+                  transition={{ duration: 0.3 }}
                 >
+                  {/* Image */}
                   <div
-                    className="p-4 flex flex-col sm:flex-row gap-4 cursor-pointer"
+                    className="relative aspect-square rounded-xl overflow-hidden bg-muted mb-3 cursor-pointer"
                     onClick={() => setExpandedLotId(expandedLotId === lot.id ? null : lot.id)}
                   >
-                    <div className="w-full sm:w-28 h-28 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-                      {lotImage ? (
-                        <img src={lotImage} alt={lot.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Package className="h-8 w-8 text-muted-foreground" />
+                    {lotImage ? (
+                      <img src={lotImage} alt={lot.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                    )}
+                    {/* Status badge */}
+                    <span className={`absolute top-3 left-3 px-2 py-1 rounded-md text-xs font-semibold flex items-center gap-1 ${sc.color}`}>
+                      <StatusIcon className="h-3 w-3" /> {sc.label}
+                    </span>
+                    {/* Discount badge */}
+                    {discount > 0 && (
+                      <span className="absolute bottom-3 left-3 flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold bg-green-600 text-white">
+                        -{discount}%
+                      </span>
+                    )}
+                    {/* VIP interest indicators */}
+                    {isVipSeller && (() => {
+                      const favCount = (interestsByLot[lot.id] || []).filter((i: any) => i.type === "favorite").length;
+                      const cartCount = (interestsByLot[lot.id] || []).filter((i: any) => i.type === "cart").length;
+                      if (favCount === 0 && cartCount === 0) return null;
+                      return (
+                        <div className="absolute top-3 right-3 flex flex-col gap-1">
+                          {favCount > 0 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setPopover(popover?.lotId === lot.id && popover?.type === "favorite" ? null : { lotId: lot.id, type: "favorite" }); }}
+                              className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold bg-card/90 backdrop-blur-sm text-destructive"
+                            >
+                              <Heart className="h-3 w-3 fill-destructive" /> {favCount}
+                            </button>
+                          )}
+                          {cartCount > 0 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setPopover(popover?.lotId === lot.id && popover?.type === "cart" ? null : { lotId: lot.id, type: "cart" }); }}
+                              className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold bg-card/90 backdrop-blur-sm text-primary"
+                            >
+                              <ShoppingCart className="h-3 w-3" /> {cartCount}
+                            </button>
+                          )}
                         </div>
+                      );
+                    })()}
+                    {/* Popover for interests */}
+                    {popover?.lotId === lot.id && (
+                      <div ref={popoverRef} className="absolute top-12 right-3 z-50 w-56 bg-card border border-border rounded-xl shadow-lg p-3 space-y-2" onClick={(e) => e.stopPropagation()}>
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                          {popover.type === "favorite" ? "Favoris" : "Panier"}
+                        </p>
+                        {(interestsByLot[lot.id] || []).filter((i: any) => i.type === popover.type).map((interest: any, idx: number) => {
+                          const bp = interest.profiles;
+                          return (
+                            <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors"
+                              onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); setPopover(null); navigate(`/messages?with=${bp?.id}&lot=${lot.id}`); }}
+                            >
+                              <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <User className="h-3.5 w-3.5 text-primary" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-semibold text-foreground truncate">{bp?.company_name || bp?.full_name || "Acheteur"}</p>
+                              </div>
+                              <MessageCircle className="h-3.5 w-3.5 text-primary" />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card body - same as marketplace LotCard */}
+                  <div className="space-y-1">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wide">{lot.brand}</span>
+                    <h3 className="font-heading font-semibold text-foreground text-sm leading-snug line-clamp-2">{lot.title}</h3>
+                    <div className="flex items-center gap-3 text-muted-foreground">
+                      <span className="flex items-center gap-1 text-xs">
+                        <Package className="h-3 w-3" />
+                        {lot.units} pcs
+                      </span>
+                    </div>
+                    <div className="flex items-baseline gap-2 pt-1">
+                      <span className="font-heading font-bold text-foreground">{totalTTC.toLocaleString("fr-FR")} €</span>
+                      {ppu && (
+                        <span className="text-xs font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                          {ppu} €/pc
+                        </span>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-semibold text-primary uppercase">{lot.brand}</span>
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${sc.color}`}>
-                              <StatusIcon className="h-3 w-3" /> {sc.label}
-                            </span>
-                          </div>
-                          <h3 className="font-heading font-semibold text-foreground text-sm line-clamp-1">{lot.title}</h3>
-                        </div>
-                        <span className="font-heading font-bold text-foreground whitespace-nowrap">{lot.price.toLocaleString("fr-FR")} €</span>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><Package className="h-3 w-3" /> {lot.units} {t("common.units")}</span>
-                        {lot.category && <span className="flex items-center gap-1"><BarChart3 className="h-3 w-3" /> {lot.category}</span>}
-                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(lot.created_at).toLocaleDateString("fr-FR")}</span>
-                        {isVipSeller && (() => {
-                          const favCount = (interestsByLot[lot.id] || []).filter((i: any) => i.type === "favorite").length;
-                          const cartCount = (interestsByLot[lot.id] || []).filter((i: any) => i.type === "cart").length;
-                          return (
-                            <>
-                              <span className="relative">
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); if (favCount > 0) setPopover(popover?.lotId === lot.id && popover?.type === "favorite" ? null : { lotId: lot.id, type: "favorite" }); }}
-                                  className={`flex items-center gap-1 transition-colors rounded-md px-1.5 py-0.5 ${favCount > 0 ? "hover:bg-destructive/10 cursor-pointer" : "cursor-default"}`}
-                                >
-                                  <Heart className={`h-3 w-3 ${favCount > 0 ? "text-destructive fill-destructive" : "text-muted-foreground"}`} /> {favCount}
-                                </button>
-                                {popover?.lotId === lot.id && popover?.type === "favorite" && (
-                                  <div ref={popoverRef} className="absolute top-full left-0 mt-1 z-50 w-64 bg-card border border-border rounded-xl shadow-lg p-3 space-y-2">
-                                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">Favoris</p>
-                                    {(interestsByLot[lot.id] || []).filter((i: any) => i.type === "favorite").map((interest: any, idx: number) => {
-                                      const bp = interest.profiles;
-                                      return (
-                                        <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors"
-                                          onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); setPopover(null); navigate(`/messages?with=${bp?.id}&lot=${lot.id}`); }}
-                                        >
-                                          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                            <User className="h-3.5 w-3.5 text-primary" />
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                            <p className="text-xs font-semibold text-foreground truncate">{bp?.company_name || bp?.full_name || "Acheteur"}</p>
-                                          </div>
-                                          <div className="p-1.5 rounded-lg text-primary bg-primary/10">
-                                            <MessageCircle className="h-3.5 w-3.5" />
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </span>
-                              <span className="relative">
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); if (cartCount > 0) setPopover(popover?.lotId === lot.id && popover?.type === "cart" ? null : { lotId: lot.id, type: "cart" }); }}
-                                  className={`flex items-center gap-1 transition-colors rounded-md px-1.5 py-0.5 ${cartCount > 0 ? "hover:bg-primary/10 cursor-pointer" : "cursor-default"}`}
-                                >
-                                  <ShoppingCart className={`h-3 w-3 ${cartCount > 0 ? "text-primary" : "text-muted-foreground"}`} /> {cartCount}
-                                </button>
-                                {popover?.lotId === lot.id && popover?.type === "cart" && (
-                                  <div ref={popoverRef} className="absolute top-full left-0 mt-1 z-50 w-64 bg-card border border-border rounded-xl shadow-lg p-3 space-y-2">
-                                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">Panier</p>
-                                    {(interestsByLot[lot.id] || []).filter((i: any) => i.type === "cart").map((interest: any, idx: number) => {
-                                      const bp = interest.profiles;
-                                      return (
-                                        <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors"
-                                          onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); setPopover(null); navigate(`/messages?with=${bp?.id}&lot=${lot.id}`); }}
-                                        >
-                                          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                            <User className="h-3.5 w-3.5 text-primary" />
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                            <p className="text-xs font-semibold text-foreground truncate">{bp?.company_name || bp?.full_name || "Acheteur"}</p>
-                                          </div>
-                                          <div className="p-1.5 rounded-lg text-primary bg-primary/10">
-                                            <MessageCircle className="h-3.5 w-3.5" />
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </span>
-                            </>
-                          );
-                        })()}
-                      </div>
-                      <div className="flex gap-2 mt-3">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); openEdit(lot); }}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
-                        >
-                          <Edit className="h-3 w-3" /> {t("sellerDashboard.editLot")}
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setDeletingId(lot.id); }}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="h-3 w-3" /> {t("sellerDashboard.deleteLot")}
-                        </button>
-                      </div>
+                    {/* Seller action buttons */}
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={() => openEdit(lot)}
+                        className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-semibold rounded-lg bg-muted text-foreground hover:bg-muted/80 transition-colors"
+                      >
+                        <Edit className="h-3 w-3" /> {t("sellerDashboard.editLot")}
+                      </button>
+                      <button
+                        onClick={() => setDeletingId(lot.id)}
+                        className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
                     </div>
                   </div>
 
@@ -491,28 +491,23 @@ const SellerDashboard = () => {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
+                        className="overflow-hidden mt-3"
                       >
-                        <div className="px-4 pb-4 border-t border-border pt-4 space-y-4">
-                          {/* Lot images gallery */}
+                        <div className="border-t border-border pt-3 space-y-3">
                           {lot.images?.length > 1 && (
                             <div className="flex gap-2 overflow-x-auto">
                               {lot.images.map((img: string, i: number) => (
-                                <img key={i} src={img} alt={`${lot.title} ${i + 1}`} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
+                                <img key={i} src={img} alt={`${lot.title} ${i + 1}`} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
                               ))}
                             </div>
                           )}
-
-                          {/* Description */}
                           {lot.description && (
                             <p className="text-xs text-muted-foreground leading-relaxed">{lot.description}</p>
                           )}
-
-                          {/* Lot items */}
                           {lot.lot_items?.length > 0 && (
                             <div>
-                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("lotDetail.lotContent")}</p>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">{t("lotDetail.lotContent")}</p>
+                              <div className="space-y-1">
                                 {lot.lot_items.map((item: any, i: number) => (
                                   <div key={i} className="flex items-center justify-between py-1 px-2 bg-muted/50 rounded text-xs">
                                     <span className="text-foreground">{item.name} {item.size && <span className="text-muted-foreground">({item.size})</span>}</span>
@@ -522,41 +517,29 @@ const SellerDashboard = () => {
                               </div>
                             </div>
                           )}
-
-                          {/* VIP: Buyer interest details */}
                           {isVipSeller && interestsByLot[lot.id]?.length > 0 && (
                             <div>
-                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("sellerDashboard.buyerInterest")}</p>
-                              <div className="space-y-2">
+                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">{t("sellerDashboard.buyerInterest")}</p>
+                              <div className="space-y-1">
                                 {interestsByLot[lot.id].map((interest: any, idx: number) => {
                                   const buyerProfile = interest.profiles;
                                   const isFav = interest.type === "favorite";
                                   return (
-                                    <div key={idx} className="flex items-center gap-3 p-2.5 bg-muted rounded-xl">
-                                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                        <User className="h-4 w-4 text-primary" />
+                                    <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded-lg">
+                                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                        <User className="h-3 w-3 text-primary" />
                                       </div>
                                       <div className="flex-1 min-w-0">
-                                        <p className="text-xs font-semibold text-foreground truncate">
-                                          {buyerProfile?.company_name || buyerProfile?.full_name || "Acheteur"}
-                                        </p>
+                                        <p className="text-xs font-semibold text-foreground truncate">{buyerProfile?.company_name || buyerProfile?.full_name || "Acheteur"}</p>
                                         <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                          {isFav ? (
-                                            <><Heart className="h-3 w-3 text-destructive fill-destructive" /> Favori</>
-                                          ) : (
-                                            <><ShoppingCart className="h-3 w-3 text-primary" /> Panier</>
-                                          )}
+                                          {isFav ? <><Heart className="h-2.5 w-2.5 text-destructive fill-destructive" /> Favori</> : <><ShoppingCart className="h-2.5 w-2.5 text-primary" /> Panier</>}
                                         </p>
                                       </div>
                                       <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          navigate(`/messages?with=${buyerProfile?.id}&lot=${lot.id}`);
-                                        }}
-                                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                                        onClick={(e) => { e.stopPropagation(); navigate(`/messages?with=${buyerProfile?.id}&lot=${lot.id}`); }}
+                                        className="p-1.5 text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
                                       >
                                         <MessageCircle className="h-3 w-3" />
-                                        Contacter
                                       </button>
                                     </div>
                                   );
@@ -564,8 +547,6 @@ const SellerDashboard = () => {
                               </div>
                             </div>
                           )}
-
-                          {/* Non-VIP teaser */}
                           {!isVipSeller && (
                             <button
                               onClick={(e) => { e.stopPropagation(); navigate("/seller/vip"); }}
