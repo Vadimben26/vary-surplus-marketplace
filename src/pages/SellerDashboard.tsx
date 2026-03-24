@@ -708,34 +708,63 @@ const SellerDashboard = () => {
                   <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t("sellerDashboard.describeLot")} className="resize-none" rows={3} />
                 </div>
 
-                {/* Lot content / items */}
+                {/* Lot content / Excel upload */}
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotContent")} *</label>
-                    <button type="button" onClick={() => setLotItems(prev => [...prev, { ...emptyItem }])} className="text-xs text-primary font-medium hover:underline">
-                      {t("sellerDashboard.addLine")}
+                  <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotContent")} *</label>
+
+                  {/* Template download + Excel upload buttons */}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={downloadTemplate}
+                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-muted text-foreground font-medium rounded-xl hover:bg-muted/80 transition-colors text-sm"
+                    >
+                      <Download className="h-4 w-4" />
+                      {t("sellerDashboard.downloadTemplate")}
                     </button>
+                    <label className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary/90 transition-colors text-sm cursor-pointer">
+                      <Upload className="h-4 w-4" />
+                      {t("sellerDashboard.uploadExcel")}
+                      <input type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleExcelUpload} />
+                    </label>
                   </div>
-                  <div className="space-y-2">
-                    {lotItems.map((item, idx) => (
-                      <div key={idx} className="space-y-1 p-3 bg-muted/50 rounded-lg">
-                        <div className="flex gap-2">
-                          <Input value={item.name} onChange={e => updateItem(idx, "name", e.target.value)} placeholder={t("sellerDashboard.itemName")} className="flex-1" />
-                          <Input value={item.reference} onChange={e => updateItem(idx, "reference", e.target.value)} placeholder={t("sellerDashboard.itemRef")} className="w-28" />
-                          {lotItems.length > 1 && (
-                            <button type="button" onClick={() => setLotItems(prev => prev.filter((_, i) => i !== idx))} className="text-muted-foreground hover:text-destructive p-1">
-                              <X className="h-4 w-4" />
-                            </button>
-                          )}
+
+                  {/* Preview of imported items */}
+                  {lotItems.length > 0 && lotItems[0].name && (
+                    <div className="bg-muted/50 rounded-xl p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <FileSpreadsheet className="h-4 w-4 text-primary" />
+                          <span className="text-xs font-semibold text-foreground">
+                            {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
+                          </span>
                         </div>
-                        <div className="flex gap-2">
-                          <Input type="number" value={item.quantity || ""} onChange={e => updateItem(idx, "quantity", parseInt(e.target.value) || 0)} placeholder={t("sellerDashboard.qty")} className="w-20" />
-                          <Input value={item.size} onChange={e => updateItem(idx, "size", e.target.value)} placeholder={t("sellerDashboard.size")} className="w-24" />
-                          <Input value={item.color} onChange={e => updateItem(idx, "color", e.target.value)} placeholder={t("sellerDashboard.itemColor")} className="w-24" />
-                        </div>
+                        <button type="button" onClick={() => setLotItems([{ ...emptyItem }])} className="text-xs text-destructive hover:underline">
+                          {t("sellerDashboard.clearItems")}
+                        </button>
                       </div>
-                    ))}
-                  </div>
+                      <div className="max-h-40 overflow-y-auto space-y-1">
+                        {lotItems.filter(it => it.name.trim()).slice(0, 20).map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between py-1.5 px-2 bg-card rounded text-xs">
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <span className="text-foreground font-medium truncate">{item.name}</span>
+                              {item.brand && <span className="text-primary text-[10px] uppercase">{item.brand}</span>}
+                              {item.size && <span className="text-muted-foreground">({item.size})</span>}
+                            </div>
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              <span className="font-semibold text-foreground">{item.quantity} pcs</span>
+                              {item.retail_price > 0 && <span className="text-muted-foreground">{item.retail_price} €</span>}
+                            </div>
+                          </div>
+                        ))}
+                        {lotItems.filter(it => it.name.trim()).length > 20 && (
+                          <p className="text-[10px] text-muted-foreground text-center pt-1">
+                            +{lotItems.filter(it => it.name.trim()).length - 20} {t("sellerDashboard.moreItems")}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Photos (4 required) */}
