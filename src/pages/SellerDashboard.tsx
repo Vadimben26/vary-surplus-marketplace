@@ -166,8 +166,13 @@ const SellerDashboard = () => {
           name: it.name,
           quantity: it.quantity,
           size: it.size || "",
-          color: "",
-          reference: "",
+          brand: it.brand || "",
+          category: it.category || "",
+          gender: it.gender || "",
+          reference: it.reference || "",
+          retail_price: it.retail_price || 0,
+          image_url: it.image_url || "",
+        }))
         }))
       : [{ ...emptyItem }];
     setLotItems(items);
