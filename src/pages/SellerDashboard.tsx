@@ -21,11 +21,15 @@ interface LotItem {
   name: string;
   quantity: number;
   size: string;
-  color: string;
+  brand: string;
+  category: string;
+  gender: string;
   reference: string;
+  retail_price: number;
+  image_url: string;
 }
 
-const emptyItem: LotItem = { name: "", quantity: 0, size: "", color: "", reference: "" };
+const emptyItem: LotItem = { name: "", quantity: 0, size: "", brand: "", category: "", gender: "", reference: "", retail_price: 0, image_url: "" };
 
 const CATEGORIES = ["clothing", "sneakers", "accessories", "sport", "beauty", "electronics"];
 
