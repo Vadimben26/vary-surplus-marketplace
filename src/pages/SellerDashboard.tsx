@@ -58,8 +58,8 @@ const SellerDashboard = () => {
 
   // Form state
   const [title, setTitle] = useState("");
-  const [brands, setBrands] = useState("");
   const [price, setPrice] = useState("");
+  const [retailPrice, setRetailPrice] = useState("");
   const [units, setUnits] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
   const [description, setDescription] = useState("");
