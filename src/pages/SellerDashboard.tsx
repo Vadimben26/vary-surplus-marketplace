@@ -902,21 +902,6 @@ const SellerDashboard = () => {
                     )}
                   </div>
 
-                  {/* Seller info block (auto, read-only — mirrors buyer view) */}
-                  {profile && (
-                    <div className="flex items-start gap-2.5 p-3 bg-muted rounded-xl">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <User className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-foreground truncate">{profile.company_name || profile.full_name || "Vendeur"}</p>
-                        {profile.company_description && (
-                          <p className="text-[10px] text-muted-foreground leading-snug mt-1">{profile.company_description}</p>
-                        )}
-                        <p className="text-[10px] text-muted-foreground mt-1 italic">{t("sellerDashboard.autoProfileNote", "Infos automatiques depuis votre profil")}</p>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* RIGHT COL — Sticky price panel (mirrors LotDetail right panel) */}
