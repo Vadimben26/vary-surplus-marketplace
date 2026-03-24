@@ -32,7 +32,7 @@ const SellerRegistration = () => {
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", email: "", phone: "", password: "",
     companyName: "", vatCode: "", siret: "", website: "", address: "", city: "",
-    country: "France", postalCode: "", warehouseLocation: "", description: "",
+    country: "France", postalCode: "", warehouseLocation: "", description: "", avgRetailPrice: "",
   });
 
   // Step 2
