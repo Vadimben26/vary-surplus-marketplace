@@ -327,21 +327,6 @@ const SellerRegistration = () => {
                     <SectionTitle icon={<Truck className="h-5 w-5 text-primary" />} label={t("sellerReg.logisticsSection")} />
                     <div className="space-y-4 mt-3">
                       <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.warehouseLocation")} *</label><Input placeholder="Ex: Paris, France" value={formData.warehouseLocation} onChange={(e) => update("warehouseLocation", e.target.value)} /></div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.shipsInternationally")}</label>
-                        <div className="flex gap-6 mt-2">
-                          <RadioOption name="ships" value="yes" selected={shipsInternationally} onSelect={setShipsInternationally} label={t("sellerReg.yes")} />
-                          <RadioOption name="ships" value="no" selected={shipsInternationally} onSelect={setShipsInternationally} label={t("sellerReg.no")} />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.prepTime")}</label>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {["under48h", "2_5days", "over5days"].map((v) => (
-                            <RadioOption key={v} name="prepTime" value={v} selected={prepTime} onSelect={setPrepTime} label={t(`sellerReg.prepTimeOptions.${v}`)} />
-                          ))}
-                        </div>
-                      </div>
                     </div>
                   </div>
 
