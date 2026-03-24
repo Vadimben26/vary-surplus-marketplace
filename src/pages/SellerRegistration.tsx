@@ -32,7 +32,7 @@ const SellerRegistration = () => {
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", email: "", phone: "", password: "",
     companyName: "", vatCode: "", siret: "", website: "", address: "", city: "",
-    country: "France", postalCode: "", warehouseLocation: "", description: "",
+    country: "France", postalCode: "", warehouseLocation: "", description: "", avgRetailPrice: "",
   });
 
   // Step 2
@@ -41,18 +41,11 @@ const SellerRegistration = () => {
   // Step 3
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [monthlyVolume, setMonthlyVolume] = useState("");
-  const [retailPrice, setRetailPrice] = useState("");
-  const [sellingPrice, setSellingPrice] = useState("");
-  const [discountRange, setDiscountRange] = useState("");
   const [lotSize, setLotSize] = useState("");
-  const [productMix, setProductMix] = useState("");
-  const [productCondition, setProductCondition] = useState("");
   const [brandsText, setBrandsText] = useState("");
   const [sellsUnbranded, setSellsUnbranded] = useState("");
 
   // Step 4
-  const [shipsInternationally, setShipsInternationally] = useState("");
-  const [prepTime, setPrepTime] = useState("");
   const [yearsInBusiness, setYearsInBusiness] = useState("");
   const [clientTypes, setClientTypes] = useState<string[]>([]);
   const [warehouseFiles, setWarehouseFiles] = useState<File[]>([]);
@@ -110,9 +103,7 @@ const SellerRegistration = () => {
     if (step === 3) {
       if (selectedCategories.length === 0) return t("sellerReg.validation.productType");
       if (!monthlyVolume) return t("sellerReg.validation.volume");
-      if (!sellingPrice) return t("sellerReg.validation.sellingPrice");
       if (!lotSize) return t("sellerReg.validation.lotSize");
-      if (!productCondition) return t("sellerReg.validation.condition");
     }
     if (step === 4) {
       if (!formData.warehouseLocation.trim()) return t("sellerReg.validation.warehouse");
@@ -277,34 +268,12 @@ const SellerRegistration = () => {
                     </div>
                   </div>
 
-                  {/* Pricing */}
+                  {/* Average retail selling price */}
                   <div>
-                    <SectionTitle icon="💰" label={t("sellerReg.pricingSection")} />
-                    <div className="space-y-4 mt-3">
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.retailPrice")}</label>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {["under20", "20_50", "50_100", "over100"].map((v) => (
-                            <RadioOption key={v} name="retailPrice" value={v} selected={retailPrice} onSelect={setRetailPrice} label={t(`sellerReg.retailPriceOptions.${v}`)} />
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.sellingPrice")} *</label>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {["under5", "5_10", "10_20", "over20"].map((v) => (
-                            <RadioOption key={v} name="sellingPrice" value={v} selected={sellingPrice} onSelect={setSellingPrice} label={t(`sellerReg.sellingPriceOptions.${v}`)} />
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.discountRange")}</label>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {["30_50", "50_70", "70_90"].map((v) => (
-                            <RadioOption key={v} name="discount" value={v} selected={discountRange} onSelect={setDiscountRange} label={t(`sellerReg.discountOptions.${v}`)} />
-                          ))}
-                        </div>
-                      </div>
+                    <SectionTitle icon="💰" label={t("sellerReg.avgRetailPrice")} />
+                    <div className="space-y-2 mt-3">
+                      <label className="text-sm font-semibold text-foreground">{t("sellerReg.avgRetailPriceLabel")}</label>
+                      <Input type="text" placeholder="Ex: 45 €" value={formData.avgRetailPrice} onChange={(e) => update("avgRetailPrice", e.target.value)} />
                     </div>
                   </div>
 
@@ -320,25 +289,6 @@ const SellerRegistration = () => {
                           ))}
                         </div>
                       </div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.productMix")}</label>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {["homogeneous", "mixed"].map((v) => (
-                            <RadioOption key={v} name="productMix" value={v} selected={productMix} onSelect={setProductMix} label={t(`sellerReg.productMixOptions.${v}`)} />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Condition */}
-                  <div>
-                    <SectionTitle icon="🧾" label={t("sellerReg.conditionSection")} />
-                    <label className="text-sm font-semibold text-foreground mt-3 block">{t("sellerReg.productCondition")} *</label>
-                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                      {["new_tags", "new_no_tags", "returns", "mixed"].map((v) => (
-                        <RadioOption key={v} name="condition" value={v} selected={productCondition} onSelect={setProductCondition} label={t(`sellerReg.conditionOptions.${v}`)} />
-                      ))}
                     </div>
                   </div>
 
@@ -358,12 +308,11 @@ const SellerRegistration = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                    </div>
                 </div>
               </motion.div>
             )}
 
-            {/* ===== STEP 4 — Logistics & Credibility ===== */}
             {step === 4 && (
               <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
@@ -373,21 +322,6 @@ const SellerRegistration = () => {
                     <SectionTitle icon={<Truck className="h-5 w-5 text-primary" />} label={t("sellerReg.logisticsSection")} />
                     <div className="space-y-4 mt-3">
                       <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.warehouseLocation")} *</label><Input placeholder="Ex: Paris, France" value={formData.warehouseLocation} onChange={(e) => update("warehouseLocation", e.target.value)} /></div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.shipsInternationally")}</label>
-                        <div className="flex gap-6 mt-2">
-                          <RadioOption name="ships" value="yes" selected={shipsInternationally} onSelect={setShipsInternationally} label={t("sellerReg.yes")} />
-                          <RadioOption name="ships" value="no" selected={shipsInternationally} onSelect={setShipsInternationally} label={t("sellerReg.no")} />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.prepTime")}</label>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {["under48h", "2_5days", "over5days"].map((v) => (
-                            <RadioOption key={v} name="prepTime" value={v} selected={prepTime} onSelect={setPrepTime} label={t(`sellerReg.prepTimeOptions.${v}`)} />
-                          ))}
-                        </div>
-                      </div>
                     </div>
                   </div>
 

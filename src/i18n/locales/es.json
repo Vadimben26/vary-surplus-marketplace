@@ -220,6 +220,8 @@
       "50_70": "50 – 70 %",
       "70_90": "70 – 90 %"
     },
+    "avgRetailPrice": "Precio de venta retail medio",
+    "avgRetailPriceLabel": "¿Cuál es su precio de venta retail medio?",
     "lotStructure": "Estructura de lotes",
     "lotSize": "Tamaño típico de lote",
     "lotSizeOptions": {

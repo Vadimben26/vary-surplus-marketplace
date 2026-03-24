@@ -220,6 +220,8 @@
       "50_70": "50 – 70%",
       "70_90": "70 – 90%"
     },
+    "avgRetailPrice": "Average retail selling price",
+    "avgRetailPriceLabel": "What is your average retail selling price?",
     "lotStructure": "Lot structure",
     "lotSize": "Typical lot size",
     "lotSizeOptions": {
