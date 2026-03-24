@@ -175,7 +175,7 @@ const SellerDashboard = () => {
     setRetailPrice(rv > 0 ? String(rv) : "");
     setUnits(String(lot.units));
     setCategories(lot.category ? lot.category.split(",").map((c: string) => c.trim()) : []);
-    setLocation(lot.location || "");
+    
     setDescription(lot.description || "");
     setExistingImages(lot.images || []);
     setPhotos([]);
