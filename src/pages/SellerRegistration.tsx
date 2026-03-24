@@ -13,6 +13,31 @@ import { toast } from "sonner";
 
 const EU_COUNTRIES = ["France", "Belgique", "Allemagne", "Espagne", "Italie", "Pays-Bas", "Portugal", "Royaume-Uni", "Pologne", "Roumanie", "Suède", "Autriche", "Grèce", "Tchéquie", "Danemark", "Irlande", "Hongrie", "Croatie", "Bulgarie", "Finlande", "Slovaquie", "Lituanie", "Lettonie", "Slovénie", "Estonie", "Chypre", "Luxembourg", "Malte"];
 
+const RadioOption = ({ name, value, selected, onSelect, label }: { name: string; value: string; selected: string; onSelect: (v: string) => void; label: string }) => (
+  <label className="flex items-center gap-2 cursor-pointer">
+    <input type="radio" name={name} checked={selected === value} onChange={() => onSelect(value)} className="accent-primary w-4 h-4" />
+    <span className="text-sm text-foreground">{label}</span>
+  </label>
+);
+
+const ChipSelect = ({ options, selected, onToggle, multi = false }: { options: string[]; selected: string | string[]; onToggle: (v: string) => void; multi?: boolean }) => (
+  <div className="flex flex-wrap gap-2 mt-2">
+    {options.map((o) => {
+      const isActive = multi ? (selected as string[]).includes(o) : selected === o;
+      return (
+        <button key={o} type="button" onClick={() => onToggle(o)}
+          className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${isActive ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:border-primary/40"}`}>
+          {o}
+        </button>
+      );
+    })}
+  </div>
+);
+
+const SectionTitle = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
+  <h3 className="font-heading text-base font-bold text-foreground flex items-center gap-2 mt-2">{icon} {label}</h3>
+);
+
 const referralSources = [
   "Google", "Facebook / Instagram", "TikTok", "LinkedIn",
   "Chat GPT / Claude / Gemini", "Blog", "Recommandation d'un ami",
