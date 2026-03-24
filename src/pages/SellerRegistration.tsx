@@ -41,18 +41,11 @@ const SellerRegistration = () => {
   // Step 3
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [monthlyVolume, setMonthlyVolume] = useState("");
-  const [retailPrice, setRetailPrice] = useState("");
-  const [sellingPrice, setSellingPrice] = useState("");
-  const [discountRange, setDiscountRange] = useState("");
   const [lotSize, setLotSize] = useState("");
-  const [productMix, setProductMix] = useState("");
-  const [productCondition, setProductCondition] = useState("");
   const [brandsText, setBrandsText] = useState("");
   const [sellsUnbranded, setSellsUnbranded] = useState("");
 
   // Step 4
-  const [shipsInternationally, setShipsInternationally] = useState("");
-  const [prepTime, setPrepTime] = useState("");
   const [yearsInBusiness, setYearsInBusiness] = useState("");
   const [clientTypes, setClientTypes] = useState<string[]>([]);
   const [warehouseFiles, setWarehouseFiles] = useState<File[]>([]);
