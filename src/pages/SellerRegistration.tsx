@@ -172,9 +172,6 @@ const SellerRegistration = () => {
     </div>
   );
 
-  const SectionTitle = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
-    <h3 className="font-heading text-base font-bold text-foreground flex items-center gap-2 mt-2">{icon} {label}</h3>
-  );
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
