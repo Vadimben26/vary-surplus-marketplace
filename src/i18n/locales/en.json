@@ -659,7 +659,9 @@
     "excelError": "Error reading the Excel file",
     "references": "references",
     "clearItems": "Clear all",
-    "moreItems": "more items"
+    "moreItems": "more items",
+    "brandAutoNote": "Brand auto-filled from your profile",
+    "autoProfileNote": "Auto-filled from your profile"
   },
   "sellerVIP": {
     "badge": "VIP Seller",

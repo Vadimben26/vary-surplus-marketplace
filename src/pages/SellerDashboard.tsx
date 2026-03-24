@@ -631,191 +631,280 @@ const SellerDashboard = () => {
         )}
       </main>
 
-      {/* Add/Edit lot modal */}
+      {/* Add/Edit lot — full-page layout mirroring the buyer LotDetail */}
       <AnimatePresence>
         {showForm && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-foreground/50 flex items-center justify-center p-4"
-            onClick={() => setShowForm(false)}
+            className="fixed inset-0 z-50 bg-background overflow-y-auto"
           >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-card rounded-2xl border border-border p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-heading text-xl font-bold text-foreground">
+            {/* Header */}
+            <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
+              <div className="flex items-center justify-between px-4 md:px-8 h-14 max-w-6xl mx-auto">
+                <button onClick={() => setShowForm(false)} className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+                  <X className="h-5 w-5" />
+                  <span className="text-sm font-medium hidden sm:inline">{t("common.cancel")}</span>
+                </button>
+                <h2 className="font-heading text-base font-bold text-foreground">
                   {editingLotId ? t("sellerDashboard.editLotTitle") : t("sellerDashboard.addLotTitle")}
                 </h2>
-                <button onClick={() => setShowForm(false)} className="p-1 text-muted-foreground hover:text-foreground">
-                  <X className="h-5 w-5" />
+                <button
+                  onClick={() => saveMutation.mutate()}
+                  disabled={saveMutation.isPending}
+                  className="px-4 py-1.5 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm"
+                >
+                  {saveMutation.isPending ? t("common.loading") : editingLotId ? t("common.save") : t("sellerDashboard.publishLot")}
                 </button>
               </div>
-              <div className="space-y-4">
-                {/* Title */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotTitle")} *</label>
-                  <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Ex: Lot de 200 t-shirts Nike" />
-                </div>
+            </header>
 
-                {/* Price + Retail Price + Auto discount */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotPrice")} *</label>
-                    <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="5000" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.retailPrice")}</label>
-                    <Input type="number" value={retailPrice} onChange={e => setRetailPrice(e.target.value)} placeholder="12000" />
-                  </div>
-                </div>
-                {price && retailPrice && parseFloat(retailPrice) > 0 && (
-                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <span className="text-sm font-semibold text-green-700 dark:text-green-400">
-                      {t("sellerDashboard.autoDiscount")}: -{Math.round((1 - parseFloat(price) / parseFloat(retailPrice)) * 100)}%
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      ({t("sellerDashboard.vsRetail")})
-                    </span>
-                  </div>
-                )}
+            <main className="max-w-6xl mx-auto px-4 md:px-8 py-4 pb-24">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
 
-                {/* Units */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.numberOfUnits")} *</label>
-                  <Input type="number" value={units} onChange={e => setUnits(e.target.value)} placeholder="200" />
-                </div>
+                {/* LEFT COL — Photos (mirrors LotDetail image area) */}
+                <div className="md:col-span-4 space-y-3">
+                  {/* Main photo preview */}
+                  <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-muted">
+                    {(existingImages.length > 0 || photos.length > 0) ? (
+                      <img
+                        src={existingImages[0] || (photos[0] ? URL.createObjectURL(photos[0]) : "")}
+                        alt="Aperçu"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-muted/80 transition-colors">
+                        <ImagePlus className="h-10 w-10 text-muted-foreground mb-2" />
+                        <p className="text-sm font-medium text-muted-foreground">{t("sellerDashboard.dragDrop")}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{t("sellerDashboard.photoFormat")}</p>
+                        <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoSelect} />
+                      </label>
+                    )}
+                  </div>
 
-                {/* Categories (multi-select chips) */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.categories_label")} *</label>
-                  <div className="flex flex-wrap gap-2">
-                    {CATEGORIES.map(c => {
-                      const label = t(`sellerDashboard.categories.${c}`);
-                      const selected = categories.includes(label);
-                      return (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => toggleCategory(label)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                            selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          {label}
+                  {/* Thumbnails row */}
+                  <div className="flex gap-1.5">
+                    {existingImages.map((url, idx) => (
+                      <div key={`ex-${idx}`} className="relative flex-1 aspect-square rounded-lg overflow-hidden border-2 border-primary/20">
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                        <button type="button" onClick={() => removeExistingImage(idx)} className="absolute top-0.5 right-0.5 bg-foreground/70 text-background rounded-full p-0.5">
+                          <X className="h-3 w-3" />
                         </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.description")}</label>
-                  <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t("sellerDashboard.describeLot")} className="resize-none" rows={3} />
-                </div>
-
-                {/* Lot content / Excel upload */}
-                <div className="space-y-3">
-                  <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotContent")} *</label>
-
-                  {/* Template download + Excel upload buttons */}
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={downloadTemplate}
-                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-muted text-foreground font-medium rounded-xl hover:bg-muted/80 transition-colors text-sm"
-                    >
-                      <Download className="h-4 w-4" />
-                      {t("sellerDashboard.downloadTemplate")}
-                    </button>
-                    <label className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary/90 transition-colors text-sm cursor-pointer">
-                      <Upload className="h-4 w-4" />
-                      {t("sellerDashboard.uploadExcel")}
-                      <input type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleExcelUpload} />
-                    </label>
-                  </div>
-
-                  {/* Import status */}
-                  {lotItems.length > 0 && lotItems[0].name && (
-                    <div className="flex items-center justify-between px-3 py-2 bg-muted/50 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <FileSpreadsheet className="h-4 w-4 text-primary" />
-                        <span className="text-xs font-semibold text-foreground">
-                          {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
-                        </span>
                       </div>
-                      <button type="button" onClick={() => setLotItems([{ ...emptyItem }])} className="text-xs text-destructive hover:underline">
-                        {t("sellerDashboard.clearItems")}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Photos (4 required) */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">
-                    {t("sellerDashboard.lotPhotos")} * <span className="text-xs font-normal text-muted-foreground">({t("sellerDashboard.min4Photos")})</span>
-                  </label>
-                  {/* Existing images */}
-                  {existingImages.length > 0 && (
-                    <div className="flex gap-2 flex-wrap">
-                      {existingImages.map((url, idx) => (
-                        <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-border">
-                          <img src={url} alt="" className="w-full h-full object-cover" />
-                          <button type="button" onClick={() => removeExistingImage(idx)} className="absolute top-0.5 right-0.5 bg-foreground/70 text-background rounded-full p-0.5">
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {/* New photo previews */}
-                  {photos.length > 0 && (
-                    <div className="flex gap-2 flex-wrap">
-                      {photos.map((file, idx) => (
-                        <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-border">
-                          <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
-                          <button type="button" onClick={() => removePhoto(idx)} className="absolute top-0.5 right-0.5 bg-foreground/70 text-background rounded-full p-0.5">
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <label className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-primary/40 transition-colors cursor-pointer block">
-                    <ImagePlus className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
-                    <p className="text-sm text-muted-foreground">{t("sellerDashboard.dragDrop")}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{t("sellerDashboard.photoFormat")}</p>
-                    <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoSelect} />
-                  </label>
-                  <p className="text-xs text-muted-foreground">
+                    ))}
+                    {photos.map((file, idx) => (
+                      <div key={`new-${idx}`} className="relative flex-1 aspect-square rounded-lg overflow-hidden border-2 border-primary/20">
+                        <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
+                        <button type="button" onClick={() => removePhoto(idx)} className="absolute top-0.5 right-0.5 bg-foreground/70 text-background rounded-full p-0.5">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    {/* Add more button */}
+                    {(existingImages.length + photos.length) < 8 && (
+                      <label className="flex-1 aspect-square rounded-lg border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-primary/40 transition-colors">
+                        <ImagePlus className="h-5 w-5 text-muted-foreground" />
+                        <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoSelect} />
+                      </label>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">
                     {photos.length + existingImages.length}/4 {t("sellerDashboard.photosMin")}
                   </p>
                 </div>
 
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={() => setShowForm(false)}
-                    className="flex-1 py-3 bg-muted text-foreground font-semibold rounded-xl hover:bg-muted/80 transition-colors"
-                  >
-                    {t("common.cancel")}
-                  </button>
-                  <button
-                    onClick={() => saveMutation.mutate()}
-                    disabled={saveMutation.isPending}
-                    className="flex-1 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  >
-                    {saveMutation.isPending ? t("common.loading") : editingLotId ? t("common.save") : t("sellerDashboard.publishLot")}
-                  </button>
+                {/* CENTER COL — Details (mirrors LotDetail center) */}
+                <div className="md:col-span-5 space-y-4">
+                  {/* Brand (auto from profile - read only) */}
+                  <div>
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+                      {profile?.company_name || "—"}
+                    </span>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{t("sellerDashboard.brandAutoNote", "Marque automatique depuis votre profil")}</p>
+                  </div>
+
+                  {/* Title */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.lotTitle")} *</label>
+                    <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Ex: Lot de 200 t-shirts" className="font-heading font-bold text-lg border-none bg-muted/50 px-3 py-2 rounded-lg" />
+                  </div>
+
+                  {/* Categories (chips) */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.categories_label")} *</label>
+                    <div className="flex flex-wrap gap-2">
+                      {CATEGORIES.map(c => {
+                        const label = t(`sellerDashboard.categories.${c}`);
+                        const selected = categories.includes(label);
+                        return (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => toggleCategory(label)}
+                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                              selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.description")}</label>
+                    <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t("sellerDashboard.describeLot")} className="resize-none bg-muted/50 border-none rounded-lg" rows={4} />
+                  </div>
+
+                  {/* Excel import section (mirrors LotDetail download button style) */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.lotContent")} *</label>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={downloadTemplate}
+                        className="flex-1 flex items-center justify-between px-4 py-3 bg-muted hover:bg-muted/80 rounded-xl border border-border transition-colors group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-green-600/10 flex items-center justify-center">
+                            <Download className="h-4 w-4 text-green-600" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-xs font-semibold text-foreground">{t("sellerDashboard.downloadTemplate")}</p>
+                            <p className="text-[10px] text-muted-foreground">Excel (.xlsx)</p>
+                          </div>
+                        </div>
+                      </button>
+
+                      <label className="flex-1 flex items-center justify-between px-4 py-3 bg-primary/10 hover:bg-primary/20 rounded-xl border border-primary/20 transition-colors cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Upload className="h-4 w-4 text-primary" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-xs font-semibold text-foreground">{t("sellerDashboard.uploadExcel")}</p>
+                            <p className="text-[10px] text-muted-foreground">.xlsx, .xls, .csv</p>
+                          </div>
+                        </div>
+                        <input type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleExcelUpload} />
+                      </label>
+                    </div>
+
+                    {/* Import status */}
+                    {lotItems.length > 0 && lotItems[0].name && (
+                      <div className="flex items-center justify-between px-3 py-2.5 bg-muted rounded-xl">
+                        <div className="flex items-center gap-2">
+                          <FileSpreadsheet className="h-4 w-4 text-primary" />
+                          <span className="text-xs font-semibold text-foreground">
+                            {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
+                          </span>
+                        </div>
+                        <button type="button" onClick={() => setLotItems([{ ...emptyItem }])} className="text-xs text-destructive hover:underline">
+                          {t("sellerDashboard.clearItems")}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Seller info block (auto, read-only — mirrors buyer view) */}
+                  {profile && (
+                    <div className="flex items-start gap-2.5 p-3 bg-muted rounded-xl">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <User className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-foreground truncate">{profile.company_name || profile.full_name || "Vendeur"}</p>
+                        {profile.company_description && (
+                          <p className="text-[10px] text-muted-foreground leading-snug mt-1">{profile.company_description}</p>
+                        )}
+                        <p className="text-[10px] text-muted-foreground mt-1 italic">{t("sellerDashboard.autoProfileNote", "Infos automatiques depuis votre profil")}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
+
+                {/* RIGHT COL — Sticky price panel (mirrors LotDetail right panel) */}
+                <div className="md:col-span-3">
+                  <div className="md:sticky md:top-[72px] space-y-3">
+                    <div className="bg-card rounded-xl border border-border p-4 shadow-card space-y-3">
+
+                      {/* Units */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.numberOfUnits")} *</label>
+                        <Input type="number" value={units} onChange={e => setUnits(e.target.value)} placeholder="200" className="bg-muted/50 border-none" />
+                      </div>
+
+                      {/* Retail price */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.retailPrice")}</label>
+                        <Input type="number" value={retailPrice} onChange={e => setRetailPrice(e.target.value)} placeholder="12000" className="bg-muted/50 border-none" />
+                      </div>
+
+                      {/* Lot price */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.lotPrice")} * (HT)</label>
+                        <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="5000" className="bg-muted/50 border-none font-heading font-bold text-lg" />
+                      </div>
+
+                      {/* Auto-computed preview (mirrors buyer view) */}
+                      {price && (
+                        <div className="border-t border-border pt-3 space-y-1.5">
+                          {retailPrice && parseFloat(retailPrice) > 0 && (
+                            <div className="flex justify-between items-baseline">
+                              <span className="text-[10px] text-muted-foreground">{t("lotDetail.retailValue", "Valeur retail")}</span>
+                              <span className="text-xs text-muted-foreground line-through">{parseFloat(retailPrice).toLocaleString("fr-FR")} €</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between items-baseline">
+                            <span className="font-heading font-bold text-foreground text-sm">{t("lotDetail.price")}</span>
+                            <div className="flex items-center gap-2">
+                              {retailPrice && parseFloat(retailPrice) > 0 && (
+                                <span className="text-xs font-bold text-green-600">
+                                  -{Math.round((1 - parseFloat(price) / parseFloat(retailPrice)) * 100)}%
+                                </span>
+                              )}
+                              <span className="font-heading font-bold text-primary text-lg">
+                                {Math.round(parseFloat(price) * 1.19).toLocaleString("fr-FR")} €
+                              </span>
+                            </div>
+                          </div>
+                          {units && parseInt(units) > 0 && (
+                            <div className="flex justify-between items-baseline">
+                              <span className="text-[10px] text-muted-foreground">{t("lotDetail.pricePerUnit", "Prix / pièce")}</span>
+                              <span className="text-xs font-semibold text-foreground">
+                                {(parseFloat(price) * 1.19 / parseInt(units)).toFixed(2)} €
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setShowForm(false)}
+                        className="flex-1 py-2.5 border border-border rounded-xl hover:bg-muted transition-colors text-sm font-medium text-foreground"
+                      >
+                        {t("common.cancel")}
+                      </button>
+                      <button
+                        onClick={() => saveMutation.mutate()}
+                        disabled={saveMutation.isPending}
+                        className="flex-1 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm"
+                      >
+                        {saveMutation.isPending ? t("common.loading") : editingLotId ? t("common.save") : t("sellerDashboard.publishLot")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
               </div>
-            </motion.div>
+            </main>
           </motion.div>
         )}
       </AnimatePresence>
