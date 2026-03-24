@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Upload, Eye, Filter, Globe } from "lucide-react";
+import { CheckCircle2, Upload, Eye, Filter, Globe, Package, Truck, Target } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import varyLogo from "@/assets/vary-logo.png";
 import { Input } from "@/components/ui/input";
@@ -11,9 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const productCategoryKeys = ["casual", "sport", "business", "luxury", "premium", "kids"] as const;
-const volumeKeys = ["under100", "100_500", "500_2000", "2000_10000", "over10000"] as const;
-const channelKeys = ["whatsapp", "email", "phone"] as const;
+const EU_COUNTRIES = ["France", "Belgique", "Allemagne", "Espagne", "Italie", "Pays-Bas", "Portugal", "Royaume-Uni", "Pologne", "Roumanie", "Suède", "Autriche", "Grèce", "Tchéquie", "Danemark", "Irlande", "Hongrie", "Croatie", "Bulgarie", "Finlande", "Slovaquie", "Lituanie", "Lettonie", "Slovénie", "Estonie", "Chypre", "Luxembourg", "Malte"];
 
 const referralSources = [
   "Google", "Facebook / Instagram", "TikTok", "LinkedIn",
@@ -21,61 +19,104 @@ const referralSources = [
   "Un responsable commercial m'a contacté",
 ];
 
-const visibilityLocations = ["France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal", "Belgique", "Royaume-Uni", "Pologne", "Roumanie", "Suède", "Autriche", "Grèce", "Tchéquie", "Danemark", "Irlande", "Hongrie", "Croatie", "Bulgarie", "Finlande", "Slovaquie", "Lituanie", "Lettonie", "Slovénie", "Estonie", "Chypre", "Luxembourg", "Malte"];
-const visibilityStoreTypes = ["Magasin physique", "Magasin en ligne", "Revendeur marketplace", "Revendeur réseaux sociaux", "Grossiste / Distributeur"];
-const visibilityRevenues = ["Moins de 50.000 €", "50.000 – 200.000 €", "200.000 – 500.000 €", "500.000 – 1M €", "Plus de 1M €"];
-
 const SellerRegistration = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { signUp, user, profile, updateProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedVolume, setSelectedVolume] = useState("");
-  const [selectedChannel, setSelectedChannel] = useState("");
-  const [selectedReferral, setSelectedReferral] = useState("");
-  const [warehouseFiles, setWarehouseFiles] = useState<File[]>([]);
-  const [consent, setConsent] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: "", lastName: "", email: "", phone: "", password: "",
-    companyName: "", vatCode: "", siret: "", address: "", city: "",
-    country: "France", postalCode: "", website: "", description: "", warehouseLocation: "",
-  });
-  const [visibilityMode, setVisibilityMode] = useState<"all" | "filtered">("all");
-  const [visLocations, setVisLocations] = useState<string[]>([]);
-  const [visStoreTypes, setVisStoreTypes] = useState<string[]>([]);
-  const [visRevenues, setVisRevenues] = useState<string[]>([]);
-
   const totalSteps = 5;
   const isAlreadyLoggedIn = !!user;
+
+  // Step 1
+  const [formData, setFormData] = useState({
+    firstName: "", lastName: "", email: "", phone: "", password: "",
+    companyName: "", vatCode: "", siret: "", website: "", address: "", city: "",
+    country: "France", postalCode: "", warehouseLocation: "", description: "",
+  });
+
+  // Step 2
+  const [businessType, setBusinessType] = useState("");
+
+  // Step 3
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [monthlyVolume, setMonthlyVolume] = useState("");
+  const [retailPrice, setRetailPrice] = useState("");
+  const [sellingPrice, setSellingPrice] = useState("");
+  const [discountRange, setDiscountRange] = useState("");
+  const [lotSize, setLotSize] = useState("");
+  const [productMix, setProductMix] = useState("");
+  const [productCondition, setProductCondition] = useState("");
+  const [brandsText, setBrandsText] = useState("");
+  const [sellsUnbranded, setSellsUnbranded] = useState("");
+
+  // Step 4
+  const [shipsInternationally, setShipsInternationally] = useState("");
+  const [prepTime, setPrepTime] = useState("");
+  const [yearsInBusiness, setYearsInBusiness] = useState("");
+  const [clientTypes, setClientTypes] = useState<string[]>([]);
+  const [warehouseFiles, setWarehouseFiles] = useState<File[]>([]);
+
+  // Step 5
+  const [consent, setConsent] = useState(false);
+  const [selectedReferral, setSelectedReferral] = useState("");
+  const [buyerTypes, setBuyerTypes] = useState<string[]>([]);
+  const [buyerBudget, setBuyerBudget] = useState("");
+  const [minOrderSize, setMinOrderSize] = useState("");
+  const [targetMarket, setTargetMarket] = useState("");
+  const [targetCountries, setTargetCountries] = useState<string[]>([]);
+  const [visibilityMode, setVisibilityMode] = useState<"all" | "filtered">("all");
 
   const update = (field: string, value: string) => setFormData((prev) => ({ ...prev, [field]: value }));
   const toggle = (arr: string[], setArr: React.Dispatch<React.SetStateAction<string[]>>, val: string) => {
     setArr(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
   };
 
+  const RadioOption = ({ name, value, selected, onSelect, label }: { name: string; value: string; selected: string; onSelect: (v: string) => void; label: string }) => (
+    <label className="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name={name} checked={selected === value} onChange={() => onSelect(value)} className="accent-primary w-4 h-4" />
+      <span className="text-sm text-foreground">{label}</span>
+    </label>
+  );
+
+  const ChipSelect = ({ options, selected, onToggle, multi = false }: { options: string[]; selected: string | string[]; onToggle: (v: string) => void; multi?: boolean }) => (
+    <div className="flex flex-wrap gap-2 mt-2">
+      {options.map((o) => {
+        const isActive = multi ? (selected as string[]).includes(o) : selected === o;
+        return (
+          <button key={o} type="button" onClick={() => onToggle(o)}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${isActive ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:border-primary/40"}`}>
+            {o}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   const validateStep = (): string | null => {
     if (step === 1) {
       if (!formData.firstName.trim() || !formData.lastName.trim()) return t("sellerReg.validation.firstLastName");
+      if (!formData.email.trim() && !isAlreadyLoggedIn) return t("sellerReg.validation.email");
       if (!formData.phone.trim()) return t("sellerReg.validation.phone");
-      if (!isAlreadyLoggedIn) {
-        if (!formData.email.trim()) return t("sellerReg.validation.email");
-        if (!formData.password || formData.password.length < 6) return t("sellerReg.validation.password");
-      }
+      if (!isAlreadyLoggedIn && (!formData.password || formData.password.length < 6)) return t("sellerReg.validation.password");
     }
     if (step === 2) {
       if (!formData.companyName.trim()) return t("sellerReg.validation.companyName");
+      if (!businessType) return t("sellerReg.validation.businessType");
       if (!formData.vatCode.trim()) return t("sellerReg.validation.vatCode");
       if (!formData.address.trim()) return t("sellerReg.validation.address");
       if (!formData.city.trim()) return t("sellerReg.validation.city");
     }
     if (step === 3) {
       if (selectedCategories.length === 0) return t("sellerReg.validation.productType");
-      if (!selectedVolume) return t("sellerReg.validation.volume");
+      if (!monthlyVolume) return t("sellerReg.validation.volume");
+      if (!sellingPrice) return t("sellerReg.validation.sellingPrice");
+      if (!lotSize) return t("sellerReg.validation.lotSize");
+      if (!productCondition) return t("sellerReg.validation.condition");
     }
     if (step === 4) {
-      if (!selectedChannel) return t("sellerReg.validation.channel");
+      if (!formData.warehouseLocation.trim()) return t("sellerReg.validation.warehouse");
+      if (warehouseFiles.length === 0) return t("sellerReg.validation.warehouseImage");
     }
     return null;
   };
@@ -92,7 +133,6 @@ const SellerRegistration = () => {
           await updateProfile({ user_type: newType as any, full_name: `${formData.firstName} ${formData.lastName}`, phone: formData.phone, company_name: formData.companyName, company_description: formData.description, siret: formData.siret });
           toast.success(t("sellerReg.profileActivated"));
         } else {
-          if (!formData.email || !formData.password) { toast.error(t("sellerReg.validation.email")); setSubmitting(false); return; }
           const { error } = await signUp(formData.email, formData.password);
           if (error) { toast.error(error.message); setSubmitting(false); return; }
           await new Promise((r) => setTimeout(r, 1000));
@@ -112,16 +152,30 @@ const SellerRegistration = () => {
 
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
+  const stepTitles = [
+    t("sellerReg.stepTitles.identity"),
+    t("sellerReg.stepTitles.company"),
+    t("sellerReg.stepTitles.products"),
+    t("sellerReg.stepTitles.logistics"),
+    t("sellerReg.stepTitles.preferences"),
+  ];
+
   const stepHeader = (
     <div className="mb-6">
       <p className="text-muted-foreground text-sm">{t("sellerReg.createAccount")}</p>
-      <h2 className="font-heading text-xl font-bold text-foreground">{t("sellerReg.step")} {step} / {totalSteps}</h2>
+      <h2 className="font-heading text-xl font-bold text-foreground">
+        {t("sellerReg.step")} {step} / {totalSteps} — {stepTitles[step - 1]}
+      </h2>
       <div className="flex gap-1 mt-3">
         {Array.from({ length: totalSteps }, (_, i) => (
           <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < step ? "bg-primary" : "bg-border"}`} />
         ))}
       </div>
     </div>
+  );
+
+  const SectionTitle = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
+    <h3 className="font-heading text-base font-bold text-foreground flex items-center gap-2 mt-2">{icon} {label}</h3>
   );
 
   return (
@@ -139,6 +193,7 @@ const SellerRegistration = () => {
           </div>
 
           <AnimatePresence mode="wait">
+            {/* ===== STEP 1 — Personal Information ===== */}
             {step === 1 && (
               <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
@@ -147,31 +202,39 @@ const SellerRegistration = () => {
                     <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.firstName")} *</label><Input placeholder="Jean" value={formData.firstName} onChange={(e) => update("firstName", e.target.value)} /></div>
                     <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.lastName")} *</label><Input placeholder="Dupont" value={formData.lastName} onChange={(e) => update("lastName", e.target.value)} /></div>
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.email")} *</label>
+                    <Input type="email" placeholder="jean@entreprise.com" value={isAlreadyLoggedIn ? (user?.email || "") : formData.email} onChange={(e) => update("email", e.target.value)} disabled={isAlreadyLoggedIn} className={isAlreadyLoggedIn ? "opacity-60" : ""} />
+                  </div>
                   {!isAlreadyLoggedIn && (
-                    <>
-                      <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.email")} *</label><Input type="email" placeholder="jean@entreprise.com" value={formData.email} onChange={(e) => update("email", e.target.value)} /></div>
-                      <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.password")} *</label><Input type="password" placeholder={t("sellerReg.passwordPlaceholder")} value={formData.password} onChange={(e) => update("password", e.target.value)} /></div>
-                    </>
+                    <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.password")} *</label><Input type="password" placeholder={t("sellerReg.passwordPlaceholder")} value={formData.password} onChange={(e) => update("password", e.target.value)} /></div>
                   )}
                   <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.phone")} *</label><Input type="tel" placeholder="+33 6 12 34 56 78" value={formData.phone} onChange={(e) => update("phone", e.target.value)} /></div>
                 </div>
               </motion.div>
             )}
 
+            {/* ===== STEP 2 — Company Details ===== */}
             {step === 2 && (
               <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
                 <div className="space-y-5">
+                  <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.companyName")} *</label><Input placeholder="Mon Entreprise SAS" value={formData.companyName} onChange={(e) => update("companyName", e.target.value)} /></div>
+                  <div>
+                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.businessType")} *</label>
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                      {["brand", "wholesaler", "distributor", "retailer", "marketplace_seller"].map((bt) => (
+                        <RadioOption key={bt} name="businessType" value={bt} selected={businessType} onSelect={setBusinessType} label={t(`sellerReg.businessTypes.${bt}`)} />
+                      ))}
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.companyName")} *</label><Input placeholder="Mon Entreprise SAS" value={formData.companyName} onChange={(e) => update("companyName", e.target.value)} /></div>
                     <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.vatCode")} *</label><Input placeholder="FR07830946877" value={formData.vatCode} onChange={(e) => update("vatCode", e.target.value)} /></div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.siret")}</label><Input placeholder="123 456 789 00001" value={formData.siret} onChange={(e) => update("siret", e.target.value)} /></div>
-                    <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.website")}</label><Input placeholder="https://monsite.com" value={formData.website} onChange={(e) => update("website", e.target.value)} /></div>
                   </div>
+                  <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.website")}</label><Input placeholder="https://monsite.com" value={formData.website} onChange={(e) => update("website", e.target.value)} /></div>
                   <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.address")} *</label><Input placeholder="8 Avenue du Stade de France" value={formData.address} onChange={(e) => update("address", e.target.value)} /></div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.city")} *</label><Input placeholder="Paris" value={formData.city} onChange={(e) => update("city", e.target.value)} /></div>
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground">{t("sellerReg.country")} *</label>
@@ -179,20 +242,22 @@ const SellerRegistration = () => {
                         {["France", "Belgique", "Allemagne", "Espagne", "Italie", "Pays-Bas", "Portugal", "Autre"].map(c => <option key={c}>{c}</option>)}
                       </select>
                     </div>
+                    <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.postalCode")}</label><Input placeholder="75001" value={formData.postalCode} onChange={(e) => update("postalCode", e.target.value)} /></div>
                   </div>
-                  <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.postalCode")}</label><Input placeholder="75001" className="max-w-[200px]" value={formData.postalCode} onChange={(e) => update("postalCode", e.target.value)} /></div>
                 </div>
               </motion.div>
             )}
 
+            {/* ===== STEP 3 — Products & Inventory ===== */}
             {step === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
                 <div className="space-y-8">
+                  {/* Categories */}
                   <div>
-                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.productTypes")} *</label>
+                    <SectionTitle icon="🧥" label={t("sellerReg.productCategories.title")} />
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
-                      {productCategoryKeys.map((c) => (
+                      {["casual", "sport", "business", "luxury", "premium", "kids"].map((c) => (
                         <label key={c} className="flex items-center gap-2 cursor-pointer">
                           <Checkbox checked={selectedCategories.includes(c)} onCheckedChange={() => toggle(selectedCategories, setSelectedCategories, c)} />
                           <span className="text-sm text-foreground">{t(`sellerReg.productCategories.${c}`)}</span>
@@ -200,100 +265,259 @@ const SellerRegistration = () => {
                       ))}
                     </div>
                   </div>
+
+                  {/* Volume */}
                   <div>
-                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.monthlyVolume")} *</label>
-                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
-                      {volumeKeys.map((v) => (
-                        <label key={v} className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="volume" checked={selectedVolume === v} onChange={() => setSelectedVolume(v)} className="accent-primary w-4 h-4" />
-                          <span className="text-sm text-foreground">{t(`sellerReg.volumeOptions.${v}`)}</span>
-                        </label>
+                    <SectionTitle icon="📦" label={t("sellerReg.volumeSection")} />
+                    <label className="text-sm font-semibold text-foreground mt-3 block">{t("sellerReg.monthlyVolume")} *</label>
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                      {["under100", "100_500", "500_2000", "2000_10000", "over10000"].map((v) => (
+                        <RadioOption key={v} name="volume" value={v} selected={monthlyVolume} onSelect={setMonthlyVolume} label={t(`sellerReg.volumeOptions.${v}`)} />
                       ))}
                     </div>
                   </div>
-                  <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.warehouseLocation")}</label><Input placeholder="Ex: Paris, France" value={formData.warehouseLocation} onChange={(e) => update("warehouseLocation", e.target.value)} /></div>
-                  <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.describeActivity")}</label><Textarea placeholder="..." className="resize-none" rows={3} value={formData.description} onChange={(e) => update("description", e.target.value)} /></div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.warehouseImage")}</label>
-                    <label className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/40 transition-colors cursor-pointer block">
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        multiple
-                        className="hidden"
-                        onChange={(e) => {
-                          if (e.target.files) setWarehouseFiles(prev => [...prev, ...Array.from(e.target.files!)]);
-                        }}
-                      />
-                      <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">{t("sellerReg.uploadImage")}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{t("sellerReg.uploadFormat")}</p>
-                    </label>
-                    {warehouseFiles.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {warehouseFiles.map((f, i) => (
-                          <div key={i} className="flex items-center gap-1 bg-muted rounded-lg px-3 py-1.5 text-sm text-foreground">
-                            <span className="truncate max-w-[150px]">{f.name}</span>
-                            <button type="button" onClick={() => setWarehouseFiles(prev => prev.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-foreground ml-1">✕</button>
-                          </div>
-                        ))}
+
+                  {/* Pricing */}
+                  <div>
+                    <SectionTitle icon="💰" label={t("sellerReg.pricingSection")} />
+                    <div className="space-y-4 mt-3">
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.retailPrice")}</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {["under20", "20_50", "50_100", "over100"].map((v) => (
+                            <RadioOption key={v} name="retailPrice" value={v} selected={retailPrice} onSelect={setRetailPrice} label={t(`sellerReg.retailPriceOptions.${v}`)} />
+                          ))}
+                        </div>
                       </div>
-                    )}
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.sellingPrice")} *</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {["under5", "5_10", "10_20", "over20"].map((v) => (
+                            <RadioOption key={v} name="sellingPrice" value={v} selected={sellingPrice} onSelect={setSellingPrice} label={t(`sellerReg.sellingPriceOptions.${v}`)} />
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.discountRange")}</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {["30_50", "50_70", "70_90"].map((v) => (
+                            <RadioOption key={v} name="discount" value={v} selected={discountRange} onSelect={setDiscountRange} label={t(`sellerReg.discountOptions.${v}`)} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Lot structure */}
+                  <div>
+                    <SectionTitle icon="📦" label={t("sellerReg.lotStructure")} />
+                    <div className="space-y-4 mt-3">
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.lotSize")} *</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {["100_300", "300_500", "500_1000", "over1000"].map((v) => (
+                            <RadioOption key={v} name="lotSize" value={v} selected={lotSize} onSelect={setLotSize} label={t(`sellerReg.lotSizeOptions.${v}`)} />
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.productMix")}</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {["homogeneous", "mixed"].map((v) => (
+                            <RadioOption key={v} name="productMix" value={v} selected={productMix} onSelect={setProductMix} label={t(`sellerReg.productMixOptions.${v}`)} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Condition */}
+                  <div>
+                    <SectionTitle icon="🧾" label={t("sellerReg.conditionSection")} />
+                    <label className="text-sm font-semibold text-foreground mt-3 block">{t("sellerReg.productCondition")} *</label>
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                      {["new_tags", "new_no_tags", "returns", "mixed"].map((v) => (
+                        <RadioOption key={v} name="condition" value={v} selected={productCondition} onSelect={setProductCondition} label={t(`sellerReg.conditionOptions.${v}`)} />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Brands */}
+                  <div>
+                    <SectionTitle icon="🏷️" label={t("sellerReg.brandsSection")} />
+                    <div className="space-y-4 mt-3">
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.brandsYouSell")}</label>
+                        <Input placeholder={t("sellerReg.brandsPlaceholder")} value={brandsText} onChange={(e) => setBrandsText(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.sellUnbranded")}</label>
+                        <div className="flex gap-6 mt-2">
+                          <RadioOption name="unbranded" value="yes" selected={sellsUnbranded} onSelect={setSellsUnbranded} label={t("sellerReg.yes")} />
+                          <RadioOption name="unbranded" value="no" selected={sellsUnbranded} onSelect={setSellsUnbranded} label={t("sellerReg.no")} />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </motion.div>
             )}
 
+            {/* ===== STEP 4 — Logistics & Credibility ===== */}
             {step === 4 && (
               <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
                 <div className="space-y-8">
+                  {/* Logistics */}
                   <div>
-                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.preferredChannel")} *</label>
-                    <div className="flex gap-6 mt-3">
-                      {channelKeys.map((c) => (
-                        <label key={c} className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="channel" checked={selectedChannel === c} onChange={() => setSelectedChannel(c)} className="accent-primary w-4 h-4" />
-                          <span className="text-sm text-foreground">{t(`buyerReg.channels.${c}`)}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.howDidYouHear")}</label>
-                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
-                      {referralSources.map((r) => (
-                        <label key={r} className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="referral" checked={selectedReferral === r} onChange={() => setSelectedReferral(r)} className="accent-primary w-4 h-4" />
-                          <span className="text-sm text-foreground">{r}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="pt-2">
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} className="mt-0.5" />
+                    <SectionTitle icon={<Truck className="h-5 w-5 text-primary" />} label={t("sellerReg.logisticsSection")} />
+                    <div className="space-y-4 mt-3">
+                      <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.warehouseLocation")} *</label><Input placeholder="Ex: Paris, France" value={formData.warehouseLocation} onChange={(e) => update("warehouseLocation", e.target.value)} /></div>
                       <div>
-                        <span className="text-sm font-medium text-foreground">{t("sellerReg.emailWhatsappConsent")}</span>
-                        <p className="text-xs text-muted-foreground mt-0.5">{t("sellerReg.consentText")}</p>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.shipsInternationally")}</label>
+                        <div className="flex gap-6 mt-2">
+                          <RadioOption name="ships" value="yes" selected={shipsInternationally} onSelect={setShipsInternationally} label={t("sellerReg.yes")} />
+                          <RadioOption name="ships" value="no" selected={shipsInternationally} onSelect={setShipsInternationally} label={t("sellerReg.no")} />
+                        </div>
                       </div>
-                    </label>
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.prepTime")}</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {["under48h", "2_5days", "over5days"].map((v) => (
+                            <RadioOption key={v} name="prepTime" value={v} selected={prepTime} onSelect={setPrepTime} label={t(`sellerReg.prepTimeOptions.${v}`)} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Business credibility */}
+                  <div>
+                    <SectionTitle icon="🏢" label={t("sellerReg.credibilitySection")} />
+                    <div className="space-y-4 mt-3">
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.yearsInBusiness")}</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {["under1", "1_3", "3_10", "over10"].map((v) => (
+                            <RadioOption key={v} name="years" value={v} selected={yearsInBusiness} onSelect={setYearsInBusiness} label={t(`sellerReg.yearsOptions.${v}`)} />
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.clientType")}</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {["small_retailers", "chains", "online_sellers", "export"].map((c) => (
+                            <label key={c} className="flex items-center gap-2 cursor-pointer">
+                              <Checkbox checked={clientTypes.includes(c)} onCheckedChange={() => toggle(clientTypes, setClientTypes, c)} />
+                              <span className="text-sm text-foreground">{t(`sellerReg.clientTypes.${c}`)}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Warehouse image */}
+                  <div>
+                    <SectionTitle icon="📷" label={t("sellerReg.uploadsSection")} />
+                    <div className="space-y-2 mt-3">
+                      <label className="text-sm font-semibold text-foreground">{t("sellerReg.warehouseImage")} *</label>
+                      <label className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/40 transition-colors cursor-pointer block">
+                        <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden"
+                          onChange={(e) => { if (e.target.files) setWarehouseFiles(prev => [...prev, ...Array.from(e.target.files!)]); }} />
+                        <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground">{t("sellerReg.uploadImage")}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{t("sellerReg.uploadFormat")}</p>
+                      </label>
+                      {warehouseFiles.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {warehouseFiles.map((f, i) => (
+                            <div key={i} className="flex items-center gap-1 bg-muted rounded-lg px-3 py-1.5 text-sm text-foreground">
+                              <span className="truncate max-w-[150px]">{f.name}</span>
+                              <button type="button" onClick={() => setWarehouseFiles(prev => prev.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-foreground ml-1">✕</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">📝 {t("sellerReg.describeActivity")}</label>
+                    <Textarea placeholder={t("sellerReg.descriptionPlaceholder")} className="resize-none" rows={3} value={formData.description} onChange={(e) => update("description", e.target.value)} />
                   </div>
                 </div>
               </motion.div>
             )}
 
+            {/* ===== STEP 5 — Preferences & Targeting ===== */}
             {step === 5 && (
               <motion.div key="s5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
                 <div className="space-y-8">
+                  {/* Marketing consent */}
                   <div>
-                    <h3 className="font-heading text-lg font-bold text-foreground mb-2 flex items-center gap-2">
-                      <Eye className="h-5 w-5 text-primary" />
-                      {t("sellerReg.visibilityTitle")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-6">{t("sellerReg.visibilityDesc")}</p>
-                    <div className="space-y-4">
+                    <SectionTitle icon="📩" label={t("sellerReg.marketingConsent")} />
+                    <div className="mt-3">
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} className="mt-0.5" />
+                        <div>
+                          <span className="text-sm font-medium text-foreground">{t("sellerReg.consentLabel")}</span>
+                          <p className="text-xs text-muted-foreground mt-0.5">{t("sellerReg.consentDesc")}</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Buyer targeting */}
+                  <div>
+                    <SectionTitle icon={<Target className="h-5 w-5 text-primary" />} label={t("sellerReg.buyerTargeting")} />
+                    <div className="space-y-4 mt-3">
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.targetBuyerType")}</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {["small_boutiques", "online_resellers", "wholesalers", "export_buyers"].map((bt) => (
+                            <label key={bt} className="flex items-center gap-2 cursor-pointer">
+                              <Checkbox checked={buyerTypes.includes(bt)} onCheckedChange={() => toggle(buyerTypes, setBuyerTypes, bt)} />
+                              <span className="text-sm text-foreground">{t(`sellerReg.buyerTypeOptions.${bt}`)}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.buyerBudget")}</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {["under500", "500_2k", "2k_5k", "over5k"].map((v) => (
+                            <RadioOption key={v} name="buyerBudget" value={v} selected={buyerBudget} onSelect={setBuyerBudget} label={t(`sellerReg.buyerBudgetOptions.${v}`)} />
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.minOrderSize")}</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          {["50pcs", "100pcs", "300pcs", "500pcs"].map((v) => (
+                            <RadioOption key={v} name="minOrder" value={v} selected={minOrderSize} onSelect={setMinOrderSize} label={t(`sellerReg.minOrderOptions.${v}`)} />
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.targetMarkets")}</label>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                          <RadioOption name="targetMarket" value="europe" selected={targetMarket} onSelect={setTargetMarket} label={t("sellerReg.europe")} />
+                          <RadioOption name="targetMarket" value="specific" selected={targetMarket} onSelect={setTargetMarket} label={t("sellerReg.specificCountries")} />
+                        </div>
+                        {targetMarket === "specific" && (
+                          <ChipSelect options={EU_COUNTRIES} selected={targetCountries} onToggle={(c) => toggle(targetCountries, setTargetCountries, c)} multi />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Visibility */}
+                  <div>
+                    <SectionTitle icon={<Eye className="h-5 w-5 text-primary" />} label={t("sellerReg.visibilityTitle")} />
+                    <div className="space-y-4 mt-3">
                       <label className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${visibilityMode === "all" ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"}`} onClick={() => setVisibilityMode("all")}>
                         <input type="radio" name="visibility" checked={visibilityMode === "all"} onChange={() => setVisibilityMode("all")} className="accent-primary w-4 h-4 mt-1" />
                         <div>
@@ -310,47 +534,21 @@ const SellerRegistration = () => {
                       </label>
                     </div>
                   </div>
-                  {visibilityMode === "filtered" && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-6 pl-2 border-l-2 border-primary/20">
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.buyerLocation")}</label>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {visibilityLocations.map((loc) => (
-                            <button key={loc} type="button" onClick={() => toggle(visLocations, setVisLocations, loc)}
-                              className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${visLocations.includes(loc) ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:border-primary/40"}`}>
-                              {loc}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.storeType")}</label>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {visibilityStoreTypes.map((st) => (
-                            <label key={st} className="flex items-center gap-2 cursor-pointer">
-                              <Checkbox checked={visStoreTypes.includes(st)} onCheckedChange={() => toggle(visStoreTypes, setVisStoreTypes, st)} />
-                              <span className="text-sm text-foreground">{st}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.minRevenue")}</label>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {visibilityRevenues.map((r) => (
-                            <button key={r} type="button" onClick={() => toggle(visRevenues, setVisRevenues, r)}
-                              className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${visRevenues.includes(r) ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:border-primary/40"}`}>
-                              {r}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
+
+                  {/* Referral */}
+                  <div>
+                    <label className="text-sm font-semibold text-foreground">{t("sellerReg.howDidYouHear")}</label>
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                      {referralSources.map((r) => (
+                        <RadioOption key={r} name="referral" value={r} selected={selectedReferral} onSelect={setSelectedReferral} label={r} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}
 
+            {/* ===== SUCCESS ===== */}
             {step === totalSteps + 1 && (
               <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="py-12 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -360,10 +558,7 @@ const SellerRegistration = () => {
                 <p className="text-muted-foreground mb-2 max-w-md mx-auto">
                   {isAlreadyLoggedIn ? t("sellerReg.profileActivated") : t("sellerReg.checkEmail")}
                 </p>
-                <button
-                  onClick={() => navigate(isAlreadyLoggedIn ? "/seller" : "/connexion")}
-                  className="mt-6 px-8 py-3 bg-foreground text-background font-semibold rounded-md hover:opacity-90 transition-opacity"
-                >
+                <button onClick={() => navigate(isAlreadyLoggedIn ? "/seller" : "/connexion")} className="mt-6 px-8 py-3 bg-foreground text-background font-semibold rounded-md hover:opacity-90 transition-opacity">
                   {isAlreadyLoggedIn ? t("sellerReg.goToSellerDashboard") : t("common.login")}
                 </button>
               </motion.div>
