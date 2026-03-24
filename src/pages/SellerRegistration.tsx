@@ -199,7 +199,7 @@ const SellerRegistration = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">{t("sellerReg.email")} *</label>
-                    <Input type="email" placeholder="jean@entreprise.com" value={isAlreadyLoggedIn ? (user?.email || "") : formData.email} onChange={(e) => update("email", e.target.value)} disabled={isAlreadyLoggedIn} className={isAlreadyLoggedIn ? "opacity-60" : ""} />
+                    <Input type="email" placeholder="jean@entreprise.com" value={formData.email} onChange={(e) => update("email", e.target.value)} />
                   </div>
                   {!isAlreadyLoggedIn && (
                     <div className="space-y-2"><label className="text-sm font-semibold text-foreground">{t("sellerReg.password")} *</label><Input type="password" placeholder={t("sellerReg.passwordPlaceholder")} value={formData.password} onChange={(e) => update("password", e.target.value)} /></div>
