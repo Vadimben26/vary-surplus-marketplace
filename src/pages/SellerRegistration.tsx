@@ -53,6 +53,12 @@ const SellerRegistration = () => {
   const totalSteps = 5;
   const isAlreadyLoggedIn = !!user;
 
+  useEffect(() => {
+    if (user?.email) {
+      setFormData(prev => ({ ...prev, email: user.email || "" }));
+    }
+  }, [user]);
+
   // Step 1
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", email: "", phone: "", password: "",
