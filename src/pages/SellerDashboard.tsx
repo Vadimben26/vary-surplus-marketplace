@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Plus, Package, DollarSign,
+  Plus, Package, DollarSign, MapPin,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
   Heart, ShoppingCart, MessageCircle, User, Lock, Download, FileSpreadsheet, Upload
 } from "lucide-react";
