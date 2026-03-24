@@ -763,6 +763,12 @@ const SellerDashboard = () => {
                     </div>
                   </div>
 
+                  {/* Location */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.location", "Localisation")} *</label>
+                    <Input value={location} onChange={e => setLocation(e.target.value)} placeholder="Ex: France, Paris" className="bg-muted/50 border-none rounded-lg" />
+                  </div>
+
                   {/* Description */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.description")}</label>
