@@ -46,6 +46,17 @@ const Messages = () => {
   const isSeller = canAccessSeller();
   const lotId = searchParams.get("lot") || null;
 
+  // Check VIP status
+  const { data: isVip = false } = useQuery({
+    queryKey: ["is-vip", profile?.id, isSeller],
+    queryFn: async () => {
+      const fn = isSeller ? "is_vip_seller" : "is_vip_buyer";
+      const { data } = await supabase.rpc(fn);
+      return !!data;
+    },
+    enabled: !!profile?.id,
+  });
+
   // Fetch all messages for this user
   const { data: allMessages = [], refetch: refetchMessages } = useQuery({
     queryKey: ["my-messages", profile?.id],
