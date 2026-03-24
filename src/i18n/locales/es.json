@@ -153,11 +153,11 @@
     "createAccount": "Crear una cuenta",
     "step": "Paso",
     "stepTitles": {
-      "identity": "Información personal",
+      "identity": "Identidad",
       "company": "Empresa",
-      "products": "Productos e inventario",
+      "products": "Catálogo e inventario",
       "logistics": "Logística y credibilidad",
-      "preferences": "Preferencias y segmentación"
+      "preferences": "Segmentación y visibilidad"
     },
     "firstName": "Nombre",
     "lastName": "Apellido",
