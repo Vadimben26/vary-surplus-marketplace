@@ -663,17 +663,27 @@ const SellerDashboard = () => {
                   <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Ex: Lot de 200 t-shirts Nike" />
                 </div>
 
-                {/* Brand + Price */}
+                {/* Price + Retail Price + Auto discount */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.brands")} *</label>
-                    <Input value={brands} onChange={e => setBrands(e.target.value)} placeholder="Nike, Adidas" />
-                  </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotPrice")} *</label>
                     <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="5000" />
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.retailPrice")}</label>
+                    <Input type="number" value={retailPrice} onChange={e => setRetailPrice(e.target.value)} placeholder="12000" />
+                  </div>
                 </div>
+                {price && retailPrice && parseFloat(retailPrice) > 0 && (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <span className="text-sm font-semibold text-green-700 dark:text-green-400">
+                      {t("sellerDashboard.autoDiscount")}: -{Math.round((1 - parseFloat(price) / parseFloat(retailPrice)) * 100)}%
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      ({t("sellerDashboard.vsRetail")})
+                    </span>
+                  </div>
+                )}
 
                 {/* Units */}
                 <div className="space-y-2">
