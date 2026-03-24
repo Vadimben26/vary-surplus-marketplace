@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Plus, Package, DollarSign,
+  Plus, Package, DollarSign, MapPin,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
   Heart, ShoppingCart, MessageCircle, User, Lock, Download, FileSpreadsheet, Upload
 } from "lucide-react";
@@ -514,6 +514,12 @@ const SellerDashboard = () => {
                         <Package className="h-3 w-3" />
                         {lot.units} pcs
                       </span>
+                      {lot.location && (
+                        <span className="flex items-center gap-1 text-xs">
+                          <MapPin className="h-3 w-3" />
+                          {lot.location}
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-baseline gap-2 pt-1">
                       <span className="font-heading font-bold text-foreground">{totalTTC.toLocaleString("fr-FR")} €</span>
