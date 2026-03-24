@@ -277,34 +277,12 @@ const SellerRegistration = () => {
                     </div>
                   </div>
 
-                  {/* Pricing */}
+                  {/* Average retail selling price */}
                   <div>
-                    <SectionTitle icon="💰" label={t("sellerReg.pricingSection")} />
-                    <div className="space-y-4 mt-3">
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.retailPrice")}</label>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {["under20", "20_50", "50_100", "over100"].map((v) => (
-                            <RadioOption key={v} name="retailPrice" value={v} selected={retailPrice} onSelect={setRetailPrice} label={t(`sellerReg.retailPriceOptions.${v}`)} />
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.sellingPrice")} *</label>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {["under5", "5_10", "10_20", "over20"].map((v) => (
-                            <RadioOption key={v} name="sellingPrice" value={v} selected={sellingPrice} onSelect={setSellingPrice} label={t(`sellerReg.sellingPriceOptions.${v}`)} />
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.discountRange")}</label>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {["30_50", "50_70", "70_90"].map((v) => (
-                            <RadioOption key={v} name="discount" value={v} selected={discountRange} onSelect={setDiscountRange} label={t(`sellerReg.discountOptions.${v}`)} />
-                          ))}
-                        </div>
-                      </div>
+                    <SectionTitle icon="💰" label={t("sellerReg.avgRetailPrice")} />
+                    <div className="space-y-2 mt-3">
+                      <label className="text-sm font-semibold text-foreground">{t("sellerReg.avgRetailPriceLabel")}</label>
+                      <Input type="text" placeholder="Ex: 45 €" value={formData.avgRetailPrice} onChange={(e) => update("avgRetailPrice", e.target.value)} />
                     </div>
                   </div>
 
@@ -320,25 +298,6 @@ const SellerRegistration = () => {
                           ))}
                         </div>
                       </div>
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">{t("sellerReg.productMix")}</label>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                          {["homogeneous", "mixed"].map((v) => (
-                            <RadioOption key={v} name="productMix" value={v} selected={productMix} onSelect={setProductMix} label={t(`sellerReg.productMixOptions.${v}`)} />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Condition */}
-                  <div>
-                    <SectionTitle icon="🧾" label={t("sellerReg.conditionSection")} />
-                    <label className="text-sm font-semibold text-foreground mt-3 block">{t("sellerReg.productCondition")} *</label>
-                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                      {["new_tags", "new_no_tags", "returns", "mixed"].map((v) => (
-                        <RadioOption key={v} name="condition" value={v} selected={productCondition} onSelect={setProductCondition} label={t(`sellerReg.conditionOptions.${v}`)} />
-                      ))}
                     </div>
                   </div>
 
@@ -359,11 +318,6 @@ const SellerRegistration = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* ===== STEP 4 — Logistics & Credibility ===== */}
             {step === 4 && (
               <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 {stepHeader}
