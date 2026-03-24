@@ -908,7 +908,7 @@ const SellerDashboard = () => {
                         <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="5000" className="bg-muted/50 border-none font-heading font-bold text-lg" />
                       </div>
 
-                      {/* Auto-computed preview (mirrors buyer view) */}
+                      {/* Auto-computed preview — seller sees HT price only */}
                       {price && (
                         <div className="border-t border-border pt-3 space-y-1.5">
                           {retailPrice && parseFloat(retailPrice) > 0 && (
@@ -918,7 +918,7 @@ const SellerDashboard = () => {
                             </div>
                           )}
                           <div className="flex justify-between items-baseline">
-                            <span className="font-heading font-bold text-foreground text-sm">{t("lotDetail.price")}</span>
+                            <span className="font-heading font-bold text-foreground text-sm">{t("sellerDashboard.yourPrice", "Votre prix")}</span>
                             <div className="flex items-center gap-2">
                               {retailPrice && parseFloat(retailPrice) > 0 && (
                                 <span className="text-xs font-bold text-green-600">
@@ -926,18 +926,21 @@ const SellerDashboard = () => {
                                 </span>
                               )}
                               <span className="font-heading font-bold text-primary text-lg">
-                                {Math.round(parseFloat(price) * 1.19).toLocaleString("fr-FR")} €
+                                {parseFloat(price).toLocaleString("fr-FR")} €
                               </span>
                             </div>
                           </div>
                           {units && parseInt(units) > 0 && (
                             <div className="flex justify-between items-baseline">
-                              <span className="text-[10px] text-muted-foreground">{t("lotDetail.pricePerUnit", "Prix / pièce")}</span>
+                              <span className="text-[10px] text-muted-foreground">{t("sellerDashboard.pricePerUnitHT", "Prix / pièce HT")}</span>
                               <span className="text-xs font-semibold text-foreground">
-                                {(parseFloat(price) * 1.19 / parseInt(units)).toFixed(2)} €
+                                {(parseFloat(price) / parseInt(units)).toFixed(2)} €
                               </span>
                             </div>
                           )}
+                          <p className="text-[10px] text-muted-foreground italic pt-1">
+                            {t("sellerDashboard.commissionNote", "L'acheteur verra un prix avec commission Vary incluse")}
+                          </p>
                         </div>
                       )}
                     </div>
