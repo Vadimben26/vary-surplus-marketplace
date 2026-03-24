@@ -647,7 +647,16 @@
       "sport": "Deporte",
       "beauty": "Belleza",
       "electronics": "Electrónica"
-    }
+    },
+    "downloadTemplate": "Descargar plantilla",
+    "uploadExcel": "Importar Excel",
+    "excelEmpty": "El archivo Excel está vacío",
+    "excelNoItems": "No se encontraron artículos en el archivo",
+    "excelImported": "{{count}} artículos importados con éxito",
+    "excelError": "Error al leer el archivo Excel",
+    "references": "referencias",
+    "clearItems": "Eliminar todo",
+    "moreItems": "artículos adicionales"
   },
   "sellerVIP": {
     "badge": "Vendedor VIP",

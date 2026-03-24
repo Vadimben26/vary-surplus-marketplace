@@ -1,11 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, DollarSign,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
-  Heart, ShoppingCart, MessageCircle, User, Lock
+  Heart, ShoppingCart, MessageCircle, User, Lock, Download, FileSpreadsheet, Upload
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,11 +21,15 @@ interface LotItem {
   name: string;
   quantity: number;
   size: string;
-  color: string;
+  brand: string;
+  category: string;
+  gender: string;
   reference: string;
+  retail_price: number;
+  image_url: string;
 }
 
-const emptyItem: LotItem = { name: "", quantity: 0, size: "", color: "", reference: "" };
+const emptyItem: LotItem = { name: "", quantity: 0, size: "", brand: "", category: "", gender: "", reference: "", retail_price: 0, image_url: "" };
 
 const CATEGORIES = ["clothing", "sneakers", "accessories", "sport", "beauty", "electronics"];
 
@@ -161,8 +166,12 @@ const SellerDashboard = () => {
           name: it.name,
           quantity: it.quantity,
           size: it.size || "",
-          color: "",
-          reference: "",
+          brand: it.brand || "",
+          category: it.category || "",
+          gender: it.gender || "",
+          reference: it.reference || "",
+          retail_price: it.retail_price || 0,
+          image_url: it.image_url || "",
         }))
       : [{ ...emptyItem }];
     setLotItems(items);
@@ -217,7 +226,7 @@ const SellerDashboard = () => {
         await supabase.from("lot_items").delete().eq("lot_id", editingLotId);
         if (validItems.length > 0) {
           const { error: itemErr } = await supabase.from("lot_items").insert(
-            validItems.map(it => ({ lot_id: editingLotId, name: it.name, quantity: it.quantity, size: it.size }))
+            validItems.map(it => ({ lot_id: editingLotId, name: it.name, quantity: it.quantity, size: it.size, brand: it.brand, category: it.category, gender: it.gender, reference: it.reference, retail_price: it.retail_price || null, image_url: it.image_url || null }))
           );
           if (itemErr) throw itemErr;
         }
@@ -239,7 +248,7 @@ const SellerDashboard = () => {
         // Insert items
         if (validItems.length > 0) {
           await supabase.from("lot_items").insert(
-            validItems.map(it => ({ lot_id: newLot.id, name: it.name, quantity: it.quantity, size: it.size }))
+            validItems.map(it => ({ lot_id: newLot.id, name: it.name, quantity: it.quantity, size: it.size, brand: it.brand, category: it.category, gender: it.gender, reference: it.reference, retail_price: it.retail_price || null, image_url: it.image_url || null }))
           );
         }
       }
@@ -274,6 +283,52 @@ const SellerDashboard = () => {
   const updateItem = (idx: number, field: keyof LotItem, value: string | number) => {
     setLotItems(prev => prev.map((it, i) => i === idx ? { ...it, [field]: value } : it));
   };
+
+  const downloadTemplate = useCallback(() => {
+    const headers = [
+      { Marque: "", Article: "", Catégorie: "", Genre: "", Taille: "", "Réf.": "", Qté: "", "Prix retail": "", Photo: "" }
+    ];
+    const ws = XLSX.utils.json_to_sheet(headers);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Inventaire");
+    ws["!cols"] = Object.keys(headers[0]).map(k => ({ wch: Math.max(k.length, 14) }));
+    XLSX.writeFile(wb, "template_inventaire.xlsx");
+  }, []);
+
+  const handleExcelUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const wb = XLSX.read(evt.target?.result, { type: "binary" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows: any[] = XLSX.utils.sheet_to_json(ws);
+        if (rows.length === 0) { toast.error(t("sellerDashboard.excelEmpty")); return; }
+        const parsed: LotItem[] = rows.map(r => ({
+          name: String(r["Article"] || r["article"] || r["Name"] || r["name"] || ""),
+          brand: String(r["Marque"] || r["marque"] || r["Brand"] || r["brand"] || ""),
+          category: String(r["Catégorie"] || r["catégorie"] || r["Category"] || r["category"] || ""),
+          gender: String(r["Genre"] || r["genre"] || r["Gender"] || r["gender"] || ""),
+          size: String(r["Taille"] || r["taille"] || r["Size"] || r["size"] || ""),
+          reference: String(r["Réf."] || r["réf."] || r["Ref"] || r["ref"] || r["Reference"] || ""),
+          quantity: Number(r["Qté"] || r["qté"] || r["Qty"] || r["qty"] || r["Quantity"] || 0),
+          retail_price: Number(r["Prix retail"] || r["prix retail"] || r["Retail Price"] || r["retail_price"] || 0),
+          image_url: String(r["Photo"] || r["photo"] || r["Image"] || r["image_url"] || ""),
+        })).filter(it => it.name.trim());
+        if (parsed.length === 0) { toast.error(t("sellerDashboard.excelNoItems")); return; }
+        setLotItems(parsed);
+        // Auto-compute units
+        const totalUnits = parsed.reduce((s, it) => s + it.quantity, 0);
+        if (totalUnits > 0) setUnits(String(totalUnits));
+        toast.success(t("sellerDashboard.excelImported", { count: parsed.length }));
+      } catch {
+        toast.error(t("sellerDashboard.excelError"));
+      }
+    };
+    reader.readAsBinaryString(file);
+    e.target.value = "";
+  }, [t]);
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -653,34 +708,63 @@ const SellerDashboard = () => {
                   <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t("sellerDashboard.describeLot")} className="resize-none" rows={3} />
                 </div>
 
-                {/* Lot content / items */}
+                {/* Lot content / Excel upload */}
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotContent")} *</label>
-                    <button type="button" onClick={() => setLotItems(prev => [...prev, { ...emptyItem }])} className="text-xs text-primary font-medium hover:underline">
-                      {t("sellerDashboard.addLine")}
+                  <label className="text-sm font-semibold text-foreground">{t("sellerDashboard.lotContent")} *</label>
+
+                  {/* Template download + Excel upload buttons */}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={downloadTemplate}
+                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-muted text-foreground font-medium rounded-xl hover:bg-muted/80 transition-colors text-sm"
+                    >
+                      <Download className="h-4 w-4" />
+                      {t("sellerDashboard.downloadTemplate")}
                     </button>
+                    <label className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary/90 transition-colors text-sm cursor-pointer">
+                      <Upload className="h-4 w-4" />
+                      {t("sellerDashboard.uploadExcel")}
+                      <input type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleExcelUpload} />
+                    </label>
                   </div>
-                  <div className="space-y-2">
-                    {lotItems.map((item, idx) => (
-                      <div key={idx} className="space-y-1 p-3 bg-muted/50 rounded-lg">
-                        <div className="flex gap-2">
-                          <Input value={item.name} onChange={e => updateItem(idx, "name", e.target.value)} placeholder={t("sellerDashboard.itemName")} className="flex-1" />
-                          <Input value={item.reference} onChange={e => updateItem(idx, "reference", e.target.value)} placeholder={t("sellerDashboard.itemRef")} className="w-28" />
-                          {lotItems.length > 1 && (
-                            <button type="button" onClick={() => setLotItems(prev => prev.filter((_, i) => i !== idx))} className="text-muted-foreground hover:text-destructive p-1">
-                              <X className="h-4 w-4" />
-                            </button>
-                          )}
+
+                  {/* Preview of imported items */}
+                  {lotItems.length > 0 && lotItems[0].name && (
+                    <div className="bg-muted/50 rounded-xl p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <FileSpreadsheet className="h-4 w-4 text-primary" />
+                          <span className="text-xs font-semibold text-foreground">
+                            {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
+                          </span>
                         </div>
-                        <div className="flex gap-2">
-                          <Input type="number" value={item.quantity || ""} onChange={e => updateItem(idx, "quantity", parseInt(e.target.value) || 0)} placeholder={t("sellerDashboard.qty")} className="w-20" />
-                          <Input value={item.size} onChange={e => updateItem(idx, "size", e.target.value)} placeholder={t("sellerDashboard.size")} className="w-24" />
-                          <Input value={item.color} onChange={e => updateItem(idx, "color", e.target.value)} placeholder={t("sellerDashboard.itemColor")} className="w-24" />
-                        </div>
+                        <button type="button" onClick={() => setLotItems([{ ...emptyItem }])} className="text-xs text-destructive hover:underline">
+                          {t("sellerDashboard.clearItems")}
+                        </button>
                       </div>
-                    ))}
-                  </div>
+                      <div className="max-h-40 overflow-y-auto space-y-1">
+                        {lotItems.filter(it => it.name.trim()).slice(0, 20).map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between py-1.5 px-2 bg-card rounded text-xs">
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <span className="text-foreground font-medium truncate">{item.name}</span>
+                              {item.brand && <span className="text-primary text-[10px] uppercase">{item.brand}</span>}
+                              {item.size && <span className="text-muted-foreground">({item.size})</span>}
+                            </div>
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              <span className="font-semibold text-foreground">{item.quantity} pcs</span>
+                              {item.retail_price > 0 && <span className="text-muted-foreground">{item.retail_price} €</span>}
+                            </div>
+                          </div>
+                        ))}
+                        {lotItems.filter(it => it.name.trim()).length > 20 && (
+                          <p className="text-[10px] text-muted-foreground text-center pt-1">
+                            +{lotItems.filter(it => it.name.trim()).length - 20} {t("sellerDashboard.moreItems")}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Photos (4 required) */}
