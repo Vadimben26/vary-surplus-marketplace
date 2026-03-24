@@ -10,6 +10,7 @@ import Registration from "./pages/Registration.tsx";
 import BuyerRegistration from "./pages/BuyerRegistration.tsx";
 import SellerRegistration from "./pages/SellerRegistration.tsx";
 import Login from "./pages/Login.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 import Marketplace from "./pages/Marketplace.tsx";
 import SellerDashboard from "./pages/SellerDashboard.tsx";
 import SellerVIP from "./pages/SellerVIP.tsx";
