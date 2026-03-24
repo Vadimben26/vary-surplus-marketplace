@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
@@ -59,6 +59,13 @@ const BuyerRegistration = () => {
   const { signUp, user, profile, updateProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const isAlreadyLoggedIn = !!user;
+
+  useEffect(() => {
+    if (user?.email) {
+      setFormData(prev => ({ ...prev, email: user.email || "" }));
+    }
+  }, [user]);
 
   // Step 1
   const [formData, setFormData] = useState({
@@ -90,7 +97,6 @@ const BuyerRegistration = () => {
   const [marketingConsent, setMarketingConsent] = useState(false);
 
   const totalSteps = 5;
-  const isAlreadyLoggedIn = !!user;
 
   const update = (field: string, value: string) => setFormData((prev) => ({ ...prev, [field]: value }));
   const toggle = (arr: string[], setArr: React.Dispatch<React.SetStateAction<string[]>>, val: string) => {
@@ -218,7 +224,7 @@ const BuyerRegistration = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Email *</label>
-                    <Input type="email" placeholder="jean@entreprise.com" value={isAlreadyLoggedIn ? (user?.email || "") : formData.email} onChange={(e) => update("email", e.target.value)} disabled={isAlreadyLoggedIn} />
+                    <Input type="email" placeholder="jean@entreprise.com" value={formData.email} onChange={(e) => update("email", e.target.value)} />
                   </div>
                   {!isAlreadyLoggedIn && (
                     <div className="space-y-2">
