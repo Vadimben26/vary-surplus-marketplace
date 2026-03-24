@@ -226,7 +226,7 @@ const SellerDashboard = () => {
         await supabase.from("lot_items").delete().eq("lot_id", editingLotId);
         if (validItems.length > 0) {
           const { error: itemErr } = await supabase.from("lot_items").insert(
-            validItems.map(it => ({ lot_id: editingLotId, name: it.name, quantity: it.quantity, size: it.size }))
+            validItems.map(it => ({ lot_id: editingLotId, name: it.name, quantity: it.quantity, size: it.size, brand: it.brand, category: it.category, gender: it.gender, reference: it.reference, retail_price: it.retail_price || null, image_url: it.image_url || null }))
           );
           if (itemErr) throw itemErr;
         }
