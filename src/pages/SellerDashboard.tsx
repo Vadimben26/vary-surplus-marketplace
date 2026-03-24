@@ -235,7 +235,7 @@ const SellerDashboard = () => {
       } else {
         // Create lot
         const { data: newLot, error } = await supabase.from("lots").insert({
-          seller_id: profile.id, title, brand: brands,
+          seller_id: profile.id, title, brand: brandName,
           price: parseFloat(price), units: parseInt(units) || 0,
           category: categories.join(", "), description,
           status: "active",
