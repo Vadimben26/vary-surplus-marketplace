@@ -76,6 +76,7 @@ const App = () => (
                 <Route path="/inscription/acheteur" element={<BuyerRegistration />} />
                 <Route path="/inscription/vendeur" element={<SellerRegistration />} />
                 <Route path="/connexion" element={<Login />} />
+                <Route path="/mot-de-passe-oublie" element={<ResetPassword />} />
 
                 {/* Public pages */}
                 <Route path="/marketplace" element={<Marketplace />} />
