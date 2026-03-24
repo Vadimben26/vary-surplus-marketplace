@@ -90,27 +90,6 @@ const SellerRegistration = () => {
     setArr(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
   };
 
-  const RadioOption = ({ name, value, selected, onSelect, label }: { name: string; value: string; selected: string; onSelect: (v: string) => void; label: string }) => (
-    <label className="flex items-center gap-2 cursor-pointer">
-      <input type="radio" name={name} checked={selected === value} onChange={() => onSelect(value)} className="accent-primary w-4 h-4" />
-      <span className="text-sm text-foreground">{label}</span>
-    </label>
-  );
-
-  const ChipSelect = ({ options, selected, onToggle, multi = false }: { options: string[]; selected: string | string[]; onToggle: (v: string) => void; multi?: boolean }) => (
-    <div className="flex flex-wrap gap-2 mt-2">
-      {options.map((o) => {
-        const isActive = multi ? (selected as string[]).includes(o) : selected === o;
-        return (
-          <button key={o} type="button" onClick={() => onToggle(o)}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${isActive ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:border-primary/40"}`}>
-            {o}
-          </button>
-        );
-      })}
-    </div>
-  );
-
   const validateStep = (): string | null => {
     if (step === 1) {
       if (!formData.firstName.trim() || !formData.lastName.trim()) return t("sellerReg.validation.firstLastName");
