@@ -143,7 +143,7 @@ const SellerRegistration = () => {
 
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
-  const stepTitles = [
+  const stepTitlesArr = [
     t("sellerReg.stepTitles.identity"),
     t("sellerReg.stepTitles.company"),
     t("sellerReg.stepTitles.products"),
@@ -153,15 +153,18 @@ const SellerRegistration = () => {
 
   const stepHeader = (
     <div className="mb-6">
-      <p className="text-muted-foreground text-sm">{t("sellerReg.createAccount")}</p>
-      <h2 className="font-heading text-xl font-bold text-foreground">
-        {t("sellerReg.step")} {step} / {totalSteps} — {stepTitles[step - 1]}
-      </h2>
-      <div className="flex gap-1 mt-3">
-        {Array.from({ length: totalSteps }, (_, i) => (
-          <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < step ? "bg-primary" : "bg-border"}`} />
+      <div className="flex items-center gap-3 mb-4">
+        {stepTitlesArr.map((title, i) => (
+          <div key={i} className={`flex items-center gap-1.5 ${i + 1 === step ? "text-primary" : i + 1 < step ? "text-primary/60" : "text-muted-foreground/40"}`}>
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${i + 1 === step ? "bg-primary text-primary-foreground" : i + 1 < step ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+              {i + 1 < step ? "✓" : i + 1}
+            </div>
+            <span className="text-xs font-medium hidden md:inline">{title}</span>
+            {i < stepTitlesArr.length - 1 && <div className={`w-8 h-px ${i + 1 < step ? "bg-primary/40" : "bg-border"}`} />}
+          </div>
         ))}
       </div>
+      <h2 className="font-heading text-lg font-bold text-foreground">{stepTitlesArr[step - 1]}</h2>
     </div>
   );
 
