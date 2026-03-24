@@ -216,7 +216,7 @@ const SellerDashboard = () => {
           allImages = [...allImages, ...newUrls];
         }
         const { error } = await supabase.from("lots").update({
-          title, brand: brands, price: parseFloat(price),
+          title, brand: brandName, price: parseFloat(price),
           units: parseInt(units) || 0,
           category: categories.join(", "),
           description,
