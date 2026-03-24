@@ -144,7 +144,7 @@ const SellerDashboard = () => {
 
   const resetForm = () => {
     setTitle(""); setPrice(""); setRetailPrice(""); setUnits("");
-    setCategories([]); setDescription("");
+    setCategories([]); setLocation(""); setDescription("");
     setLotItems([{ ...emptyItem }]);
     setPhotos([]); setExistingImages([]);
     setEditingLotId(null);
