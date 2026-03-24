@@ -97,7 +97,6 @@ const BuyerRegistration = () => {
   const [marketingConsent, setMarketingConsent] = useState(false);
 
   const totalSteps = 5;
-  const isAlreadyLoggedIn = !!user;
 
   const update = (field: string, value: string) => setFormData((prev) => ({ ...prev, [field]: value }));
   const toggle = (arr: string[], setArr: React.Dispatch<React.SetStateAction<string[]>>, val: string) => {
