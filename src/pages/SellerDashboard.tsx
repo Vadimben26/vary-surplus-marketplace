@@ -759,7 +759,7 @@ const SellerDashboard = () => {
                     <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t("sellerDashboard.describeLot")} className="resize-none bg-muted/50 border-none rounded-lg" rows={4} />
                   </div>
 
-                  {/* Excel import section (mirrors LotDetail download button style) */}
+                  {/* Excel import section */}
                   <div className="space-y-3">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.lotContent")} *</label>
 
@@ -794,19 +794,77 @@ const SellerDashboard = () => {
                       </label>
                     </div>
 
-                    {/* Import status */}
+                    {/* Editable items table */}
                     {lotItems.length > 0 && lotItems[0].name && (
-                      <div className="flex items-center justify-between px-3 py-2.5 bg-muted rounded-xl">
-                        <div className="flex items-center gap-2">
-                          <FileSpreadsheet className="h-4 w-4 text-primary" />
-                          <span className="text-xs font-semibold text-foreground">
-                            {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
-                          </span>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <FileSpreadsheet className="h-4 w-4 text-primary" />
+                            <span className="text-xs font-semibold text-foreground">
+                              {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
+                            </span>
+                          </div>
+                          <button type="button" onClick={() => setLotItems([{ ...emptyItem }])} className="text-xs text-destructive hover:underline">
+                            {t("sellerDashboard.clearItems")}
+                          </button>
                         </div>
-                        <button type="button" onClick={() => setLotItems([{ ...emptyItem }])} className="text-xs text-destructive hover:underline">
-                          {t("sellerDashboard.clearItems")}
-                        </button>
+                        <div className="border border-border rounded-xl overflow-hidden">
+                          <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
+                            <table className="w-full text-xs">
+                              <thead className="bg-muted sticky top-0">
+                                <tr>
+                                  <th className="text-left px-2 py-1.5 font-semibold text-muted-foreground">{t("sellerDashboard.itemName")}</th>
+                                  <th className="text-left px-2 py-1.5 font-semibold text-muted-foreground w-16">{t("sellerDashboard.qty")}</th>
+                                  <th className="text-left px-2 py-1.5 font-semibold text-muted-foreground w-16">{t("sellerDashboard.size")}</th>
+                                  <th className="text-left px-2 py-1.5 font-semibold text-muted-foreground w-20">Retail €</th>
+                                  <th className="w-8"></th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {lotItems.map((item, idx) => (
+                                  <tr key={idx} className="border-t border-border hover:bg-muted/30">
+                                    <td className="px-1 py-1">
+                                      <input value={item.name} onChange={e => updateItem(idx, "name", e.target.value)} className="w-full bg-transparent px-1 py-0.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
+                                    </td>
+                                    <td className="px-1 py-1">
+                                      <input type="number" value={item.quantity || ""} onChange={e => updateItem(idx, "quantity", parseInt(e.target.value) || 0)} className="w-full bg-transparent px-1 py-0.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
+                                    </td>
+                                    <td className="px-1 py-1">
+                                      <input value={item.size} onChange={e => updateItem(idx, "size", e.target.value)} className="w-full bg-transparent px-1 py-0.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
+                                    </td>
+                                    <td className="px-1 py-1">
+                                      <input type="number" value={item.retail_price || ""} onChange={e => updateItem(idx, "retail_price", parseFloat(e.target.value) || 0)} className="w-full bg-transparent px-1 py-0.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
+                                    </td>
+                                    <td className="px-1 py-1">
+                                      <button type="button" onClick={() => setLotItems(prev => prev.filter((_, i) => i !== idx))} className="text-destructive hover:text-destructive/80 p-0.5">
+                                        <X className="h-3 w-3" />
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setLotItems(prev => [...prev, { ...emptyItem }])}
+                            className="w-full px-3 py-2 text-xs font-medium text-primary hover:bg-muted/50 transition-colors border-t border-border"
+                          >
+                            {t("sellerDashboard.addLine")}
+                          </button>
+                        </div>
                       </div>
+                    )}
+
+                    {/* Add first item manually if no items */}
+                    {(!lotItems.length || !lotItems[0].name) && (
+                      <button
+                        type="button"
+                        onClick={() => setLotItems([{ ...emptyItem, name: " " }])}
+                        className="w-full px-4 py-2.5 text-xs font-medium text-primary bg-primary/5 hover:bg-primary/10 rounded-xl border border-dashed border-primary/20 transition-colors"
+                      >
+                        {t("sellerDashboard.addLine")}
+                      </button>
                     )}
                   </div>
 
