@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, User, Package, Clock, CheckCircle, Edit2, Save, X, Building2, Truck, AlertTriangle, MessageCircle } from "lucide-react";
+import { ArrowLeft, User, Package, Clock, CheckCircle, Edit2, Save, X, Building2, Truck, AlertTriangle, MessageCircle, Settings2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -12,20 +12,63 @@ import DevPanel from "@/components/DevPanel";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+// Helper to render a preference field
+const PrefField = ({ label, value }: { label: string; value: string | string[] | null | undefined }) => {
+  if (!value || (Array.isArray(value) && value.length === 0)) return null;
+  const display = Array.isArray(value) ? value.join(", ") : value;
+  return (
+    <div>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-sm font-medium text-foreground mt-0.5">{display}</p>
+    </div>
+  );
+};
+
 const Profile = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { profile, canAccessSeller, updateProfile } = useAuth();
+  const { user, profile, canAccessSeller, canAccessBuyer, updateProfile } = useAuth();
   const isSeller = canAccessSeller();
+  const isBuyer = canAccessBuyer();
   const [editing, setEditing] = useState(false);
-  const [tab, setTab] = useState<"profile" | "orders">("profile");
+  const [tab, setTab] = useState<"profile" | "orders" | "preferences">("profile");
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     full_name: profile?.full_name || "",
     phone: profile?.phone || "",
     company_name: profile?.company_name || "",
     company_description: profile?.company_description || "",
+  });
+
+  // Fetch buyer preferences
+  const { data: buyerPrefs } = useQuery({
+    queryKey: ["buyer-preferences", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from("buyer_preferences")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user?.id && isBuyer,
+  });
+
+  // Fetch seller preferences
+  const { data: sellerPrefs } = useQuery({
+    queryKey: ["seller-preferences", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from("seller_preferences")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user?.id && isSeller,
   });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
@@ -102,6 +145,8 @@ const Profile = () => {
     }
   };
 
+  const hasPreferences = !!(buyerPrefs || sellerPrefs);
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
@@ -120,18 +165,15 @@ const Profile = () => {
         <h1 className="font-heading text-2xl font-bold text-foreground mb-6">{t("profile.title")}</h1>
 
         <div className="flex gap-1 mb-8 bg-muted rounded-xl p-1">
-          <button
-            onClick={() => setTab("profile")}
-            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${tab === "profile" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
-          >
-            {t("profile.profileTab")}
-          </button>
-          <button
-            onClick={() => setTab("orders")}
-            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${tab === "orders" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
-          >
-            {t("profile.ordersTab")}
-          </button>
+          {(["profile", "preferences", "orders"] as const).map((key) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${tab === key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+            >
+              {t(`profile.${key === "profile" ? "profileTab" : key === "orders" ? "ordersTab" : "preferencesTab"}`)}
+            </button>
+          ))}
         </div>
 
         {tab === "profile" && (
@@ -221,6 +263,83 @@ const Profile = () => {
           </motion.div>
         )}
 
+        {tab === "preferences" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+            {!hasPreferences ? (
+              <div className="text-center py-16">
+                <Settings2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4">{t("profile.noPreferences")}</p>
+                <Link
+                  to={isSeller ? "/inscription/vendeur" : "/inscription/acheteur"}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary-dark transition-colors text-sm"
+                >
+                  {t("profile.completeRegistration")}
+                </Link>
+              </div>
+            ) : (
+              <>
+                {/* Buyer preferences */}
+                {buyerPrefs && (
+                  <div className="bg-card rounded-2xl border border-border p-6">
+                    <h3 className="font-heading font-semibold text-foreground mb-4 flex items-center gap-2">
+                      <Package className="h-4 w-4 text-primary" />
+                      {t("profile.buyerType")}
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <PrefField label={t("profile.prefCategories")} value={buyerPrefs.categories} />
+                      <PrefField label={t("profile.prefBudget")} value={buyerPrefs.budget} />
+                      <PrefField label={t("profile.prefStyles")} value={buyerPrefs.styles} />
+                      <PrefField label={t("profile.prefGenders")} value={buyerPrefs.genders} />
+                      <PrefField label={t("profile.prefPiecesPerLot")} value={buyerPrefs.pieces_per_lot} />
+                      <PrefField label={t("profile.prefPricePerPiece")} value={buyerPrefs.price_per_piece} />
+                      <PrefField label={t("profile.prefSearchedBrands")} value={buyerPrefs.searched_brands} />
+                      <PrefField label={t("profile.prefStoreTypes")} value={buyerPrefs.store_types} />
+                      <PrefField label={t("profile.prefStoreLink")} value={buyerPrefs.store_link} />
+                      <PrefField label={t("profile.prefRevenue")} value={buyerPrefs.revenue} />
+                      <PrefField label={t("profile.prefActivityDuration")} value={buyerPrefs.activity_duration} />
+                      <PrefField label={t("profile.prefDeliveryAddress")} value={buyerPrefs.delivery_address} />
+                      <PrefField label={t("profile.prefPerfectLot")} value={buyerPrefs.perfect_lot} />
+                      <PrefField label={t("profile.prefCountry")} value={buyerPrefs.country} />
+                      <PrefField label={t("profile.prefCity")} value={buyerPrefs.city} />
+                      <PrefField label={t("profile.prefReferralSource")} value={buyerPrefs.referral_source} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Seller preferences */}
+                {sellerPrefs && (
+                  <div className="bg-card rounded-2xl border border-border p-6">
+                    <h3 className="font-heading font-semibold text-foreground mb-4 flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-primary" />
+                      {t("profile.sellerType")}
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <PrefField label={t("profile.prefCategories")} value={sellerPrefs.categories} />
+                      <PrefField label={t("profile.prefBusinessType")} value={sellerPrefs.business_type} />
+                      <PrefField label={t("profile.prefWebsite")} value={sellerPrefs.website} />
+                      <PrefField label={t("profile.prefMonthlyVolume")} value={sellerPrefs.monthly_volume} />
+                      <PrefField label={t("profile.prefLotSize")} value={sellerPrefs.lot_size} />
+                      <PrefField label={t("profile.prefBrands")} value={sellerPrefs.brands_text} />
+                      <PrefField label={t("profile.prefWarehouse")} value={sellerPrefs.warehouse_location} />
+                      <PrefField label={t("profile.prefYearsInBusiness")} value={sellerPrefs.years_in_business} />
+                      <PrefField label={t("profile.prefClientTypes")} value={sellerPrefs.client_types} />
+                      <PrefField label={t("profile.prefBuyerTypes")} value={sellerPrefs.buyer_types} />
+                      <PrefField label={t("profile.prefBuyerBudget")} value={sellerPrefs.buyer_budget} />
+                      <PrefField label={t("profile.prefMinOrderSize")} value={sellerPrefs.min_order_size} />
+                      <PrefField label={t("profile.prefTargetMarket")} value={sellerPrefs.target_market} />
+                      <PrefField label={t("profile.prefTargetCountries")} value={sellerPrefs.target_countries} />
+                      <PrefField label={t("profile.prefVisibility")} value={sellerPrefs.visibility_mode} />
+                      <PrefField label={t("profile.prefCountry")} value={sellerPrefs.country} />
+                      <PrefField label={t("profile.prefCity")} value={sellerPrefs.city} />
+                      <PrefField label={t("profile.prefReferralSource")} value={sellerPrefs.referral_source} />
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </motion.div>
+        )}
+
         {tab === "orders" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             {ordersLoading ? (
@@ -266,7 +385,6 @@ const Profile = () => {
                       </p>
                     )}
 
-                    {/* Actions */}
                     <div className="flex gap-2">
                       {isDelivered && (
                         <button
