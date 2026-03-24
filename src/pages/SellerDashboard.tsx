@@ -62,6 +62,7 @@ const SellerDashboard = () => {
   const [retailPrice, setRetailPrice] = useState("");
   const [units, setUnits] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
+  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [lotItems, setLotItems] = useState<LotItem[]>([{ ...emptyItem }]);
   const [photos, setPhotos] = useState<File[]>([]);
@@ -143,7 +144,7 @@ const SellerDashboard = () => {
 
   const resetForm = () => {
     setTitle(""); setPrice(""); setRetailPrice(""); setUnits("");
-    setCategories([]); setDescription("");
+    setCategories([]); setLocation(""); setDescription("");
     setLotItems([{ ...emptyItem }]);
     setPhotos([]); setExistingImages([]);
     setEditingLotId(null);
@@ -159,6 +160,7 @@ const SellerDashboard = () => {
     setRetailPrice(rv > 0 ? String(rv) : "");
     setUnits(String(lot.units));
     setCategories(lot.category ? lot.category.split(",").map((c: string) => c.trim()) : []);
+    setLocation(lot.location || "");
     setDescription(lot.description || "");
     setExistingImages(lot.images || []);
     setPhotos([]);
@@ -219,6 +221,7 @@ const SellerDashboard = () => {
           title, brand: brandName, price: parseFloat(price),
           units: parseInt(units) || 0,
           category: categories.join(", "),
+          location,
           description,
           images: allImages,
         }).eq("id", editingLotId);
@@ -238,6 +241,7 @@ const SellerDashboard = () => {
           seller_id: profile.id, title, brand: brandName,
           price: parseFloat(price), units: parseInt(units) || 0,
           category: categories.join(", "), description,
+          location,
           status: "active",
           images: [],
         }).select().single();
@@ -757,6 +761,12 @@ const SellerDashboard = () => {
                         );
                       })}
                     </div>
+                  </div>
+
+                  {/* Location */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.location", "Localisation")} *</label>
+                    <Input value={location} onChange={e => setLocation(e.target.value)} placeholder="Ex: France, Paris" className="bg-muted/50 border-none rounded-lg" />
                   </div>
 
                   {/* Description */}
