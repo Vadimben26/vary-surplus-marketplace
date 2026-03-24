@@ -778,11 +778,14 @@ const SellerDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Location */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.location", "Localisation")} *</label>
-                    <Input value={location} onChange={e => setLocation(e.target.value)} placeholder="Ex: France, Paris" className="bg-muted/50 border-none rounded-lg" />
-                  </div>
+                  {/* Location (auto from profile - read only) */}
+                  {autoLocation && (
+                    <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
+                      <MapPin className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs font-semibold text-foreground">{autoLocation}</span>
+                      <span className="text-[10px] text-muted-foreground italic ml-auto">{t("sellerDashboard.autoProfileNote")}</span>
+                    </div>
+                  )}
 
                   {/* Description */}
                   <div className="space-y-1.5">
