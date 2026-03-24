@@ -14,6 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      buyer_preferences: {
+        Row: {
+          activity_duration: string | null
+          address: string | null
+          budget: string | null
+          categories: string[] | null
+          city: string | null
+          country: string | null
+          created_at: string
+          delivery_address: string | null
+          genders: string[] | null
+          id: string
+          marketing_consent: boolean | null
+          perfect_lot: string | null
+          pieces_per_lot: string | null
+          postal_code: string | null
+          price_per_piece: string | null
+          referral_source: string | null
+          revenue: string | null
+          searched_brands: string | null
+          store_link: string | null
+          store_types: string[] | null
+          styles: string[] | null
+          updated_at: string
+          user_id: string
+          vat_code: string | null
+        }
+        Insert: {
+          activity_duration?: string | null
+          address?: string | null
+          budget?: string | null
+          categories?: string[] | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          delivery_address?: string | null
+          genders?: string[] | null
+          id?: string
+          marketing_consent?: boolean | null
+          perfect_lot?: string | null
+          pieces_per_lot?: string | null
+          postal_code?: string | null
+          price_per_piece?: string | null
+          referral_source?: string | null
+          revenue?: string | null
+          searched_brands?: string | null
+          store_link?: string | null
+          store_types?: string[] | null
+          styles?: string[] | null
+          updated_at?: string
+          user_id: string
+          vat_code?: string | null
+        }
+        Update: {
+          activity_duration?: string | null
+          address?: string | null
+          budget?: string | null
+          categories?: string[] | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          delivery_address?: string | null
+          genders?: string[] | null
+          id?: string
+          marketing_consent?: boolean | null
+          perfect_lot?: string | null
+          pieces_per_lot?: string | null
+          postal_code?: string | null
+          price_per_piece?: string | null
+          referral_source?: string | null
+          revenue?: string | null
+          searched_brands?: string | null
+          store_link?: string | null
+          store_types?: string[] | null
+          styles?: string[] | null
+          updated_at?: string
+          user_id?: string
+          vat_code?: string | null
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           created_at: string
@@ -362,6 +443,102 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: []
+      }
+      seller_preferences: {
+        Row: {
+          address: string | null
+          avg_retail_price: string | null
+          brands_text: string | null
+          business_type: string | null
+          buyer_budget: string | null
+          buyer_types: string[] | null
+          categories: string[] | null
+          city: string | null
+          client_types: string[] | null
+          consent: boolean | null
+          country: string | null
+          created_at: string
+          description: string | null
+          id: string
+          lot_size: string | null
+          min_order_size: string | null
+          monthly_volume: string | null
+          postal_code: string | null
+          referral_source: string | null
+          sells_unbranded: string | null
+          target_countries: string[] | null
+          target_market: string | null
+          updated_at: string
+          user_id: string
+          vat_code: string | null
+          visibility_mode: string | null
+          warehouse_location: string | null
+          website: string | null
+          years_in_business: string | null
+        }
+        Insert: {
+          address?: string | null
+          avg_retail_price?: string | null
+          brands_text?: string | null
+          business_type?: string | null
+          buyer_budget?: string | null
+          buyer_types?: string[] | null
+          categories?: string[] | null
+          city?: string | null
+          client_types?: string[] | null
+          consent?: boolean | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          lot_size?: string | null
+          min_order_size?: string | null
+          monthly_volume?: string | null
+          postal_code?: string | null
+          referral_source?: string | null
+          sells_unbranded?: string | null
+          target_countries?: string[] | null
+          target_market?: string | null
+          updated_at?: string
+          user_id: string
+          vat_code?: string | null
+          visibility_mode?: string | null
+          warehouse_location?: string | null
+          website?: string | null
+          years_in_business?: string | null
+        }
+        Update: {
+          address?: string | null
+          avg_retail_price?: string | null
+          brands_text?: string | null
+          business_type?: string | null
+          buyer_budget?: string | null
+          buyer_types?: string[] | null
+          categories?: string[] | null
+          city?: string | null
+          client_types?: string[] | null
+          consent?: boolean | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          lot_size?: string | null
+          min_order_size?: string | null
+          monthly_volume?: string | null
+          postal_code?: string | null
+          referral_source?: string | null
+          sells_unbranded?: string | null
+          target_countries?: string[] | null
+          target_market?: string | null
+          updated_at?: string
+          user_id?: string
+          vat_code?: string | null
+          visibility_mode?: string | null
+          warehouse_location?: string | null
+          website?: string | null
+          years_in_business?: string | null
         }
         Relationships: []
       }
