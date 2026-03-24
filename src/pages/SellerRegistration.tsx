@@ -103,9 +103,7 @@ const SellerRegistration = () => {
     if (step === 3) {
       if (selectedCategories.length === 0) return t("sellerReg.validation.productType");
       if (!monthlyVolume) return t("sellerReg.validation.volume");
-      if (!sellingPrice) return t("sellerReg.validation.sellingPrice");
       if (!lotSize) return t("sellerReg.validation.lotSize");
-      if (!productCondition) return t("sellerReg.validation.condition");
     }
     if (step === 4) {
       if (!formData.warehouseLocation.trim()) return t("sellerReg.validation.warehouse");
