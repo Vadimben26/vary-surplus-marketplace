@@ -43,19 +43,32 @@ const Messages = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { translateMessage } = useTranslateMessage();
 
-  const isSeller = canAccessSeller();
   const lotId = searchParams.get("lot") || null;
 
-  // Check VIP status
-  const { data: isVip = false } = useQuery({
-    queryKey: ["is-vip", profile?.id, isSeller],
+  // Detect if user is acting as seller in this context
+  const isFromSeller = searchParams.get("lot") !== null || document.referrer.includes("/seller") || sessionStorage.getItem("vary_last_interface") === "seller";
+  const actingAsSeller = canAccessSeller() && isFromSeller;
+
+  // Check VIP status for BOTH roles independently
+  const { data: isVipSeller = false } = useQuery({
+    queryKey: ["is-vip-seller", profile?.id],
     queryFn: async () => {
-      const fn = isSeller ? "is_vip_seller" : "is_vip_buyer";
-      const { data } = await supabase.rpc(fn);
+      const { data } = await supabase.rpc("is_vip_seller");
+      return !!data;
+    },
+    enabled: !!profile?.id && canAccessSeller(),
+  });
+
+  const { data: isVipBuyer = false } = useQuery({
+    queryKey: ["is-vip-buyer", profile?.id],
+    queryFn: async () => {
+      const { data } = await supabase.rpc("is_vip_buyer");
       return !!data;
     },
     enabled: !!profile?.id,
   });
+
+  const isVip = actingAsSeller ? isVipSeller : isVipBuyer;
 
   // Fetch all messages for this user
   const { data: allMessages = [], refetch: refetchMessages } = useQuery({
@@ -242,11 +255,8 @@ const Messages = () => {
 
   const selectedPartner = selectedConversation ? partnersMap[selectedConversation] : null;
 
-  const vipLink = isSeller ? "/seller/vip" : "/buyer/vip";
-  const vipLabel = isSeller ? t("sellerVIP.messageTemplatesDesc") : t("buyerVIP.prioritySupportDesc");
-
-  // Detect if user came from seller interface
-  const isFromSeller = searchParams.get("lot") !== null || document.referrer.includes("/seller") || sessionStorage.getItem("vary_last_interface") === "seller";
+  const vipLink = actingAsSeller ? "/seller/vip" : "/buyer/vip";
+  const vipLabel = actingAsSeller ? t("sellerVIP.messageTemplatesDesc") : t("buyerVIP.prioritySupportDesc");
 
   // No conversations state
   if (conversations.length === 0 && !searchParams.get("with")) {
@@ -311,7 +321,7 @@ const Messages = () => {
 
           {/* VIP templates or CTA in sidebar */}
           {isVip ? (
-            <MessageTemplates isSeller={isSeller} onSelectTemplate={setNewMessage}>
+            <MessageTemplates isSeller={actingAsSeller} onSelectTemplate={setNewMessage}>
               <button className="flex items-center gap-2 mx-3 mb-3 p-2.5 rounded-lg border border-primary/20 bg-primary/10 hover:bg-primary/15 transition-colors w-[calc(100%-1.5rem)]">
                 <FileText className="h-4 w-4 text-primary flex-shrink-0" />
                 <span className="text-xs text-primary font-semibold leading-tight">{t("messageTemplates.openTemplates")}</span>
@@ -390,7 +400,7 @@ const Messages = () => {
 
               {/* VIP templates or CTA inline */}
               {isVip ? (
-                <MessageTemplates isSeller={isSeller} onSelectTemplate={setNewMessage}>
+                <MessageTemplates isSeller={actingAsSeller} onSelectTemplate={setNewMessage}>
                   <button className="flex items-center gap-2 mx-4 mb-2 px-3 py-2 rounded-lg border border-primary/15 bg-primary/10 hover:bg-primary/15 transition-colors">
                     <FileText className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                     <span className="text-[11px] text-primary font-semibold">{t("messageTemplates.openTemplates")}</span>
