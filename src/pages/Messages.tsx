@@ -255,11 +255,8 @@ const Messages = () => {
 
   const selectedPartner = selectedConversation ? partnersMap[selectedConversation] : null;
 
-  const vipLink = isSeller ? "/seller/vip" : "/buyer/vip";
-  const vipLabel = isSeller ? t("sellerVIP.messageTemplatesDesc") : t("buyerVIP.prioritySupportDesc");
-
-  // Detect if user came from seller interface
-  const isFromSeller = searchParams.get("lot") !== null || document.referrer.includes("/seller") || sessionStorage.getItem("vary_last_interface") === "seller";
+  const vipLink = actingAsSeller ? "/seller/vip" : "/buyer/vip";
+  const vipLabel = actingAsSeller ? t("sellerVIP.messageTemplatesDesc") : t("buyerVIP.prioritySupportDesc");
 
   // No conversations state
   if (conversations.length === 0 && !searchParams.get("with")) {
