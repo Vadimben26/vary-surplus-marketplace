@@ -43,19 +43,32 @@ const Messages = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { translateMessage } = useTranslateMessage();
 
-  const isSeller = canAccessSeller();
   const lotId = searchParams.get("lot") || null;
 
-  // Check VIP status
-  const { data: isVip = false } = useQuery({
-    queryKey: ["is-vip", profile?.id, isSeller],
+  // Detect if user is acting as seller in this context
+  const isFromSeller = searchParams.get("lot") !== null || document.referrer.includes("/seller") || sessionStorage.getItem("vary_last_interface") === "seller";
+  const actingAsSeller = canAccessSeller() && isFromSeller;
+
+  // Check VIP status for BOTH roles independently
+  const { data: isVipSeller = false } = useQuery({
+    queryKey: ["is-vip-seller", profile?.id],
     queryFn: async () => {
-      const fn = isSeller ? "is_vip_seller" : "is_vip_buyer";
-      const { data } = await supabase.rpc(fn);
+      const { data } = await supabase.rpc("is_vip_seller");
+      return !!data;
+    },
+    enabled: !!profile?.id && canAccessSeller(),
+  });
+
+  const { data: isVipBuyer = false } = useQuery({
+    queryKey: ["is-vip-buyer", profile?.id],
+    queryFn: async () => {
+      const { data } = await supabase.rpc("is_vip_buyer");
       return !!data;
     },
     enabled: !!profile?.id,
   });
+
+  const isVip = actingAsSeller ? isVipSeller : isVipBuyer;
 
   // Fetch all messages for this user
   const { data: allMessages = [], refetch: refetchMessages } = useQuery({
