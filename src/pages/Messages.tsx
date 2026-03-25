@@ -321,7 +321,7 @@ const Messages = () => {
 
           {/* VIP templates or CTA in sidebar */}
           {isVip ? (
-            <MessageTemplates isSeller={isSeller} onSelectTemplate={setNewMessage}>
+            <MessageTemplates isSeller={actingAsSeller} onSelectTemplate={setNewMessage}>
               <button className="flex items-center gap-2 mx-3 mb-3 p-2.5 rounded-lg border border-primary/20 bg-primary/10 hover:bg-primary/15 transition-colors w-[calc(100%-1.5rem)]">
                 <FileText className="h-4 w-4 text-primary flex-shrink-0" />
                 <span className="text-xs text-primary font-semibold leading-tight">{t("messageTemplates.openTemplates")}</span>
