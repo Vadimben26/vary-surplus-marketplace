@@ -400,7 +400,7 @@ const Messages = () => {
 
               {/* VIP templates or CTA inline */}
               {isVip ? (
-                <MessageTemplates isSeller={isSeller} onSelectTemplate={setNewMessage}>
+                <MessageTemplates isSeller={actingAsSeller} onSelectTemplate={setNewMessage}>
                   <button className="flex items-center gap-2 mx-4 mb-2 px-3 py-2 rounded-lg border border-primary/15 bg-primary/10 hover:bg-primary/15 transition-colors">
                     <FileText className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                     <span className="text-[11px] text-primary font-semibold">{t("messageTemplates.openTemplates")}</span>
