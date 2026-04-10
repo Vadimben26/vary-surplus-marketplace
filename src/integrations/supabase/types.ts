@@ -18,14 +18,19 @@ export type Database = {
         Row: {
           activity_duration: string | null
           address: string | null
+          alerts_consent: boolean | null
+          annual_revenue: string | null
+          billing_address_line2: string | null
           budget: string | null
           categories: string[] | null
           city: string | null
           country: string | null
           created_at: string
           delivery_address: string | null
+          delivery_countries: string[] | null
           genders: string[] | null
           id: string
+          info_certified: boolean | null
           marketing_consent: boolean | null
           perfect_lot: string | null
           pieces_per_lot: string | null
@@ -33,11 +38,19 @@ export type Database = {
           price_per_piece: string | null
           referral_source: string | null
           revenue: string | null
+          revenue_document_url: string | null
+          same_shipping_address: boolean | null
           searched_brands: string | null
+          shipping_address_line1: string | null
+          shipping_address_line2: string | null
+          shipping_city: string | null
+          shipping_country: string | null
+          shipping_postal_code: string | null
           store_link: string | null
           store_photos: string[] | null
           store_types: string[] | null
           styles: string[] | null
+          terms_accepted: boolean | null
           updated_at: string
           user_id: string
           vat_code: string | null
@@ -45,14 +58,19 @@ export type Database = {
         Insert: {
           activity_duration?: string | null
           address?: string | null
+          alerts_consent?: boolean | null
+          annual_revenue?: string | null
+          billing_address_line2?: string | null
           budget?: string | null
           categories?: string[] | null
           city?: string | null
           country?: string | null
           created_at?: string
           delivery_address?: string | null
+          delivery_countries?: string[] | null
           genders?: string[] | null
           id?: string
+          info_certified?: boolean | null
           marketing_consent?: boolean | null
           perfect_lot?: string | null
           pieces_per_lot?: string | null
@@ -60,11 +78,19 @@ export type Database = {
           price_per_piece?: string | null
           referral_source?: string | null
           revenue?: string | null
+          revenue_document_url?: string | null
+          same_shipping_address?: boolean | null
           searched_brands?: string | null
+          shipping_address_line1?: string | null
+          shipping_address_line2?: string | null
+          shipping_city?: string | null
+          shipping_country?: string | null
+          shipping_postal_code?: string | null
           store_link?: string | null
           store_photos?: string[] | null
           store_types?: string[] | null
           styles?: string[] | null
+          terms_accepted?: boolean | null
           updated_at?: string
           user_id: string
           vat_code?: string | null
@@ -72,14 +98,19 @@ export type Database = {
         Update: {
           activity_duration?: string | null
           address?: string | null
+          alerts_consent?: boolean | null
+          annual_revenue?: string | null
+          billing_address_line2?: string | null
           budget?: string | null
           categories?: string[] | null
           city?: string | null
           country?: string | null
           created_at?: string
           delivery_address?: string | null
+          delivery_countries?: string[] | null
           genders?: string[] | null
           id?: string
+          info_certified?: boolean | null
           marketing_consent?: boolean | null
           perfect_lot?: string | null
           pieces_per_lot?: string | null
@@ -87,11 +118,19 @@ export type Database = {
           price_per_piece?: string | null
           referral_source?: string | null
           revenue?: string | null
+          revenue_document_url?: string | null
+          same_shipping_address?: boolean | null
           searched_brands?: string | null
+          shipping_address_line1?: string | null
+          shipping_address_line2?: string | null
+          shipping_city?: string | null
+          shipping_country?: string | null
+          shipping_postal_code?: string | null
           store_link?: string | null
           store_photos?: string[] | null
           store_types?: string[] | null
           styles?: string[] | null
+          terms_accepted?: boolean | null
           updated_at?: string
           user_id?: string
           vat_code?: string | null
