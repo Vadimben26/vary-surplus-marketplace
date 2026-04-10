@@ -44,7 +44,7 @@ const COUNTRIES = [
 ];
 
 const CATEGORIES = [
-  "Vêtements", "Sacs", "Sneakers", "Beauté", "Sport", "Électronique",
+  "Vêtements", "Sneakers", "Accessoires",
 ];
 
 interface FilterDropdownProps {

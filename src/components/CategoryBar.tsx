@@ -1,15 +1,12 @@
 import { useRef } from "react";
-import { Shirt, ShoppingBag, Footprints, Sparkles, Dumbbell, Smartphone, ChevronLeft, ChevronRight } from "lucide-react";
+import { Shirt, Footprints, Watch, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 const categories = [
   { label: "Tous", value: "", icon: null },
   { label: "Vêtements", value: "Vêtements", icon: Shirt },
-  { label: "Sacs", value: "Sacs", icon: ShoppingBag },
   { label: "Sneakers", value: "Sneakers", icon: Footprints },
-  { label: "Beauté", value: "Beauté", icon: Sparkles },
-  { label: "Sport", value: "Sport", icon: Dumbbell },
-  { label: "Électronique", value: "Électronique", icon: Smartphone },
+  { label: "Accessoires", value: "Accessoires", icon: Watch },
 ];
 
 interface CategoryBarProps {
