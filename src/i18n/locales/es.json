@@ -646,10 +646,7 @@
     "categories": {
       "clothing": "Ropa",
       "sneakers": "Zapatillas",
-      "accessories": "Accesorios",
-      "sport": "Deporte",
-      "beauty": "Belleza",
-      "electronics": "Electrónica"
+      "accessories": "Accesorios"
     },
     "downloadTemplate": "Descargar plantilla",
     "uploadExcel": "Importar Excel",
