@@ -474,7 +474,7 @@
     "clearAll": "Clear all",
     "mode_contains": "Contains",
     "mode_mostly": "Mostly",
-    "discount": "Estimated discount"
+    "discount": "Discount"
   },
   "buyerVIP": {
     "badge": "VIP Buyer",
@@ -646,10 +646,7 @@
     "categories": {
       "clothing": "Clothing",
       "sneakers": "Sneakers",
-      "accessories": "Accessories",
-      "sport": "Sport",
-      "beauty": "Beauty",
-      "electronics": "Electronics"
+      "accessories": "Accessories"
     },
     "downloadTemplate": "Download template",
     "uploadExcel": "Import Excel",

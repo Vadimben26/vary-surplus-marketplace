@@ -31,7 +31,7 @@ interface LotItem {
 
 const emptyItem: LotItem = { name: "", quantity: 0, size: "", brand: "", category: "", gender: "", reference: "", retail_price: 0, image_url: "" };
 
-const CATEGORIES = ["clothing", "sneakers", "accessories", "sport", "beauty", "electronics"];
+const CATEGORIES = ["clothing", "sneakers", "accessories"];
 
 const SellerDashboard = () => {
   const { t } = useTranslation();

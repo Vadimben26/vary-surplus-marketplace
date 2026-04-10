@@ -24,7 +24,7 @@ const priceRanges = [
   { value: "mid", label: "5 000 – 15 000 €" },
   { value: "high", label: "> 15 000 €" },
 ];
-const styles = ["", "Casual", "Business", "Sport", "Premium", "Denim"];
+const styles = ["", "Casual", "Business", "Premium"];
 
 const MarketplaceHeader = ({ filters, onFiltersChange }: MarketplaceHeaderProps) => {
   const [showFilters, setShowFilters] = useState(false);
