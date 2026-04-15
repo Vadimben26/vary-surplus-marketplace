@@ -491,14 +491,24 @@ export type Database = {
       seller_preferences: {
         Row: {
           address: string | null
+          auth_document_url: string | null
           avg_retail_price: string | null
+          billing_address_line1: string | null
+          billing_address_line2: string | null
+          billing_city: string | null
+          billing_country: string | null
+          billing_postal_code: string | null
           brands_text: string | null
           business_type: string | null
           buyer_budget: string | null
+          buyer_categories: string[] | null
+          buyer_geography: string | null
+          buyer_min_revenue: string | null
           buyer_types: string[] | null
           categories: string[] | null
           city: string | null
           client_types: string[] | null
+          company_document_url: string | null
           consent: boolean | null
           country: string | null
           created_at: string
@@ -507,11 +517,19 @@ export type Database = {
           lot_size: string | null
           min_order_size: string | null
           monthly_volume: string | null
+          pickup_address_line1: string | null
+          pickup_address_line2: string | null
+          pickup_city: string | null
+          pickup_country: string | null
+          pickup_postal_code: string | null
           postal_code: string | null
           referral_source: string | null
+          same_pickup_address: boolean | null
+          seller_certified: boolean | null
           sells_unbranded: string | null
           target_countries: string[] | null
           target_market: string | null
+          terms_accepted: boolean | null
           updated_at: string
           user_id: string
           vat_code: string | null
@@ -522,14 +540,24 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          auth_document_url?: string | null
           avg_retail_price?: string | null
+          billing_address_line1?: string | null
+          billing_address_line2?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_postal_code?: string | null
           brands_text?: string | null
           business_type?: string | null
           buyer_budget?: string | null
+          buyer_categories?: string[] | null
+          buyer_geography?: string | null
+          buyer_min_revenue?: string | null
           buyer_types?: string[] | null
           categories?: string[] | null
           city?: string | null
           client_types?: string[] | null
+          company_document_url?: string | null
           consent?: boolean | null
           country?: string | null
           created_at?: string
@@ -538,11 +566,19 @@ export type Database = {
           lot_size?: string | null
           min_order_size?: string | null
           monthly_volume?: string | null
+          pickup_address_line1?: string | null
+          pickup_address_line2?: string | null
+          pickup_city?: string | null
+          pickup_country?: string | null
+          pickup_postal_code?: string | null
           postal_code?: string | null
           referral_source?: string | null
+          same_pickup_address?: boolean | null
+          seller_certified?: boolean | null
           sells_unbranded?: string | null
           target_countries?: string[] | null
           target_market?: string | null
+          terms_accepted?: boolean | null
           updated_at?: string
           user_id: string
           vat_code?: string | null
@@ -553,14 +589,24 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          auth_document_url?: string | null
           avg_retail_price?: string | null
+          billing_address_line1?: string | null
+          billing_address_line2?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_postal_code?: string | null
           brands_text?: string | null
           business_type?: string | null
           buyer_budget?: string | null
+          buyer_categories?: string[] | null
+          buyer_geography?: string | null
+          buyer_min_revenue?: string | null
           buyer_types?: string[] | null
           categories?: string[] | null
           city?: string | null
           client_types?: string[] | null
+          company_document_url?: string | null
           consent?: boolean | null
           country?: string | null
           created_at?: string
@@ -569,11 +615,19 @@ export type Database = {
           lot_size?: string | null
           min_order_size?: string | null
           monthly_volume?: string | null
+          pickup_address_line1?: string | null
+          pickup_address_line2?: string | null
+          pickup_city?: string | null
+          pickup_country?: string | null
+          pickup_postal_code?: string | null
           postal_code?: string | null
           referral_source?: string | null
+          same_pickup_address?: boolean | null
+          seller_certified?: boolean | null
           sells_unbranded?: string | null
           target_countries?: string[] | null
           target_market?: string | null
+          terms_accepted?: boolean | null
           updated_at?: string
           user_id?: string
           vat_code?: string | null
