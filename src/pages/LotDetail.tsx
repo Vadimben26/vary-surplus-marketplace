@@ -440,6 +440,17 @@ const LotDetail = () => {
 
       <LegalFooter />
       <BottomNav />
+
+      <BuyerPrefsGate
+        open={showGate}
+        onClose={() => setShowGate(false)}
+        title={t("buyerGate.privateTitle", "Lot privé — profil acheteur requis")}
+        description={t(
+          "buyerGate.privateDescription",
+          "Ce vendeur réserve l'accès aux acheteurs vérifiés. Complétez votre profil acheteur en quelques minutes pour commander ou échanger avec lui."
+        )}
+        returnTo={typeof window !== "undefined" ? window.location.pathname : undefined}
+      />
     </div>
   );
 };
