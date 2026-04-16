@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import LegalFooter from "@/components/LegalFooter";
 
 const STORAGE_KEY = "vary_buyer_reg_draft";
