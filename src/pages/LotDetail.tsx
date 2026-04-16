@@ -350,15 +350,18 @@ const LotDetail = () => {
                 </button>
 
                 <button
-                  onClick={() => {
-                    if (!profile) { navigate("/connexion"); return; }
-                    navigate(`/messages?with=${lot.seller_id}&lot=${lot.id}`);
-                  }}
+                  onClick={handleContactSeller}
                   className="w-full mt-2 py-2 border border-border rounded-xl hover:bg-muted transition-colors flex items-center justify-center gap-2 text-xs text-foreground"
                 >
                   <MessageCircle className="h-3.5 w-3.5" />
                   {t("lotDetail.contactSeller")}
                 </button>
+
+                {isFilteredLot && (
+                  <p className="text-[10px] text-muted-foreground italic text-center mt-2">
+                    {t("lotDetail.filteredHint", "Lot privé : profil acheteur requis pour commander ou contacter le vendeur.")}
+                  </p>
+                )}
               </div>
             </div>
           </div>
