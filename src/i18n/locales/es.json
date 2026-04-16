@@ -695,5 +695,15 @@
       "counterOffer": "Negociación",
       "review": "Reseña"
     }
+  },
+  "buyerGate": {
+    "title": "Verificación de comprador requerida",
+    "description": "Para finalizar tu compra o contactar a este vendedor, primero completa tu perfil de comprador. Solo toma unos minutos.",
+    "checkoutTitle": "Completa tu perfil de comprador",
+    "checkoutDescription": "Antes de tu primer pago, necesitamos algunos datos sobre tu actividad. Solo toma 2 minutos.",
+    "privateTitle": "Lote privado — perfil de comprador requerido",
+    "privateDescription": "Este vendedor reserva el acceso a compradores verificados. Completa tu perfil de comprador en unos minutos para pedir o chatear con él.",
+    "cta": "Completar mi perfil",
+    "later": "Más tarde"
   }
 }
