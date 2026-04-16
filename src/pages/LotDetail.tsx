@@ -23,9 +23,11 @@ const LotDetail = () => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isInCart, addToCart } = useCart();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
+  const { hasBuyerPrefs, loading: prefsLoading } = useBuyerPrefs();
   const [activeImage, setActiveImage] = useState(0);
   const [selectedProductImage, setSelectedProductImage] = useState<string | null>(null);
+  const [showGate, setShowGate] = useState(false);
 
   const { data: lot, isLoading } = useQuery({
     queryKey: ["lot-detail", id],
