@@ -66,6 +66,8 @@ const initialForm: FormData = {
 const BuyerRegistration = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("return") || "/marketplace";
   const { signUp, user, profile, updateProfile } = useAuth();
 
   const [step, setStep] = useState(1);
