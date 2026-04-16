@@ -46,6 +46,12 @@ const Checkout = () => {
       return;
     }
 
+    // Phase 5: trigger buyer questionnaire on first payment
+    if (!prefsLoading && !hasBuyerPrefs) {
+      setShowGate(true);
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
