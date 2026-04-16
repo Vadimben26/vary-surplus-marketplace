@@ -304,51 +304,8 @@ const SellerDashboard = () => {
     setLotItems(prev => prev.map((it, i) => i === idx ? { ...it, [field]: value } : it));
   };
 
-  const downloadTemplate = useCallback(() => {
-    const headers = [
-      { Marque: "", Article: "", Catégorie: "", Genre: "", Taille: "", "Réf.": "", Qté: "", "Prix retail": "", Photo: "" }
-    ];
-    const ws = XLSX.utils.json_to_sheet(headers);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Inventaire");
-    ws["!cols"] = Object.keys(headers[0]).map(k => ({ wch: Math.max(k.length, 14) }));
-    XLSX.writeFile(wb, "template_inventaire.xlsx");
-  }, []);
-
-  const handleExcelUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      try {
-        const wb = XLSX.read(evt.target?.result, { type: "binary" });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const rows: any[] = XLSX.utils.sheet_to_json(ws);
-        if (rows.length === 0) { toast.error(t("sellerDashboard.excelEmpty")); return; }
-        const parsed: LotItem[] = rows.map(r => ({
-          name: String(r["Article"] || r["article"] || r["Name"] || r["name"] || ""),
-          brand: String(r["Marque"] || r["marque"] || r["Brand"] || r["brand"] || ""),
-          category: String(r["Catégorie"] || r["catégorie"] || r["Category"] || r["category"] || ""),
-          gender: String(r["Genre"] || r["genre"] || r["Gender"] || r["gender"] || ""),
-          size: String(r["Taille"] || r["taille"] || r["Size"] || r["size"] || ""),
-          reference: String(r["Réf."] || r["réf."] || r["Ref"] || r["ref"] || r["Reference"] || ""),
-          quantity: Number(r["Qté"] || r["qté"] || r["Qty"] || r["qty"] || r["Quantity"] || 0),
-          retail_price: Number(r["Prix retail"] || r["prix retail"] || r["Retail Price"] || r["retail_price"] || 0),
-          image_url: String(r["Photo"] || r["photo"] || r["Image"] || r["image_url"] || ""),
-        })).filter(it => it.name.trim());
-        if (parsed.length === 0) { toast.error(t("sellerDashboard.excelNoItems")); return; }
-        setLotItems(parsed);
-        // Auto-compute units
-        const totalUnits = parsed.reduce((s, it) => s + it.quantity, 0);
-        if (totalUnits > 0) setUnits(String(totalUnits));
-        toast.success(t("sellerDashboard.excelImported", { count: parsed.length }));
-      } catch {
-        toast.error(t("sellerDashboard.excelError"));
-      }
-    };
-    reader.readAsBinaryString(file);
-    e.target.value = "";
-  }, [t]);
+  const addItemRow = () => setLotItems(prev => [...prev, { ...emptyItem }]);
+  const removeItemRow = (idx: number) => setLotItems(prev => prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev);
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
