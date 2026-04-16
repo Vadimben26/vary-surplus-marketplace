@@ -140,8 +140,28 @@ const LotDetail = () => {
   const total = Math.round(lot.price * 1.19);
 
   const handleAddToCart = () => {
+    if (!user) {
+      navigate("/connexion");
+      return;
+    }
+    if (requiresPrefs) {
+      setShowGate(true);
+      return;
+    }
     addToCart(lot.id);
     toast.success(t("lotDetail.addedToCart"));
+  };
+
+  const handleContactSeller = () => {
+    if (!user) {
+      navigate("/connexion");
+      return;
+    }
+    if (requiresPrefs) {
+      setShowGate(true);
+      return;
+    }
+    navigate(`/messages?lot=${lot.id}`);
   };
 
   return (
