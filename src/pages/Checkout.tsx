@@ -160,6 +160,16 @@ const Checkout = () => {
         )}
       </main>
       <BottomNav />
+      <BuyerPrefsGate
+        open={showGate}
+        onClose={() => setShowGate(false)}
+        title={t("buyerGate.checkoutTitle", "Finalisez votre profil acheteur")}
+        description={t(
+          "buyerGate.checkoutDescription",
+          "Avant votre premier paiement, nous avons besoin de quelques informations sur votre activité. Cela ne prend que 2 minutes."
+        )}
+        returnTo="/checkout"
+      />
     </div>
   );
 };
