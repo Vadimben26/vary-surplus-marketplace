@@ -35,7 +35,7 @@ const LotDetail = () => {
       if (!id) return null;
       const { data, error } = await supabase
         .from("lots")
-        .select("*, lot_items(*), profiles!lots_seller_id_fkey(full_name, company_name, company_description)")
+        .select("*, lot_items(*), profiles!lots_seller_id_fkey(user_id, full_name, company_name, company_description)")
         .eq("id", id)
         .single();
       if (error) throw error;
@@ -43,6 +43,26 @@ const LotDetail = () => {
     },
     enabled: !!id,
   });
+
+  // Phase 5: fetch the seller's visibility settings to know whether buyers
+  // must complete the questionnaire before contacting / adding to cart.
+  const sellerUserId = (lot?.profiles as any)?.user_id ?? null;
+  const { data: sellerPrefs } = useQuery({
+    queryKey: ["lot-seller-visibility", sellerUserId],
+    queryFn: async () => {
+      if (!sellerUserId) return null;
+      const { data } = await supabase
+        .from("seller_preferences")
+        .select("visibility_mode")
+        .eq("user_id", sellerUserId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!sellerUserId,
+    staleTime: 60_000,
+  });
+  const isFilteredLot = sellerPrefs?.visibility_mode === "filtered";
+  const requiresPrefs = isFilteredLot && !!user && !prefsLoading && !hasBuyerPrefs;
 
   const { data: similarLots = [] } = useQuery({
     queryKey: ["similar-lots", lot?.category, lot?.brand, id],
