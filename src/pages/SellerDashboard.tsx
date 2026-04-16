@@ -4,9 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, DollarSign, MapPin,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
-  Heart, ShoppingCart, MessageCircle, User, Lock, Download, FileSpreadsheet, Upload
+  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet
 } from "lucide-react";
-import * as XLSX from "xlsx";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
