@@ -125,6 +125,7 @@
     "profileActivated": "Votre profil acheteur a été créé avec succès.",
     "checkEmail": "Vérifiez votre email pour confirmer votre compte.",
     "goToMarketplace": "Accéder à la marketplace",
+    "continue": "Continuer",
     "validation": {
       "firstName": "Prénom requis",
       "lastName": "Nom requis",
@@ -694,5 +695,15 @@
       "counterOffer": "Négociation",
       "review": "Avis"
     }
+  },
+  "buyerGate": {
+    "title": "Vérification acheteur requise",
+    "description": "Pour finaliser votre achat ou contacter ce vendeur, complétez d'abord votre profil acheteur. Cela ne prend que quelques minutes.",
+    "checkoutTitle": "Finalisez votre profil acheteur",
+    "checkoutDescription": "Avant votre premier paiement, nous avons besoin de quelques informations sur votre activité. Cela ne prend que 2 minutes.",
+    "privateTitle": "Lot privé — profil acheteur requis",
+    "privateDescription": "Ce vendeur réserve l'accès aux acheteurs vérifiés. Complétez votre profil acheteur en quelques minutes pour commander ou échanger avec lui.",
+    "cta": "Compléter mon profil",
+    "later": "Plus tard"
   }
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Upload, X, FileText, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import LegalFooter from "@/components/LegalFooter";
 
 const STORAGE_KEY = "vary_buyer_reg_draft";
@@ -66,7 +67,10 @@ const initialForm: FormData = {
 const BuyerRegistration = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("return") || "/marketplace";
   const { signUp, user, profile, updateProfile } = useAuth();
+  const queryClient = useQueryClient();
 
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormData>(initialForm);
@@ -282,6 +286,8 @@ const BuyerRegistration = () => {
 
       await saveBuyerPreferences(userId);
       localStorage.removeItem(STORAGE_KEY);
+      // Phase 5: refresh the buyer-prefs cache so any gate clears immediately.
+      await queryClient.invalidateQueries({ queryKey: ["buyer-prefs-check"] });
       setDone(true);
     } catch (err: any) {
       toast.error(err.message || "Erreur lors de l'inscription");
@@ -312,8 +318,8 @@ const BuyerRegistration = () => {
           <h2 className="text-2xl font-bold text-foreground">{t("buyerReg.thanksTitle")}</h2>
           <p className="text-muted-foreground">{t("buyerReg.profileActivated")}</p>
           <p className="text-sm text-muted-foreground">{t("buyerReg.checkEmail")}</p>
-          <Link to="/marketplace" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition">
-            {t("buyerReg.goToMarketplace")}
+          <Link to={returnTo} className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition">
+            {t("buyerReg.continue", "Continuer")}
           </Link>
         </motion.div>
       </div>

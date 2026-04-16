@@ -8,7 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBuyerPrefs } from "@/hooks/useBuyerPrefs";
 import LotCard from "@/components/LotCard";
+import BuyerPrefsGate from "@/components/BuyerPrefsGate";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
 import LegalFooter from "@/components/LegalFooter";
@@ -21,9 +23,11 @@ const LotDetail = () => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isInCart, addToCart } = useCart();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
+  const { hasBuyerPrefs, loading: prefsLoading } = useBuyerPrefs();
   const [activeImage, setActiveImage] = useState(0);
   const [selectedProductImage, setSelectedProductImage] = useState<string | null>(null);
+  const [showGate, setShowGate] = useState(false);
 
   const { data: lot, isLoading } = useQuery({
     queryKey: ["lot-detail", id],
@@ -31,7 +35,7 @@ const LotDetail = () => {
       if (!id) return null;
       const { data, error } = await supabase
         .from("lots")
-        .select("*, lot_items(*), profiles!lots_seller_id_fkey(full_name, company_name, company_description)")
+        .select("*, lot_items(*), profiles!lots_seller_id_fkey(user_id, full_name, company_name, company_description)")
         .eq("id", id)
         .single();
       if (error) throw error;
@@ -39,6 +43,26 @@ const LotDetail = () => {
     },
     enabled: !!id,
   });
+
+  // Phase 5: fetch the seller's visibility settings to know whether buyers
+  // must complete the questionnaire before contacting / adding to cart.
+  const sellerUserId = (lot?.profiles as any)?.user_id ?? null;
+  const { data: sellerPrefs } = useQuery({
+    queryKey: ["lot-seller-visibility", sellerUserId],
+    queryFn: async () => {
+      if (!sellerUserId) return null;
+      const { data } = await supabase
+        .from("seller_preferences")
+        .select("visibility_mode")
+        .eq("user_id", sellerUserId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!sellerUserId,
+    staleTime: 60_000,
+  });
+  const isFilteredLot = sellerPrefs?.visibility_mode === "filtered";
+  const requiresPrefs = isFilteredLot && !!user && !prefsLoading && !hasBuyerPrefs;
 
   const { data: similarLots = [] } = useQuery({
     queryKey: ["similar-lots", lot?.category, lot?.brand, id],
@@ -116,8 +140,28 @@ const LotDetail = () => {
   const total = Math.round(lot.price * 1.19);
 
   const handleAddToCart = () => {
+    if (!user) {
+      navigate("/connexion");
+      return;
+    }
+    if (requiresPrefs) {
+      setShowGate(true);
+      return;
+    }
     addToCart(lot.id);
     toast.success(t("lotDetail.addedToCart"));
+  };
+
+  const handleContactSeller = () => {
+    if (!user) {
+      navigate("/connexion");
+      return;
+    }
+    if (requiresPrefs) {
+      setShowGate(true);
+      return;
+    }
+    navigate(`/messages?lot=${lot.id}`);
   };
 
   return (
@@ -306,15 +350,18 @@ const LotDetail = () => {
                 </button>
 
                 <button
-                  onClick={() => {
-                    if (!profile) { navigate("/connexion"); return; }
-                    navigate(`/messages?with=${lot.seller_id}&lot=${lot.id}`);
-                  }}
+                  onClick={handleContactSeller}
                   className="w-full mt-2 py-2 border border-border rounded-xl hover:bg-muted transition-colors flex items-center justify-center gap-2 text-xs text-foreground"
                 >
                   <MessageCircle className="h-3.5 w-3.5" />
                   {t("lotDetail.contactSeller")}
                 </button>
+
+                {isFilteredLot && (
+                  <p className="text-[10px] text-muted-foreground italic text-center mt-2">
+                    {t("lotDetail.filteredHint", "Lot privé : profil acheteur requis pour commander ou contacter le vendeur.")}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -393,6 +440,17 @@ const LotDetail = () => {
 
       <LegalFooter />
       <BottomNav />
+
+      <BuyerPrefsGate
+        open={showGate}
+        onClose={() => setShowGate(false)}
+        title={t("buyerGate.privateTitle", "Lot privé — profil acheteur requis")}
+        description={t(
+          "buyerGate.privateDescription",
+          "Ce vendeur réserve l'accès aux acheteurs vérifiés. Complétez votre profil acheteur en quelques minutes pour commander ou échanger avec lui."
+        )}
+        returnTo={typeof window !== "undefined" ? window.location.pathname : undefined}
+      />
     </div>
   );
 };

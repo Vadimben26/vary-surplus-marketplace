@@ -5,8 +5,10 @@ import { ShoppingCart, CreditCard, Shield, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
+import BuyerPrefsGate from "@/components/BuyerPrefsGate";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBuyerPrefs } from "@/hooks/useBuyerPrefs";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -16,7 +18,9 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, clearCart } = useCart();
   const { user } = useAuth();
+  const { hasBuyerPrefs, loading: prefsLoading } = useBuyerPrefs();
   const [loading, setLoading] = useState(false);
+  const [showGate, setShowGate] = useState(false);
 
   const { data: cartLots = [] } = useQuery({
     queryKey: ["checkout-lots", cartItems],
@@ -39,6 +43,12 @@ const Checkout = () => {
     if (!user) {
       toast.error(t("checkout.loginRequired"));
       navigate("/connexion");
+      return;
+    }
+
+    // Phase 5: trigger buyer questionnaire on first payment
+    if (!prefsLoading && !hasBuyerPrefs) {
+      setShowGate(true);
       return;
     }
 
@@ -150,6 +160,16 @@ const Checkout = () => {
         )}
       </main>
       <BottomNav />
+      <BuyerPrefsGate
+        open={showGate}
+        onClose={() => setShowGate(false)}
+        title={t("buyerGate.checkoutTitle", "Finalisez votre profil acheteur")}
+        description={t(
+          "buyerGate.checkoutDescription",
+          "Avant votre premier paiement, nous avons besoin de quelques informations sur votre activité. Cela ne prend que 2 minutes."
+        )}
+        returnTo="/checkout"
+      />
     </div>
   );
 };

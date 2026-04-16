@@ -125,6 +125,7 @@
     "profileActivated": "Your buyer profile has been successfully created.",
     "checkEmail": "Check your email to confirm your account.",
     "goToMarketplace": "Go to marketplace",
+    "continue": "Continue",
     "validation": {
       "firstName": "First name required",
       "lastName": "Last name required",
@@ -694,5 +695,15 @@
       "counterOffer": "Negotiation",
       "review": "Review"
     }
+  },
+  "buyerGate": {
+    "title": "Buyer verification required",
+    "description": "To complete your purchase or contact this seller, please first complete your buyer profile. It only takes a few minutes.",
+    "checkoutTitle": "Complete your buyer profile",
+    "checkoutDescription": "Before your first payment, we need a few details about your business. It only takes 2 minutes.",
+    "privateTitle": "Private lot — buyer profile required",
+    "privateDescription": "This seller reserves access for verified buyers. Complete your buyer profile in a few minutes to order or chat with them.",
+    "cta": "Complete my profile",
+    "later": "Later"
   }
 }
