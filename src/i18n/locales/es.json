@@ -125,6 +125,7 @@
     "profileActivated": "Su perfil de comprador se ha creado con éxito.",
     "checkEmail": "Revise su email para confirmar su cuenta.",
     "goToMarketplace": "Ir al marketplace",
+    "continue": "Continuar",
     "validation": {
       "firstName": "Nombre requerido",
       "lastName": "Apellido requerido",
