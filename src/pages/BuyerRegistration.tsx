@@ -286,6 +286,8 @@ const BuyerRegistration = () => {
 
       await saveBuyerPreferences(userId);
       localStorage.removeItem(STORAGE_KEY);
+      // Phase 5: refresh the buyer-prefs cache so any gate clears immediately.
+      await queryClient.invalidateQueries({ queryKey: ["buyer-prefs-check"] });
       setDone(true);
     } catch (err: any) {
       toast.error(err.message || "Erreur lors de l'inscription");
