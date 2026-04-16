@@ -314,8 +314,8 @@ const BuyerRegistration = () => {
           <h2 className="text-2xl font-bold text-foreground">{t("buyerReg.thanksTitle")}</h2>
           <p className="text-muted-foreground">{t("buyerReg.profileActivated")}</p>
           <p className="text-sm text-muted-foreground">{t("buyerReg.checkEmail")}</p>
-          <Link to="/marketplace" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition">
-            {t("buyerReg.goToMarketplace")}
+          <Link to={returnTo} className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition">
+            {t("buyerReg.continue", "Continuer")}
           </Link>
         </motion.div>
       </div>
