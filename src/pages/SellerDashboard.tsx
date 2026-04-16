@@ -1,12 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, DollarSign, MapPin,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
-  Heart, ShoppingCart, MessageCircle, User, Lock, Download, FileSpreadsheet, Upload
+  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet
 } from "lucide-react";
-import * as XLSX from "xlsx";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -305,51 +304,8 @@ const SellerDashboard = () => {
     setLotItems(prev => prev.map((it, i) => i === idx ? { ...it, [field]: value } : it));
   };
 
-  const downloadTemplate = useCallback(() => {
-    const headers = [
-      { Marque: "", Article: "", Catégorie: "", Genre: "", Taille: "", "Réf.": "", Qté: "", "Prix retail": "", Photo: "" }
-    ];
-    const ws = XLSX.utils.json_to_sheet(headers);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Inventaire");
-    ws["!cols"] = Object.keys(headers[0]).map(k => ({ wch: Math.max(k.length, 14) }));
-    XLSX.writeFile(wb, "template_inventaire.xlsx");
-  }, []);
-
-  const handleExcelUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      try {
-        const wb = XLSX.read(evt.target?.result, { type: "binary" });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const rows: any[] = XLSX.utils.sheet_to_json(ws);
-        if (rows.length === 0) { toast.error(t("sellerDashboard.excelEmpty")); return; }
-        const parsed: LotItem[] = rows.map(r => ({
-          name: String(r["Article"] || r["article"] || r["Name"] || r["name"] || ""),
-          brand: String(r["Marque"] || r["marque"] || r["Brand"] || r["brand"] || ""),
-          category: String(r["Catégorie"] || r["catégorie"] || r["Category"] || r["category"] || ""),
-          gender: String(r["Genre"] || r["genre"] || r["Gender"] || r["gender"] || ""),
-          size: String(r["Taille"] || r["taille"] || r["Size"] || r["size"] || ""),
-          reference: String(r["Réf."] || r["réf."] || r["Ref"] || r["ref"] || r["Reference"] || ""),
-          quantity: Number(r["Qté"] || r["qté"] || r["Qty"] || r["qty"] || r["Quantity"] || 0),
-          retail_price: Number(r["Prix retail"] || r["prix retail"] || r["Retail Price"] || r["retail_price"] || 0),
-          image_url: String(r["Photo"] || r["photo"] || r["Image"] || r["image_url"] || ""),
-        })).filter(it => it.name.trim());
-        if (parsed.length === 0) { toast.error(t("sellerDashboard.excelNoItems")); return; }
-        setLotItems(parsed);
-        // Auto-compute units
-        const totalUnits = parsed.reduce((s, it) => s + it.quantity, 0);
-        if (totalUnits > 0) setUnits(String(totalUnits));
-        toast.success(t("sellerDashboard.excelImported", { count: parsed.length }));
-      } catch {
-        toast.error(t("sellerDashboard.excelError"));
-      }
-    };
-    reader.readAsBinaryString(file);
-    e.target.value = "";
-  }, [t]);
+  const addItemRow = () => setLotItems(prev => [...prev, { ...emptyItem }]);
+  const removeItemRow = (idx: number) => setLotItems(prev => prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev);
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -809,113 +765,105 @@ const SellerDashboard = () => {
                     <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t("sellerDashboard.describeLot")} className="resize-none bg-muted/50 border-none rounded-lg" rows={4} />
                   </div>
 
-                  {/* Excel import section */}
+                  {/* Inline editable inventory table */}
                   <div className="space-y-3">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.lotContent")} *</label>
-
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={downloadTemplate}
-                        className="flex-1 flex items-center justify-between px-4 py-3 bg-muted hover:bg-muted/80 rounded-xl border border-border transition-colors group"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-lg bg-green-600/10 flex items-center justify-center">
-                            <Download className="h-4 w-4 text-green-600" />
-                          </div>
-                          <div className="text-left">
-                            <p className="text-xs font-semibold text-foreground">{t("sellerDashboard.downloadTemplate")}</p>
-                            <p className="text-[10px] text-muted-foreground">Excel (.xlsx)</p>
-                          </div>
-                        </div>
-                      </button>
-
-                      <label className="flex-1 flex items-center justify-between px-4 py-3 bg-primary/10 hover:bg-primary/20 rounded-xl border border-primary/20 transition-colors cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Upload className="h-4 w-4 text-primary" />
-                          </div>
-                          <div className="text-left">
-                            <p className="text-xs font-semibold text-foreground">{t("sellerDashboard.uploadExcel")}</p>
-                            <p className="text-[10px] text-muted-foreground">.xlsx, .xls, .csv</p>
-                          </div>
-                        </div>
-                        <input type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleExcelUpload} />
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        {t("sellerDashboard.lotContent")} *
                       </label>
+                      <div className="flex items-center gap-2">
+                        <FileSpreadsheet className="h-4 w-4 text-primary" />
+                        <span className="text-xs font-semibold text-foreground">
+                          {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Editable items table */}
-                    {lotItems.length > 0 && lotItems[0].name && (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <FileSpreadsheet className="h-4 w-4 text-primary" />
-                            <span className="text-xs font-semibold text-foreground">
-                              {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
-                            </span>
-                          </div>
-                          <button type="button" onClick={() => setLotItems([{ ...emptyItem }])} className="text-xs text-destructive hover:underline">
-                            {t("sellerDashboard.clearItems")}
-                          </button>
-                        </div>
-                        <div className="border border-border rounded-xl overflow-hidden">
-                          <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
-                            <table className="w-full text-xs">
-                              <thead className="bg-muted sticky top-0">
-                                <tr>
-                                  <th className="text-left px-2 py-1.5 font-semibold text-muted-foreground">{t("sellerDashboard.itemName")}</th>
-                                  <th className="text-left px-2 py-1.5 font-semibold text-muted-foreground w-16">{t("sellerDashboard.qty")}</th>
-                                  <th className="text-left px-2 py-1.5 font-semibold text-muted-foreground w-16">{t("sellerDashboard.size")}</th>
-                                  <th className="text-left px-2 py-1.5 font-semibold text-muted-foreground w-20">Retail €</th>
-                                  <th className="w-8"></th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {lotItems.map((item, idx) => (
-                                  <tr key={idx} className="border-t border-border hover:bg-muted/30">
-                                    <td className="px-1 py-1">
-                                      <input value={item.name} onChange={e => updateItem(idx, "name", e.target.value)} className="w-full bg-transparent px-1 py-0.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
-                                    </td>
-                                    <td className="px-1 py-1">
-                                      <input type="number" value={item.quantity || ""} onChange={e => updateItem(idx, "quantity", parseInt(e.target.value) || 0)} className="w-full bg-transparent px-1 py-0.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
-                                    </td>
-                                    <td className="px-1 py-1">
-                                      <input value={item.size} onChange={e => updateItem(idx, "size", e.target.value)} className="w-full bg-transparent px-1 py-0.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
-                                    </td>
-                                    <td className="px-1 py-1">
-                                      <input type="number" value={item.retail_price || ""} onChange={e => updateItem(idx, "retail_price", parseFloat(e.target.value) || 0)} className="w-full bg-transparent px-1 py-0.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
-                                    </td>
-                                    <td className="px-1 py-1">
-                                      <button type="button" onClick={() => setLotItems(prev => prev.filter((_, i) => i !== idx))} className="text-destructive hover:text-destructive/80 p-0.5">
-                                        <X className="h-3 w-3" />
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setLotItems(prev => [...prev, { ...emptyItem }])}
-                            className="w-full px-3 py-2 text-xs font-medium text-primary hover:bg-muted/50 transition-colors border-t border-border"
-                          >
-                            {t("sellerDashboard.addLine")}
-                          </button>
-                        </div>
+                    <div className="border border-border rounded-xl overflow-hidden">
+                      <div className="overflow-x-auto max-h-[360px] overflow-y-auto">
+                        <table className="w-full text-xs">
+                          <thead className="bg-muted sticky top-0 z-10">
+                            <tr>
+                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap">{t("sellerDashboard.brand", "Marque")}</th>
+                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap min-w-[140px]">{t("sellerDashboard.itemName")}</th>
+                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap">{t("sellerDashboard.category", "Catégorie")}</th>
+                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap">{t("sellerDashboard.gender", "Genre")}</th>
+                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap w-20">{t("sellerDashboard.size")}</th>
+                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap w-24">{t("sellerDashboard.itemRef", "Réf.")}</th>
+                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap w-16">{t("sellerDashboard.qty")}</th>
+                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap w-24">{t("sellerDashboard.retailEur", "Prix retail €")}</th>
+                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap min-w-[160px]">{t("sellerDashboard.photoUrl", "Photo (URL)")}</th>
+                              <th className="w-8"></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {lotItems.map((item, idx) => (
+                              <tr key={idx} className="border-t border-border hover:bg-muted/30">
+                                <td className="px-1 py-1">
+                                  <input value={item.brand} onChange={e => updateItem(idx, "brand", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
+                                </td>
+                                <td className="px-1 py-1">
+                                  <input value={item.name} onChange={e => updateItem(idx, "name", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
+                                </td>
+                                <td className="px-1 py-1">
+                                  <select value={item.category} onChange={e => updateItem(idx, "category", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded">
+                                    <option value=""></option>
+                                    <option value="clothing">{t("sellerDashboard.categories.clothing")}</option>
+                                    <option value="sneakers">{t("sellerDashboard.categories.sneakers")}</option>
+                                    <option value="accessories">{t("sellerDashboard.categories.accessories")}</option>
+                                  </select>
+                                </td>
+                                <td className="px-1 py-1">
+                                  <select value={item.gender} onChange={e => updateItem(idx, "gender", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded">
+                                    <option value=""></option>
+                                    <option value="men">{t("sellerDashboard.men", "Homme")}</option>
+                                    <option value="women">{t("sellerDashboard.women", "Femme")}</option>
+                                    <option value="unisex">{t("sellerDashboard.unisex", "Mixte")}</option>
+                                    <option value="kids">{t("sellerDashboard.kids", "Enfant")}</option>
+                                  </select>
+                                </td>
+                                <td className="px-1 py-1">
+                                  <input value={item.size} onChange={e => updateItem(idx, "size", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
+                                </td>
+                                <td className="px-1 py-1">
+                                  <input value={item.reference} onChange={e => updateItem(idx, "reference", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
+                                </td>
+                                <td className="px-1 py-1">
+                                  <input type="number" min="0" value={item.quantity || ""} onChange={e => updateItem(idx, "quantity", parseInt(e.target.value) || 0)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
+                                </td>
+                                <td className="px-1 py-1">
+                                  <input type="number" min="0" step="0.01" value={item.retail_price || ""} onChange={e => updateItem(idx, "retail_price", parseFloat(e.target.value) || 0)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
+                                </td>
+                                <td className="px-1 py-1">
+                                  <input value={item.image_url} onChange={e => updateItem(idx, "image_url", e.target.value)} placeholder="https://..." className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
+                                </td>
+                                <td className="px-1 py-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => removeItemRow(idx)}
+                                    disabled={lotItems.length <= 1}
+                                    className="text-destructive hover:text-destructive/80 p-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
+                                    aria-label={t("common.delete", "Supprimer")}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                    )}
-
-                    {/* Add first item manually if no items */}
-                    {(!lotItems.length || !lotItems[0].name) && (
                       <button
                         type="button"
-                        onClick={() => setLotItems([{ ...emptyItem, name: " " }])}
-                        className="w-full px-4 py-2.5 text-xs font-medium text-primary bg-primary/5 hover:bg-primary/10 rounded-xl border border-dashed border-primary/20 transition-colors"
+                        onClick={addItemRow}
+                        className="w-full px-3 py-2 text-xs font-medium text-primary hover:bg-muted/50 transition-colors border-t border-border"
                       >
                         {t("sellerDashboard.addLine")}
                       </button>
-                    )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground italic">
+                      {t("sellerDashboard.inlineHint", "Remplissez chaque ligne directement. Les colonnes sont fixes et ordonnées.")}
+                    </p>
                   </div>
 
                 </div>
