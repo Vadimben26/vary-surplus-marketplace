@@ -70,6 +70,7 @@ const BuyerRegistration = () => {
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("return") || "/marketplace";
   const { signUp, user, profile, updateProfile } = useAuth();
+  const queryClient = useQueryClient();
 
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormData>(initialForm);
