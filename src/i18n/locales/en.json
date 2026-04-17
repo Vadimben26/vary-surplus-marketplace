@@ -49,6 +49,28 @@
     "roleGatewayCta": "Fill in the registration form",
     "roleGatewayBack": "Back"
   },
+  "welcome": {
+    "title": "Welcome to VARY",
+    "subtitle": "The European B2B marketplace for new surplus in bulk",
+    "buyerTitle": "I'm a Buyer",
+    "buyerDesc": "Browse thousands of new surplus lots from verified sellers across Europe.",
+    "sellerTitle": "I'm a Seller",
+    "sellerDesc": "Sell your surplus quickly to a network of qualified professional buyers.",
+    "continue": "Continue",
+    "fillForm": "Fill in the form",
+    "alreadyAccount": "I already have an account → Sign in"
+  },
+  "buyerWelcome": {
+    "title": "How would you like to access?",
+    "subtitle": "Create a profile to unlock all features, or browse freely as a guest.",
+    "recommended": "Recommended",
+    "createTitle": "Create a buyer profile",
+    "createDesc": "Access private lots, contact sellers, add to cart and buy. Sign up in 2 minutes.",
+    "createCta": "Create my profile",
+    "guestTitle": "Continue as guest",
+    "guestDesc": "Browse public lots without signing up. A profile will be required to buy or contact a seller.",
+    "guestCta": "Explore the marketplace"
+  },
   "registration": {
     "joinVary": "Join Vary",
     "subtitle": "The European B2B marketplace to buy and sell new surplus in bulk",
