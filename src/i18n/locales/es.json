@@ -49,6 +49,28 @@
     "roleGatewayCta": "Rellenar el formulario de registro",
     "roleGatewayBack": "Atrás"
   },
+  "welcome": {
+    "title": "Bienvenido a VARY",
+    "subtitle": "El marketplace B2B europeo de excedentes nuevos en lotes",
+    "buyerTitle": "Soy Comprador",
+    "buyerDesc": "Explora miles de lotes de excedentes nuevos de vendedores verificados en toda Europa.",
+    "sellerTitle": "Soy Vendedor",
+    "sellerDesc": "Vende tus excedentes rápidamente a una red de compradores profesionales cualificados.",
+    "continue": "Continuar",
+    "fillForm": "Rellenar el formulario",
+    "alreadyAccount": "Ya tengo una cuenta → Iniciar sesión"
+  },
+  "buyerWelcome": {
+    "title": "¿Cómo deseas acceder?",
+    "subtitle": "Crea un perfil para desbloquear todas las funcionalidades, o explora libremente como invitado.",
+    "recommended": "Recomendado",
+    "createTitle": "Crear un perfil comprador",
+    "createDesc": "Accede a lotes privados, contacta vendedores, añade al carrito y compra. Registro en 2 minutos.",
+    "createCta": "Crear mi perfil",
+    "guestTitle": "Continuar como invitado",
+    "guestDesc": "Explora los lotes públicos sin registrarte. Se solicitará un perfil para comprar o contactar a un vendedor.",
+    "guestCta": "Explorar el marketplace"
+  },
   "registration": {
     "joinVary": "Únete a Vary",
     "subtitle": "El marketplace B2B europeo para comprar y vender excedentes nuevos en lotes",

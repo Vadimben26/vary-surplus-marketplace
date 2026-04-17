@@ -49,6 +49,28 @@
     "roleGatewayCta": "Remplir le formulaire d'inscription",
     "roleGatewayBack": "Retour"
   },
+  "welcome": {
+    "title": "Bienvenue sur VARY",
+    "subtitle": "La marketplace B2B européenne du surplus neuf en lots",
+    "buyerTitle": "Je suis Acheteur",
+    "buyerDesc": "Parcourez des milliers de lots de surplus neufs auprès de vendeurs vérifiés à travers l'Europe.",
+    "sellerTitle": "Je suis Vendeur",
+    "sellerDesc": "Écoulez vos surplus rapidement auprès d'un réseau d'acheteurs professionnels qualifiés.",
+    "continue": "Continuer",
+    "fillForm": "Remplir le formulaire",
+    "alreadyAccount": "J'ai déjà un compte → Se connecter"
+  },
+  "buyerWelcome": {
+    "title": "Comment souhaitez-vous accéder ?",
+    "subtitle": "Créez un profil pour débloquer toutes les fonctionnalités, ou explorez librement en tant qu'invité.",
+    "recommended": "Recommandé",
+    "createTitle": "Créer un profil acheteur",
+    "createDesc": "Accédez aux lots privés, contactez les vendeurs, ajoutez au panier et achetez. Inscription en 2 minutes.",
+    "createCta": "Créer mon profil",
+    "guestTitle": "Continuer en tant qu'invité",
+    "guestDesc": "Parcourez les lots publics sans inscription. Un profil sera demandé pour acheter ou contacter un vendeur.",
+    "guestCta": "Explorer la marketplace"
+  },
   "registration": {
     "joinVary": "Rejoignez Vary",
     "subtitle": "La marketplace B2B européenne pour acheter et vendre des surplus neufs en lots",
