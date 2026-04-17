@@ -27,6 +27,8 @@ import Profile from "./pages/Profile.tsx";
 import BuyerVIP from "./pages/BuyerVIP.tsx";
 import RoleGateway from "./pages/RoleGateway.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Welcome from "./pages/Welcome.tsx";
+import BuyerWelcome from "./pages/BuyerWelcome.tsx";
 import CGV from "./pages/CGV.tsx";
 import MentionsLegales from "./pages/MentionsLegales.tsx";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite.tsx";
@@ -58,7 +60,13 @@ const SellerRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const HomeRedirect = () => {
-  return <Navigate to="/marketplace" replace />;
+  const { isVerified, canAccessSeller, loading } = useAuth();
+  if (loading) return null;
+  // Logged-in users skip the welcome screen
+  if (isVerified()) {
+    return <Navigate to={canAccessSeller() ? "/seller" : "/marketplace"} replace />;
+  }
+  return <Welcome />;
 };
 
 const App = () => (
@@ -72,6 +80,7 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<HomeRedirect />} />
+                <Route path="/bienvenue/acheteur" element={<BuyerWelcome />} />
                 <Route path="/inscription" element={<Registration />} />
                 <Route path="/inscription/acheteur" element={<BuyerRegistration />} />
                 <Route path="/inscription/vendeur" element={<SellerRegistration />} />
