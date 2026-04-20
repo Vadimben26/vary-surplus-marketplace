@@ -60,6 +60,7 @@ const SellerDashboard = () => {
   const [price, setPrice] = useState("");
   const [retailPrice, setRetailPrice] = useState("");
   const [units, setUnits] = useState("");
+  const [pallets, setPallets] = useState("1");
   const [categories, setCategories] = useState<string[]>([]);
   const [description, setDescription] = useState("");
   const [lotItems, setLotItems] = useState<LotItem[]>([{ ...emptyItem }]);
@@ -157,7 +158,7 @@ const SellerDashboard = () => {
   };
 
   const resetForm = () => {
-    setTitle(""); setPrice(""); setRetailPrice(""); setUnits("");
+    setTitle(""); setPrice(""); setRetailPrice(""); setUnits(""); setPallets("1");
     setCategories([]); setDescription("");
     setLotItems([{ ...emptyItem }]);
     setPhotos([]); setExistingImages([]);
@@ -173,6 +174,7 @@ const SellerDashboard = () => {
     const rv = (lot.lot_items || []).reduce((s: number, it: any) => s + (it.retail_price || 0) * (it.quantity || 0), 0);
     setRetailPrice(rv > 0 ? String(rv) : "");
     setUnits(String(lot.units));
+    setPallets(String(lot.pallets || 1));
     setCategories(lot.category ? lot.category.split(",").map((c: string) => c.trim()) : []);
     
     setDescription(lot.description || "");
