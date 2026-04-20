@@ -144,8 +144,8 @@
     "back": "Back",
     "createAccount": "Create my account",
     "thanksTitle": "Welcome to Vary!",
-    "profileActivated": "Your buyer profile has been successfully created.",
-    "checkEmail": "Check your email to confirm your account.",
+    "profileActivated": "Your buyer profile is activated immediately — no approval required. You can start buying on the marketplace right now.",
+    "checkEmail": "A confirmation email has been sent to you.",
     "goToMarketplace": "Go to marketplace",
     "continue": "Continue",
     "validation": {
@@ -242,9 +242,9 @@
     "visibleAll": "Visible to all verified buyers",
     "visibleAllDesc": "All verified buyers will be able to see your lots.",
     "thanksTitle": "Application sent!",
-    "thanksDesc": "Your application has been sent. We will verify your information and get back to you shortly.",
-    "profileActivated": "Your seller profile has been activated.",
-    "checkEmail": "Check your email to confirm your account, then log in.",
+    "thanksDesc": "Your seller application is being reviewed by the Vary team. You'll receive an email as soon as your profile is approved (usually within 48h). In the meantime, you can prepare your lots as drafts.",
+    "profileActivated": "Your application is under review by the Vary team.",
+    "checkEmail": "Check your email to confirm your account, then wait for the approval email.",
     "goToSellerDashboard": "Go to seller dashboard",
     "submitRequest": "Submit application",
     "validation": {

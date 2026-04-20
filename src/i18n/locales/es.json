@@ -144,8 +144,8 @@
     "back": "Volver",
     "createAccount": "Crear mi cuenta",
     "thanksTitle": "¡Bienvenido a Vary!",
-    "profileActivated": "Su perfil de comprador se ha creado con éxito.",
-    "checkEmail": "Revise su email para confirmar su cuenta.",
+    "profileActivated": "Su perfil de comprador se activa inmediatamente, sin aprobación. Ya puede comprar en el marketplace.",
+    "checkEmail": "Le hemos enviado un email de confirmación.",
     "goToMarketplace": "Ir al marketplace",
     "continue": "Continuar",
     "validation": {
@@ -242,9 +242,9 @@
     "visibleAll": "Visible para todos los compradores verificados",
     "visibleAllDesc": "Todos los compradores verificados podrán ver tus lotes.",
     "thanksTitle": "¡Solicitud enviada!",
-    "thanksDesc": "Tu solicitud ha sido enviada. Verificaremos tu información y te responderemos pronto.",
-    "profileActivated": "Tu perfil de vendedor ha sido activado.",
-    "checkEmail": "Revisa tu correo para confirmar tu cuenta, luego inicia sesión.",
+    "thanksDesc": "Tu solicitud de perfil vendedor está siendo revisada por el equipo de Vary. Recibirás un email en cuanto tu perfil sea aprobado (normalmente en 48h). Mientras tanto, puedes preparar tus lotes en borrador.",
+    "profileActivated": "Tu solicitud está siendo validada por el equipo de Vary.",
+    "checkEmail": "Revisa tu correo para confirmar tu cuenta y espera el email de aprobación.",
     "goToSellerDashboard": "Ir a mi panel de vendedor",
     "submitRequest": "Enviar solicitud",
     "validation": {
