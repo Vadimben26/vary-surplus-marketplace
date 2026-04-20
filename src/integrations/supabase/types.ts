@@ -784,6 +784,14 @@ export type Database = {
     }
     Functions: {
       get_my_profile_id: { Args: never; Returns: string }
+      get_seller_public_info: {
+        Args: { _profile_id: string }
+        Returns: {
+          company_name: string
+          full_name: string
+          id: string
+        }[]
+      }
       is_seller: { Args: never; Returns: boolean }
       is_seller_approved: { Args: never; Returns: boolean }
       is_seller_of_lot: { Args: { _lot_id: string }; Returns: boolean }
