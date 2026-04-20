@@ -25,6 +25,12 @@
     "browseLots": "Browse lots",
     "returnHome": "Back to home"
   },
+  "trust": {
+    "escrow": "Escrow payment",
+    "verifiedSellers": "Verified sellers",
+    "shipping": "Built-in shipping",
+    "disputes": "Dispute handling"
+  },
   "lang": {
     "fr": "Français",
     "en": "English",
@@ -68,7 +74,20 @@
     "stat3Value": "Escrow",
     "stat3Label": "payment",
     "buyerCta": "Browse lots",
-    "sellerCta": "Sell my surplus"
+    "sellerCta": "Sell my surplus",
+    "splitTitle": "What's your goal today?",
+    "buyerKicker": "Buyers",
+    "buyerHeadline": "I buy verified lots",
+    "buyerPitch": "New stock in lots, well-known brands, wholesale prices. Filter by category, country and budget.",
+    "buyerProof1": "−40% to −70% vs retail price",
+    "buyerProof2": "Verified sellers and brands",
+    "buyerProof3": "Escrow-secured payment",
+    "sellerKicker": "Sellers",
+    "sellerHeadline": "I sell my surplus",
+    "sellerPitch": "Move your new surplus in lots to verified buyers. You stay in control of your visibility.",
+    "sellerProof1": "Network of qualified pro buyers",
+    "sellerProof2": "Lots cleared in just a few days",
+    "sellerProof3": "Shipping and disputes handled"
   },
   "buyerWelcome": {
     "title": "How would you like to access?",
@@ -266,6 +285,16 @@
     "checkEmail": "Check your email to confirm your account, then wait for the approval email.",
     "goToSellerDashboard": "Go to seller dashboard",
     "submitRequest": "Submit application",
+    "previewTitle": "Here's what your profile will unlock",
+    "previewVisible": "Your lots will be visible to",
+    "previewVisibleAll": "all verified buyers across Europe",
+    "previewVisibleSpecific": "verified buyers located in {{countries}}",
+    "previewMatch": "You'll receive requests from buyers",
+    "previewMatchAll": "interested in all your categories",
+    "previewMatchCats": "interested in: {{list}}",
+    "previewSecure": "Vary secures every transaction",
+    "previewSecureDesc": "Escrow payment, built-in shipping, dispute handling included.",
+    "previewValidation": "Our team approves your profile within 24h. Your draft lots will be auto-published once approved.",
     "validation": {
       "firstLastName": "First and last name required",
       "phone": "Phone number required",

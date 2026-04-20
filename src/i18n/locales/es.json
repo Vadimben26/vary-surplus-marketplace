@@ -25,6 +25,12 @@
     "browseLots": "Explorar lotes",
     "returnHome": "Volver al inicio"
   },
+  "trust": {
+    "escrow": "Pago en garantía",
+    "verifiedSellers": "Vendedores verificados",
+    "shipping": "Transporte integrado",
+    "disputes": "Gestión de disputas"
+  },
   "lang": {
     "fr": "Français",
     "en": "English",
@@ -68,7 +74,20 @@
     "stat3Value": "Pago",
     "stat3Label": "en garantía",
     "buyerCta": "Descubrir los lotes",
-    "sellerCta": "Vender mis excedentes"
+    "sellerCta": "Vender mis excedentes",
+    "splitTitle": "¿Cuál es tu objetivo hoy?",
+    "buyerKicker": "Compradores",
+    "buyerHeadline": "Compro lotes verificados",
+    "buyerPitch": "Stock nuevo en lotes, marcas reconocidas, precios mayoristas. Filtra por categoría, país y presupuesto.",
+    "buyerProof1": "−40% a −70% vs precio retail",
+    "buyerProof2": "Vendedores y marcas verificados",
+    "buyerProof3": "Pago seguro en garantía",
+    "sellerKicker": "Vendedores",
+    "sellerHeadline": "Vendo mis excedentes",
+    "sellerPitch": "Liquida tus excedentes nuevos en lotes a compradores verificados. Tú controlas tu visibilidad.",
+    "sellerProof1": "Red de compradores profesionales cualificados",
+    "sellerProof2": "Lotes liquidados en pocos días",
+    "sellerProof3": "Transporte y disputas gestionados"
   },
   "buyerWelcome": {
     "title": "¿Cómo deseas acceder?",
@@ -266,6 +285,16 @@
     "checkEmail": "Revisa tu correo para confirmar tu cuenta y espera el email de aprobación.",
     "goToSellerDashboard": "Ir a mi panel de vendedor",
     "submitRequest": "Enviar solicitud",
+    "previewTitle": "Esto es lo que activará tu perfil",
+    "previewVisible": "Tus lotes serán visibles para",
+    "previewVisibleAll": "todos los compradores verificados en Europa",
+    "previewVisibleSpecific": "compradores verificados ubicados en {{countries}}",
+    "previewMatch": "Recibirás solicitudes de compradores",
+    "previewMatchAll": "interesados en todas tus categorías",
+    "previewMatchCats": "interesados en: {{list}}",
+    "previewSecure": "Vary asegura cada transacción",
+    "previewSecureDesc": "Pago en garantía, transporte integrado, gestión de disputas incluida.",
+    "previewValidation": "Nuestro equipo valida tu perfil en 24h. Tus lotes en borrador se publicarán automáticamente tras la aprobación.",
     "validation": {
       "firstLastName": "Nombre y apellido requeridos",
       "phone": "Número de teléfono requerido",
