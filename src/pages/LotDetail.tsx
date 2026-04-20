@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Heart, MapPin, Package, MessageCircle, ShoppingCart, User, ChevronLeft, ChevronRight, TrendingDown, Image, Download, Star } from "lucide-react";
+import { ArrowLeft, Heart, MapPin, Package, MessageCircle, ShoppingCart, User, ChevronLeft, ChevronRight, TrendingDown, Image, Download, Star, Layers, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -262,10 +262,24 @@ const LotDetail = () => {
                 <p className="font-heading font-bold text-foreground text-xs">{lot.units}</p>
                 <p className="text-[10px] text-muted-foreground">{t("common.units")}</p>
               </div>
+              <div className="bg-muted rounded-lg p-2 text-center">
+                <Layers className="h-3 w-3 text-muted-foreground mx-auto mb-0.5" />
+                <p className="font-heading font-bold text-foreground text-xs">{(lot as any).pallets || 1}</p>
+                <p className="text-[10px] text-muted-foreground">{t("lotDetail.pallets", "palettes")}</p>
+              </div>
               {lot.location && (
                 <div className="bg-muted rounded-lg p-2 text-center">
                   <MapPin className="h-3 w-3 text-muted-foreground mx-auto mb-0.5" />
                   <p className="font-heading font-bold text-foreground text-[10px]">{lot.location}</p>
+                </div>
+              )}
+              {(lot as any).expires_at && (
+                <div className="bg-muted rounded-lg p-2 text-center">
+                  <Calendar className="h-3 w-3 text-muted-foreground mx-auto mb-0.5" />
+                  <p className="font-heading font-bold text-foreground text-[10px]">
+                    {new Date((lot as any).expires_at).toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" })}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">{t("lotDetail.expiresAt", "Expire le")}</p>
                 </div>
               )}
             </div>
