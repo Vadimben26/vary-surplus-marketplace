@@ -7,9 +7,11 @@ import BottomNav from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import GuestGate from "@/components/GuestGate";
 
 const BuyerVIP = () => {
   const [loading, setLoading] = useState(false);
+  const [showGuestGate, setShowGuestGate] = useState(false);
   const { user } = useAuth();
   const { t } = useTranslation();
 
@@ -57,7 +59,7 @@ const BuyerVIP = () => {
           </ul>
           <button
             onClick={async () => {
-              if (!user) { toast.error(t("checkout.loginRequired")); return; }
+              if (!user) { setShowGuestGate(true); return; }
               setLoading(true);
               try {
                 const { data, error } = await supabase.functions.invoke("create-vip-subscription", {
@@ -81,6 +83,7 @@ const BuyerVIP = () => {
         </div>
       </main>
       <BottomNav />
+      {showGuestGate && <GuestGate onClose={() => setShowGuestGate(false)} />}
     </div>
   );
 };
