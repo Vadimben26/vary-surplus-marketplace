@@ -297,14 +297,20 @@
     "vipExclusive": "VIP exclusive offers",
     "vipDesc": "These offers are reserved for VIP members. Access all offers 24h before other buyers.",
     "vipOnly": "VIP subscribers only",
-    "becomeVip": "Go VIP — €299/month"
+    "becomeVip": "Go VIP — €299/month",
+    "trustPayment": "Secure payment",
+    "trustShipping": "Built-in shipping",
+    "trustVerified": "Verified sellers"
   },
   "filters": {
     "title": "Filters",
     "country": "Country of stock",
+    "sellerCountry": "Seller country",
     "totalPrice": "Total lot price",
     "pricePerItem": "Price per item",
     "totalUnits": "Number of items",
+    "pallets": "Number of pallets",
+    "palletsUnit": "pal.",
     "sellerRating": "Seller rating",
     "category": "Category",
     "brands": "Brands",
@@ -353,7 +359,9 @@
     "totalTTC": "Total incl. tax",
     "add": "Add",
     "addedToCart": "Lot added to cart",
-    "thumbnail": "Thumbnail"
+    "thumbnail": "Thumbnail",
+    "pallets": "pallets",
+    "expiresAt": "Expires on"
   },
   "cart": {
     "title": "Your cart",
