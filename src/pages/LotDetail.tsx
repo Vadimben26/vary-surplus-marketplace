@@ -361,13 +361,37 @@ const LotDetail = () => {
                   )}
                 </div>
 
+                {isUnreachable && (
+                  <div className="mt-3 p-2.5 rounded-lg bg-destructive/10 border border-destructive/30 text-[11px] text-destructive">
+                    <p className="font-semibold mb-0.5">
+                      {t("shipping.notDeliverable", "Non livrable dans votre pays")}
+                    </p>
+                    <p className="text-[10px] leading-snug">
+                      {shippingReach?.minPrice
+                        ? t("shipping.unreachableHint", "Ce lot ne peut pas être livré jusqu'à {{country}} (prix minimum requis : {{min}}).", {
+                            country: buyerCountry,
+                            min: fmtEur(shippingReach.minPrice),
+                          })
+                        : t("shipping.noRoute", "Aucune route de livraison disponible.")}
+                    </p>
+                  </div>
+                )}
+
                 <button
                   onClick={handleAddToCart}
-                  disabled={inCart}
-                  className={`w-full mt-3 py-2.5 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm ${inCart ? "bg-muted text-muted-foreground cursor-default" : "bg-primary text-primary-foreground hover:bg-primary/90"}`}
+                  disabled={inCart || isUnreachable}
+                  className={`w-full mt-3 py-2.5 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm ${
+                    inCart || isUnreachable
+                      ? "bg-muted text-muted-foreground cursor-not-allowed"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90"
+                  }`}
                 >
                   <ShoppingCart className="h-4 w-4" />
-                  {inCart ? t("lotDetail.inCart") : t("lotDetail.addToCart")}
+                  {isUnreachable
+                    ? t("shipping.unavailable", "Indisponible")
+                    : inCart
+                      ? t("lotDetail.inCart")
+                      : t("lotDetail.addToCart")}
                 </button>
 
                 <button
