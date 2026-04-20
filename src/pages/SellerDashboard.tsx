@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, DollarSign, MapPin,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
-  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers
+  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers, CreditCard
 } from "lucide-react";
 import ShippingReachPanel from "@/components/seller/ShippingReachPanel";
 import SellerApprovalBanner from "@/components/seller/SellerApprovalBanner";
@@ -49,6 +49,63 @@ const SellerDashboard = () => {
   const [expandedLotId, setExpandedLotId] = useState<string | null>(null);
   const [popover, setPopover] = useState<{ lotId: string; type: "favorite" | "cart" } | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const [stripeConnecting, setStripeConnecting] = useState(false);
+  const [stripeStatus, setStripeStatus] = useState<{ chargesEnabled: boolean; detailsSubmitted: boolean } | null>(null);
+
+  // Handle Stripe Connect onboarding return
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const stripeParam = params.get("stripe");
+    if (!stripeParam) return;
+
+    if (stripeParam === "refresh") {
+      toast.error("La configuration n'a pas été complétée — réessayez.");
+      window.history.replaceState({}, "", window.location.pathname);
+      return;
+    }
+
+    if (stripeParam === "success") {
+      (async () => {
+        const { data } = await supabase.functions.invoke("check-stripe-connect-status");
+        if (data) {
+          setStripeStatus({ chargesEnabled: !!data.chargesEnabled, detailsSubmitted: !!data.detailsSubmitted });
+          if (data.chargesEnabled) {
+            toast.success("Compte de paiement configuré — vous pouvez recevoir des paiements !");
+          } else {
+            toast.message("Configuration en cours de vérification par Stripe.");
+          }
+        }
+        window.history.replaceState({}, "", window.location.pathname);
+      })();
+    }
+  }, []);
+
+  // Initial Stripe status check
+  useEffect(() => {
+    if (!profile?.id) return;
+    if (!profile.stripe_account_id) {
+      setStripeStatus({ chargesEnabled: false, detailsSubmitted: false });
+      return;
+    }
+    (async () => {
+      const { data } = await supabase.functions.invoke("check-stripe-connect-status");
+      if (data) setStripeStatus({ chargesEnabled: !!data.chargesEnabled, detailsSubmitted: !!data.detailsSubmitted });
+    })();
+  }, [profile?.id, (profile as any)?.stripe_account_id]);
+
+  const handleStripeConnect = async () => {
+    setStripeConnecting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-stripe-connect-account");
+      if (error || !data?.url) {
+        toast.error("Impossible de démarrer la configuration Stripe.");
+        return;
+      }
+      window.location.href = data.url;
+    } finally {
+      setStripeConnecting(false);
+    }
+  };
 
   // Close popover on outside click
   useEffect(() => {
@@ -361,6 +418,35 @@ const SellerDashboard = () => {
       <TopNav />
       <main className="px-4 md:px-8 py-6 pb-24 max-w-[1400px] mx-auto">
         <SellerApprovalBanner />
+
+        {/* Stripe Connect onboarding banner */}
+        {stripeStatus && !stripeStatus.chargesEnabled && (
+          <div className="mb-6 rounded-2xl border border-primary/30 bg-primary/5 p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex items-start gap-3 flex-1">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <CreditCard className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-heading font-semibold text-foreground">
+                  Configurez votre compte de paiement pour recevoir vos fonds
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {stripeStatus.detailsSubmitted
+                    ? "Votre compte est en cours de vérification par Stripe."
+                    : "Sans compte Stripe Connect, les acheteurs ne pourront pas finaliser leurs commandes sur vos lots."}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleStripeConnect}
+              disabled={stripeConnecting}
+              className="px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 whitespace-nowrap"
+            >
+              {stripeConnecting ? "Redirection…" : "Configurer maintenant"}
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-heading text-xl md:text-2xl font-bold text-foreground">
