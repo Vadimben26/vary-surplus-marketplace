@@ -189,10 +189,30 @@ const SellerTracking = () => {
                     </div>
                   )}
 
-                  {order.tracking_number && (
+                  {order.tracking_number ? (
                     <p className="text-xs text-muted-foreground mt-3">
                       {t("sellerTracking.trackingNumber")}: <span className="font-mono font-semibold text-foreground">{order.tracking_number}</span>
                     </p>
+                  ) : (
+                    activeTab === "active" && (order.status === "paid" || order.status === "preparing") && (
+                      <div className="flex gap-2 mt-3">
+                        <input
+                          type="text"
+                          placeholder="N° de suivi (ex: 1Z999...)"
+                          value={trackingInputs[order.id] || ""}
+                          onChange={(e) => setTrackingInputs({ ...trackingInputs, [order.id]: e.target.value })}
+                          className="flex-1 px-3 py-1.5 text-xs border border-border rounded-lg bg-background"
+                        />
+                        <button
+                          onClick={() => handleSaveTracking(order.id)}
+                          disabled={savingId === order.id}
+                          className="px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                        >
+                          {savingId === order.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Truck className="h-3 w-3" />}
+                          Expédier
+                        </button>
+                      </div>
+                    )
                   )}
                 </motion.div>
               );
