@@ -14,6 +14,7 @@ import { useShippingMatrix } from "@/hooks/useShippingMatrix";
 import { computeShippingCost, FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE, fmtEur } from "@/lib/shipping";
 import LotCard from "@/components/LotCard";
 import BuyerPrefsGate from "@/components/BuyerPrefsGate";
+import GuestGate from "@/components/GuestGate";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
 import LegalFooter from "@/components/LegalFooter";
@@ -31,6 +32,7 @@ const LotDetail = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [selectedProductImage, setSelectedProductImage] = useState<string | null>(null);
   const [showGate, setShowGate] = useState(false);
+  const [showGuestGate, setShowGuestGate] = useState(false);
 
   const { data: lot, isLoading } = useQuery({
     queryKey: ["lot-detail", id],
@@ -158,7 +160,7 @@ const LotDetail = () => {
 
   const handleAddToCart = () => {
     if (!user) {
-      navigate("/connexion");
+      setShowGuestGate(true);
       return;
     }
     if (isUnreachable) {
@@ -175,7 +177,7 @@ const LotDetail = () => {
 
   const handleContactSeller = () => {
     if (!user) {
-      navigate("/connexion");
+      setShowGuestGate(true);
       return;
     }
     if (requiresPrefs) {
@@ -510,6 +512,8 @@ const LotDetail = () => {
         )}
         returnTo={typeof window !== "undefined" ? window.location.pathname : undefined}
       />
+
+      {showGuestGate && <GuestGate onClose={() => setShowGuestGate(false)} />}
     </div>
   );
 };

@@ -46,9 +46,9 @@ const COUNTRIES = [
   "Hongrie", "Croatie",
 ];
 
-const CATEGORIES = [
-  "Vêtements", "Sneakers", "Accessoires",
-];
+// Canonical category keys — must match the values stored in `lots.category`
+// (see SellerDashboard CATEGORIES). Labels are localized via i18n.
+const CATEGORY_KEYS = ["clothing", "sneakers", "accessories"] as const;
 
 interface FilterDropdownProps {
   label: string;
@@ -253,13 +253,14 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
             ))}
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {CATEGORIES.map((cat) => {
-              const count = lotCounts.categories[cat] || 0;
-              const selected = filters.categories.includes(cat);
+            {CATEGORY_KEYS.map((key) => {
+              const count = lotCounts.categories[key] || 0;
+              const selected = filters.categories.includes(key);
+              const label = t(`sellerDashboard.categories.${key}`);
               return (
                 <button
-                  key={cat}
-                  onClick={() => toggleArrayItem("categories", cat)}
+                  key={key}
+                  onClick={() => toggleArrayItem("categories", key)}
                   disabled={count === 0 && !selected}
                   className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     selected
@@ -269,7 +270,7 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
                       : "bg-muted text-foreground hover:bg-accent"
                   }`}
                 >
-                  {cat}
+                  {label}
                   <span className={`text-[10px] ${selected ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                     {count}
                   </span>

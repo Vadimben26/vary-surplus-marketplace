@@ -28,28 +28,33 @@ const BuyerWelcome = () => {
             {t("common.back")}
           </Link>
 
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-3">
               {t("buyerWelcome.title")}
             </h1>
-            <p className="text-muted-foreground text-base md:text-lg">
+            <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto">
               {t("buyerWelcome.subtitle")}
             </p>
           </div>
 
-          {/* Reassurance icons */}
-          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mb-10 px-4 py-4 bg-muted/50 rounded-2xl border border-border">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-foreground">{t("buyerWelcome.trustPayment", "Paiement sécurisé")}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Truck className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-foreground">{t("buyerWelcome.trustShipping", "Transport intégré")}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BadgeCheck className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-foreground">{t("buyerWelcome.trustVerified", "Acheteurs vérifiés")}</span>
+          {/* Value proposition */}
+          <div className="bg-card border border-border rounded-2xl p-5 md:p-6 mb-6">
+            <p className="text-sm text-foreground leading-relaxed text-center mb-4">
+              {t("buyerWelcome.valueProp")}
+            </p>
+            <div className="grid sm:grid-cols-3 gap-3 text-xs">
+              <div className="flex items-start gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-foreground">{t("buyerWelcome.benefit1")}</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <BadgeCheck className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-foreground">{t("buyerWelcome.benefit2")}</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Truck className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-foreground">{t("buyerWelcome.benefit3")}</span>
+              </div>
             </div>
           </div>
 

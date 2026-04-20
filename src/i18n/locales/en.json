@@ -58,7 +58,17 @@
     "sellerDesc": "Sell your surplus quickly to a network of qualified professional buyers.",
     "continue": "Continue",
     "fillForm": "Fill in the form",
-    "alreadyAccount": "I already have an account → Sign in"
+    "alreadyAccount": "I already have an account → Sign in",
+    "tagline": "Europe's B2B marketplace for new surplus stock",
+    "valueProp": "Buy and resell new stock in lots, between verified professionals, all across Europe — secure payment and integrated shipping.",
+    "stat1Value": "−40 to −70%",
+    "stat1Label": "vs retail price",
+    "stat2Value": "100%",
+    "stat2Label": "verified sellers",
+    "stat3Value": "Escrow",
+    "stat3Label": "payment",
+    "buyerCta": "Browse lots",
+    "sellerCta": "Sell my surplus"
   },
   "buyerWelcome": {
     "title": "How would you like to access?",
@@ -69,7 +79,11 @@
     "createCta": "Create my profile",
     "guestTitle": "Continue as guest",
     "guestDesc": "Browse public lots without signing up. A profile will be required to buy or contact a seller.",
-    "guestCta": "Explore the marketplace"
+    "guestCta": "Explore the marketplace",
+    "valueProp": "Access thousands of new surplus lots (clothing, sneakers, accessories) at wholesale prices, from verified European brands and distributors.",
+    "benefit1": "New stock −40 to −70% vs retail",
+    "benefit2": "Secure escrow payment",
+    "benefit3": "Integrated shipping to your warehouse"
   },
   "registration": {
     "joinVary": "Join Vary",
@@ -147,7 +161,6 @@
     "profileActivated": "Your buyer profile is activated immediately — no approval required. You can start buying on the marketplace right now.",
     "checkEmail": "A confirmation email has been sent to you.",
     "goToMarketplace": "Go to marketplace",
-    "continue": "Continue",
     "validation": {
       "firstName": "First name required",
       "lastName": "Last name required",

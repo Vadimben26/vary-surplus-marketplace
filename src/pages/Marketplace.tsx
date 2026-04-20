@@ -47,13 +47,31 @@ const Marketplace = () => {
     return Array.from(set).sort();
   }, [dbLots]);
 
+  // Map any free-form lot.category text to one or more canonical keys
+  // ("clothing", "sneakers", "accessories"). Lots may store comma-separated
+  // values mixed with French/English labels — we normalize for filtering.
+  const CATEGORY_ALIASES: Record<string, string[]> = {
+    clothing: ["clothing", "vêtement", "vetement", "ropa", "apparel", "habit"],
+    sneakers: ["sneaker", "shoes", "chaussure", "zapatilla"],
+    accessories: ["accessor", "accesorio"],
+  };
+  const lotToCanonicalCategories = (raw?: string | null): string[] => {
+    if (!raw) return [];
+    const lc = raw.toLowerCase();
+    return Object.entries(CATEGORY_ALIASES)
+      .filter(([, aliases]) => aliases.some((a) => lc.includes(a)))
+      .map(([key]) => key);
+  };
+
   const lotCounts = useMemo(() => {
     const countries: Record<string, number> = {};
     const categories: Record<string, number> = {};
     const brands: Record<string, number> = {};
     dbLots.forEach((lot: any) => {
       if (lot.location) countries[lot.location] = (countries[lot.location] || 0) + 1;
-      if (lot.category) categories[lot.category] = (categories[lot.category] || 0) + 1;
+      lotToCanonicalCategories(lot.category).forEach((key) => {
+        categories[key] = (categories[key] || 0) + 1;
+      });
       if (lot.brand) brands[lot.brand] = (brands[lot.brand] || 0) + 1;
     });
     return { countries, categories, brands, total: dbLots.length };
@@ -98,8 +116,8 @@ const Marketplace = () => {
       const palletCount = lot.pallets || 1;
       if (palletCount < filters.palletsRange[0] || palletCount > filters.palletsRange[1]) return false;
       if (filters.categories.length > 0) {
-        const lotCat = (lot.category || "").toLowerCase();
-        const match = filters.categories.some((c) => lotCat.includes(c.toLowerCase()));
+        const lotCanonical = lotToCanonicalCategories(lot.category);
+        const match = filters.categories.some((c) => lotCanonical.includes(c));
         if (!match) return false;
       }
       if (filters.brandsInclude.length > 0 && !filters.brandsInclude.includes(lot.brand)) return false;

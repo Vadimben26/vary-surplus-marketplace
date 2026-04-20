@@ -3,16 +3,35 @@ import { useTranslation } from "react-i18next";
 import { X, Lock, ArrowRight } from "lucide-react";
 import varyLogo from "@/assets/vary-logo.png";
 
-const GuestGate = () => {
+interface GuestGateProps {
+  /** Optional override of the modal title. */
+  title?: string;
+  /** Optional override of the modal description. */
+  description?: string;
+  /**
+   * Optional close handler. When provided, the close button calls it
+   * (used for action-triggered gates that shouldn't navigate away).
+   * When omitted, the close button navigates to /marketplace
+   * (used for route-level guarding).
+   */
+  onClose?: () => void;
+}
+
+const GuestGate = ({ title, description, onClose }: GuestGateProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const handleClose = () => {
+    if (onClose) onClose();
+    else navigate("/marketplace");
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-md rounded-2xl bg-card border border-border shadow-2xl p-8">
         <button
           type="button"
-          onClick={() => navigate("/marketplace")}
+          onClick={handleClose}
           aria-label={t("guestGate.close")}
           className="absolute top-4 right-4 p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
         >
@@ -30,10 +49,10 @@ const GuestGate = () => {
         </div>
 
         <h2 className="font-heading text-2xl font-bold text-foreground text-center mb-3">
-          {t("guestGate.title")}
+          {title ?? t("guestGate.title")}
         </h2>
         <p className="text-sm text-muted-foreground text-center mb-7">
-          {t("guestGate.description")}
+          {description ?? t("guestGate.description")}
         </p>
 
         <div className="space-y-3">
@@ -54,7 +73,7 @@ const GuestGate = () => {
           </button>
           <button
             type="button"
-            onClick={() => navigate("/marketplace")}
+            onClick={handleClose}
             className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2"
           >
             {t("guestGate.continueBrowsing")}
