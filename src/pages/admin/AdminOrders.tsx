@@ -69,10 +69,7 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [confirmAction, setConfirmAction] = useState<{
-    order: OrderRow;
-    type: "refund" | "release";
-  } | null>(null);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
