@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Crown, Lock, X, ShieldCheck, Truck, BadgeCheck } from "lucide-react";
+import { Crown, Lock, X } from "lucide-react";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
+import TrustBar from "@/components/TrustBar";
 import LotCard from "@/components/LotCard";
 import FilterPanel, { B2BFilters, DEFAULT_FILTERS } from "@/components/marketplace/FilterPanel";
 import FilterChips from "@/components/marketplace/FilterChips";
@@ -178,24 +179,8 @@ const Marketplace = () => {
         showSearch
       />
 
+      <TrustBar />
       <div className="max-w-[1600px] mx-auto">
-        {/* Trust banner */}
-        <div className="px-4 md:px-8 pt-3">
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 py-2.5 bg-primary/5 border border-primary/15 rounded-xl text-xs">
-            <div className="flex items-center gap-1.5 text-foreground">
-              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-              <span className="font-medium">{t("marketplace.trustPayment", "Paiement sécurisé")}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-foreground">
-              <Truck className="h-3.5 w-3.5 text-primary" />
-              <span className="font-medium">{t("marketplace.trustShipping", "Transport intégré")}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-foreground">
-              <BadgeCheck className="h-3.5 w-3.5 text-primary" />
-              <span className="font-medium">{t("marketplace.trustVerified", "Vendeurs vérifiés")}</span>
-            </div>
-          </div>
-        </div>
 
         {firstName && (
           <div className="px-4 md:px-8 pt-4">
