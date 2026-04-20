@@ -146,6 +146,21 @@ const SellerDashboard = () => {
     enabled: !!profile?.id && isVipSeller && lots.length > 0,
   });
 
+  // Fetch seller rating (public profile rating + count)
+  const { data: sellerRating } = useQuery({
+    queryKey: ["seller-rating-dashboard", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return { average_rating: 0, review_count: 0 };
+      const { data } = await (supabase as any).rpc("get_seller_rating", { seller_profile_id: profile.id });
+      const row = Array.isArray(data) ? data[0] : data;
+      return {
+        average_rating: Number(row?.average_rating) || 0,
+        review_count: Number(row?.review_count) || 0,
+      };
+    },
+    enabled: !!profile?.id,
+  });
+
   // Group interests by lot
   const interestsByLot = (buyerInterests as any[]).reduce((acc: Record<string, any[]>, item: any) => {
     if (!acc[item.lot_id]) acc[item.lot_id] = [];
