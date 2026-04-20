@@ -783,7 +783,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_my_full_profile: {
+        Args: never
+        Returns: {
+          company_description: string | null
+          company_name: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          siret: string | null
+          updated_at: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_my_profile_id: { Args: never; Returns: string }
+      get_seller_public_info: {
+        Args: { _profile_id: string }
+        Returns: {
+          company_name: string
+          full_name: string
+          id: string
+        }[]
+      }
       is_seller: { Args: never; Returns: boolean }
       is_seller_approved: { Args: never; Returns: boolean }
       is_seller_of_lot: { Args: { _lot_id: string }; Returns: boolean }

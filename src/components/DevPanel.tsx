@@ -29,6 +29,9 @@ const DevPanel = ({ profileId }: DevPanelProps) => {
 
   useEffect(() => { fetchStatus(); }, [profileId]);
 
+  // Hard guard: never render in production builds, even if imported by mistake.
+  if (!import.meta.env.DEV) return null;
+
   const toggle = async (plan: string, current: boolean) => {
     if (current) {
       await supabase.from("subscriptions").delete().eq("user_id", profileId).eq("plan", plan);
