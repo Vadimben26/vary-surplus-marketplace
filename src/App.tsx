@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -34,8 +36,29 @@ import MentionsLegales from "./pages/MentionsLegales.tsx";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite.tsx";
 import PolitiqueCookies from "./pages/PolitiqueCookies.tsx";
 import GuestGate from "./components/GuestGate.tsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
+import AdminSellers from "./pages/admin/AdminSellers.tsx";
+import AdminLots from "./pages/admin/AdminLots.tsx";
+import AdminOrders from "./pages/admin/AdminOrders.tsx";
 
 const queryClient = new QueryClient();
+
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+    (supabase as any).rpc("is_admin").then(({ data }: any) => setIsAdmin(!!data));
+  }, [user]);
+
+  if (loading || isAdmin === null) return null;
+  if (!isAdmin) return <Navigate to="/" replace />;
+  return <>{children}</>;
+};
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isVerified, loading } = useAuth();
@@ -110,6 +133,12 @@ const App = () => (
                 <Route path="/seller/vip" element={<SellerRoute><SellerVIP /></SellerRoute>} />
                 <Route path="/seller/suivi" element={<SellerRoute><SellerTracking /></SellerRoute>} />
                 <Route path="/seller/litiges" element={<Navigate to="/seller/suivi" replace />} />
+
+                {/* Admin (isolated, role-gated) */}
+                <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+                <Route path="/admin/vendeurs" element={<AdminRoute><AdminSellers /></AdminRoute>} />
+                <Route path="/admin/lots" element={<AdminRoute><AdminLots /></AdminRoute>} />
+                <Route path="/admin/commandes" element={<AdminRoute><AdminOrders /></AdminRoute>} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>

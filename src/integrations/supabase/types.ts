@@ -544,6 +544,10 @@ export type Database = {
           terms_accepted: boolean | null
           updated_at: string
           user_id: string
+          validated_at: string | null
+          validated_by: string | null
+          validation_note: string | null
+          validation_status: string | null
           vat_code: string | null
           visibility_mode: string | null
           warehouse_location: string | null
@@ -596,6 +600,10 @@ export type Database = {
           terms_accepted?: boolean | null
           updated_at?: string
           user_id: string
+          validated_at?: string | null
+          validated_by?: string | null
+          validation_note?: string | null
+          validation_status?: string | null
           vat_code?: string | null
           visibility_mode?: string | null
           warehouse_location?: string | null
@@ -648,13 +656,25 @@ export type Database = {
           terms_accepted?: boolean | null
           updated_at?: string
           user_id?: string
+          validated_at?: string | null
+          validated_by?: string | null
+          validation_note?: string | null
+          validation_status?: string | null
           vat_code?: string | null
           visibility_mode?: string | null
           warehouse_location?: string | null
           website?: string | null
           years_in_business?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "seller_preferences_validated_by_fkey"
+            columns: ["validated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shipping_pallet_coefficients: {
         Row: {
@@ -814,6 +834,7 @@ export type Database = {
           id: string
         }[]
       }
+      is_admin: { Args: never; Returns: boolean }
       is_seller: { Args: never; Returns: boolean }
       is_seller_approved: { Args: never; Returns: boolean }
       is_seller_of_lot: { Args: { _lot_id: string }; Returns: boolean }
@@ -833,7 +854,7 @@ export type Database = {
         | "refunded"
         | "cancelled"
       subscription_status: "active" | "cancelled" | "past_due" | "trialing"
-      user_type: "buyer" | "seller" | "both"
+      user_type: "buyer" | "seller" | "both" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -974,7 +995,7 @@ export const Constants = {
         "cancelled",
       ],
       subscription_status: ["active", "cancelled", "past_due", "trialing"],
-      user_type: ["buyer", "seller", "both"],
+      user_type: ["buyer", "seller", "both", "admin"],
     },
   },
 } as const
