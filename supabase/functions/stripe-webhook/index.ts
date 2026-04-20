@@ -34,19 +34,38 @@ serve(async (req) => {
 
       if (lot_id && buyer_profile_id && seller_profile_id) {
         // Create order
-        await supabaseAdmin.from("orders").insert({
-          buyer_id: buyer_profile_id,
-          seller_id: seller_profile_id,
-          lot_id,
-          status: "paid",
-          amount: (session.amount_total || 0) / 100,
-          commission: parseInt(commission || "0") / 100,
-          stripe_payment_intent_id: session.payment_intent as string,
-          stripe_checkout_session_id: session.id,
-        });
+        const { data: createdOrder } = await supabaseAdmin
+          .from("orders")
+          .insert({
+            buyer_id: buyer_profile_id,
+            seller_id: seller_profile_id,
+            lot_id,
+            status: "paid",
+            amount: (session.amount_total || 0) / 100,
+            commission: parseInt(commission || "0") / 100,
+            stripe_payment_intent_id: session.payment_intent as string,
+            stripe_checkout_session_id: session.id,
+          })
+          .select("id")
+          .single();
 
         // Mark lot as sold
         await supabaseAdmin.from("lots").update({ status: "sold" }).eq("id", lot_id);
+
+        // Fire-and-forget transactional emails (buyer confirmation + seller notification)
+        if (createdOrder?.id) {
+          const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+          const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+          const headers = {
+            Authorization: `Bearer ${serviceKey}`,
+            "Content-Type": "application/json",
+          };
+          const body = JSON.stringify({ orderId: createdOrder.id });
+          await Promise.allSettled([
+            fetch(`${supabaseUrl}/functions/v1/send-order-confirmation`, { method: "POST", headers, body }),
+            fetch(`${supabaseUrl}/functions/v1/send-seller-order-notification`, { method: "POST", headers, body }),
+          ]);
+        }
       }
       break;
     }
