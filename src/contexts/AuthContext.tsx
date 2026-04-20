@@ -40,14 +40,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-    if (data) setProfile(data as Profile);
-    return data as Profile | null;
+  const fetchProfile = async (_userId: string) => {
+    // Use security-definer RPC so the owner can read sensitive fields (email, phone, siret).
+    // Direct table SELECT is column-restricted for non-owners.
+    const { data } = await (supabase as any).rpc("get_my_full_profile");
+    const row = Array.isArray(data) ? data[0] : null;
+    if (row) setProfile(row as Profile);
+    return (row as Profile) ?? null;
   };
 
   const refreshProfile = async () => {

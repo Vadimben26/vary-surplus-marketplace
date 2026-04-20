@@ -10,6 +10,9 @@ interface DevPanelProps {
 }
 
 const DevPanel = ({ profileId }: DevPanelProps) => {
+  // Hard guard: never render in production builds, even if imported by mistake.
+  if (!import.meta.env.DEV) return null;
+
   const [buyerVip, setBuyerVip] = useState(false);
   const [sellerVip, setSellerVip] = useState(false);
   const [loading, setLoading] = useState(true);

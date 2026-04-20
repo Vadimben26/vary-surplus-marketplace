@@ -257,7 +257,7 @@ const Profile = () => {
               )}
             </div>
 
-            {profile?.email === "vadimbenchetrit@icloud.com" && (
+            {import.meta.env.DEV && profile && (
               <DevPanel profileId={profile.id} />
             )}
           </motion.div>
