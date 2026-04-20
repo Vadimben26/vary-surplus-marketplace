@@ -25,6 +25,12 @@
     "browseLots": "Parcourir les lots",
     "returnHome": "Retour à l'accueil"
   },
+  "trust": {
+    "escrow": "Paiement sous séquestre",
+    "verifiedSellers": "Vendeurs vérifiés",
+    "shipping": "Transport intégré",
+    "disputes": "Litiges gérés"
+  },
   "lang": {
     "fr": "Français",
     "en": "English",
@@ -68,7 +74,20 @@
     "stat3Value": "Paiement",
     "stat3Label": "sous séquestre",
     "buyerCta": "Découvrir les lots",
-    "sellerCta": "Vendre mes surplus"
+    "sellerCta": "Vendre mes surplus",
+    "splitTitle": "Quel est votre objectif aujourd'hui ?",
+    "buyerKicker": "Acheteurs",
+    "buyerHeadline": "J'achète des lots vérifiés",
+    "buyerPitch": "Stocks neufs en lots, marques connues, prix grossiste. Filtrage par catégorie, pays et budget.",
+    "buyerProof1": "−40 à −70 % vs prix retail",
+    "buyerProof2": "Vendeurs et marques vérifiés",
+    "buyerProof3": "Paiement sous séquestre",
+    "sellerKicker": "Vendeurs",
+    "sellerHeadline": "Je vends mes surplus",
+    "sellerPitch": "Écoulez vos surplus neufs en lots auprès d'acheteurs vérifiés. Vous gardez le contrôle de votre visibilité.",
+    "sellerProof1": "Réseau d'acheteurs pros qualifiés",
+    "sellerProof2": "Lots écoulés en quelques jours",
+    "sellerProof3": "Transport et litiges pris en charge"
   },
   "buyerWelcome": {
     "title": "Comment souhaitez-vous accéder ?",
@@ -266,6 +285,16 @@
     "checkEmail": "Vérifiez votre email pour confirmer votre compte, puis attendez l'email de validation.",
     "goToSellerDashboard": "Accéder à mon espace vendeur",
     "submitRequest": "Soumettre la demande",
+    "previewTitle": "Voici ce que votre profil va déclencher",
+    "previewVisible": "Vos lots seront visibles par",
+    "previewVisibleAll": "tous les acheteurs vérifiés en Europe",
+    "previewVisibleSpecific": "les acheteurs vérifiés situés en {{countries}}",
+    "previewMatch": "Vous recevrez des demandes d'acheteurs",
+    "previewMatchAll": "intéressés par toutes vos catégories",
+    "previewMatchCats": "intéressés par : {{list}}",
+    "previewSecure": "Vary sécurise chaque transaction",
+    "previewSecureDesc": "Paiement séquestre, transport intégré, gestion des litiges incluse.",
+    "previewValidation": "Notre équipe valide votre profil sous 24h. Vos brouillons de lots seront publiés automatiquement après validation.",
     "validation": {
       "firstLastName": "Prénom et nom requis",
       "phone": "Numéro de téléphone requis",
