@@ -235,6 +235,8 @@ const BuyerRegistration = () => {
       shipping_city: form.sameShipping ? form.billingCity : form.shippingCity,
       shipping_postal_code: form.sameShipping ? form.billingPostalCode : form.shippingPostalCode,
       shipping_country: form.sameShipping ? form.billingCountry : form.shippingCountry,
+      // Phase 6: explicit field used by the marketplace transport-reach filter.
+      shipping_country_for_filter: form.sameShipping ? form.billingCountry : form.shippingCountry,
       categories: form.categories,
       delivery_countries: form.deliveryCountries,
       annual_revenue: form.annualRevenue,

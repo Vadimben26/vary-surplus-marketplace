@@ -727,5 +727,20 @@
     "privateDescription": "Ce vendeur réserve l'accès aux acheteurs vérifiés. Complétez votre profil acheteur en quelques minutes pour commander ou échanger avec lui.",
     "cta": "Compléter mon profil",
     "later": "Plus tard"
+  },
+  "shipping": {
+    "reachTitle": "Portée du lot",
+    "countriesAccessible": "pays accessibles",
+    "rule": "Règle : prix du lot ≥ 11× coût réel de livraison (plancher {{floor}}). Les pays trop éloignés masquent automatiquement votre lot aux acheteurs concernés.",
+    "accessible": "Accessibles",
+    "blocked": "Bloqués (prix trop bas)",
+    "minPrice": "min",
+    "noOrigin": "Renseignez votre pays d'expédition dans vos préférences vendeur pour voir la portée de votre lot.",
+    "loading": "Calcul de la portée…",
+    "notDeliverable": "Non livrable dans votre pays",
+    "unreachableHint": "Ce lot ne peut pas être livré jusqu'à {{country}} (prix minimum requis : {{min}}).",
+    "noRoute": "Aucune route de livraison disponible.",
+    "unavailable": "Indisponible",
+    "unreachableToast": "Ce lot ne peut pas être livré dans votre pays."
   }
 }

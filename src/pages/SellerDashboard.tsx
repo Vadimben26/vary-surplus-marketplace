@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, DollarSign, MapPin,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
-  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet
+  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers
 } from "lucide-react";
+import ShippingReachPanel from "@/components/seller/ShippingReachPanel";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -94,7 +95,7 @@ const SellerDashboard = () => {
       if (!profile?.user_id) return null;
       const { data } = await supabase
         .from("seller_preferences")
-        .select("warehouse_location, country, city")
+        .select("warehouse_location, country, city, pickup_country")
         .eq("user_id", profile.user_id)
         .maybeSingle();
       return data;
@@ -103,6 +104,8 @@ const SellerDashboard = () => {
   });
 
   const autoLocation = sellerPrefs?.warehouse_location || sellerPrefs?.city || sellerPrefs?.country || "";
+  // Country used for shipping cost calculation (must match a row in shipping_routes.origin_country).
+  const originCountry = sellerPrefs?.pickup_country || sellerPrefs?.country || "";
 
   const { data: isVipSeller = false } = useQuery({
     queryKey: ["seller-vip-status", profile?.id],
@@ -883,6 +886,18 @@ const SellerDashboard = () => {
                         <Input type="number" value={units} onChange={e => setUnits(e.target.value)} placeholder="200" className="bg-muted/50 border-none" />
                       </div>
 
+                      {/* Pallets — drives shipping cost */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                          <Layers className="h-3 w-3" />
+                          {t("sellerDashboard.pallets", "Palettes")} *
+                        </label>
+                        <Input type="number" min="1" value={pallets} onChange={e => setPallets(e.target.value)} placeholder="1" className="bg-muted/50 border-none" />
+                        <p className="text-[10px] text-muted-foreground italic">
+                          {t("sellerDashboard.palletsHint", "Détermine le coût de transport et donc les pays accessibles.")}
+                        </p>
+                      </div>
+
                       {/* Retail price */}
                       <div className="space-y-1.5">
                         <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.retailPrice")}</label>
@@ -931,6 +946,13 @@ const SellerDashboard = () => {
                         </div>
                       )}
                     </div>
+
+                    {/* Live shipping reach preview */}
+                    <ShippingReachPanel
+                      originCountry={originCountry}
+                      lotPrice={parseFloat(price) || 0}
+                      pallets={Math.max(1, parseInt(pallets) || 1)}
+                    />
 
                     {/* Action buttons */}
                     <div className="flex gap-2">

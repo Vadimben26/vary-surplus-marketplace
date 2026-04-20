@@ -727,5 +727,20 @@
     "privateDescription": "This seller reserves access for verified buyers. Complete your buyer profile in a few minutes to order or chat with them.",
     "cta": "Complete my profile",
     "later": "Later"
+  },
+  "shipping": {
+    "reachTitle": "Lot reach",
+    "countriesAccessible": "reachable countries",
+    "rule": "Rule: lot price ≥ 11× real shipping cost (floor {{floor}}). Countries too far away are automatically hidden from affected buyers.",
+    "accessible": "Reachable",
+    "blocked": "Blocked (price too low)",
+    "minPrice": "min",
+    "noOrigin": "Set your pickup country in your seller preferences to see your lot's reach.",
+    "loading": "Computing reach…",
+    "notDeliverable": "Not deliverable to your country",
+    "unreachableHint": "This lot cannot be shipped to {{country}} (minimum price required: {{min}}).",
+    "noRoute": "No shipping route available.",
+    "unavailable": "Unavailable",
+    "unreachableToast": "This lot cannot be shipped to your country."
   }
 }
