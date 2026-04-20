@@ -1,6 +1,6 @@
 import { X, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { B2BFilters, DEFAULT_FILTERS, PRICE_MAX, PRICE_PER_ITEM_MAX, UNITS_MAX } from "./FilterPanel";
+import { B2BFilters, DEFAULT_FILTERS, PRICE_MAX, PRICE_PER_ITEM_MAX, UNITS_MAX, PALLETS_MAX } from "./FilterPanel";
 
 interface FilterChipsProps {
   filters: B2BFilters;
@@ -38,10 +38,10 @@ const FilterChips = ({ filters, onChange, resultCount }: FilterChipsProps) => {
     });
   }
 
-  if (filters.minRating > 0) {
+  if (filters.palletsRange[0] > 0 || filters.palletsRange[1] < PALLETS_MAX) {
     chips.push({
-      label: `⭐ ≥ ${filters.minRating}`,
-      onRemove: () => onChange({ ...filters, minRating: 0 }),
+      label: `🟫 ${filters.palletsRange[0]}–${filters.palletsRange[1]} ${t("filters.palletsUnit", "pal.")}`,
+      onRemove: () => onChange({ ...filters, palletsRange: [0, PALLETS_MAX] }),
     });
   }
 
@@ -51,13 +51,6 @@ const FilterChips = ({ filters, onChange, resultCount }: FilterChipsProps) => {
       onRemove: () => onChange({ ...filters, categories: filters.categories.filter((x) => x !== c) }),
     })
   );
-
-  if (filters.minDiscount > 0) {
-    chips.push({
-      label: `🏷️ ≥ ${filters.minDiscount}%`,
-      onRemove: () => onChange({ ...filters, minDiscount: 0 }),
-    });
-  }
 
   filters.brandsInclude.forEach((b) =>
     chips.push({

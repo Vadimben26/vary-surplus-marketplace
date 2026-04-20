@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MapPin, DollarSign, Package, Star, Percent, X, Plus, Minus, ChevronDown } from "lucide-react";
+import { MapPin, DollarSign, Package, X, Plus, Minus, ChevronDown, Layers } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
@@ -10,6 +10,7 @@ export interface B2BFilters {
   priceRange: [number, number];
   pricePerItemRange: [number, number];
   unitsRange: [number, number];
+  palletsRange: [number, number];
   minRating: number;
   minDiscount: number;
   categories: string[];
@@ -24,6 +25,7 @@ export const DEFAULT_FILTERS: B2BFilters = {
   priceRange: [0, 50000],
   pricePerItemRange: [0, 100],
   unitsRange: [0, 5000],
+  palletsRange: [0, 33],
   minRating: 0,
   minDiscount: 0,
   categories: [],
@@ -35,6 +37,7 @@ export const DEFAULT_FILTERS: B2BFilters = {
 export const PRICE_MAX = 50000;
 export const PRICE_PER_ITEM_MAX = 100;
 export const UNITS_MAX = 5000;
+export const PALLETS_MAX = 33;
 
 const COUNTRIES = [
   "France", "Espagne", "Italie", "Allemagne", "Pays-Bas", "Portugal",
@@ -110,9 +113,9 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {/* Country */}
+      {/* Seller country */}
       <FilterDropdown
-        label={t("filters.country")}
+        label={t("filters.sellerCountry", "Pays vendeur")}
         icon={<MapPin className="h-3.5 w-3.5" />}
         active={filters.countries.length > 0}
         wide
@@ -207,52 +210,27 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
         </div>
       </FilterDropdown>
 
-      {/* Rating */}
+      {/* Pallets — replaces Rating & Discount */}
       <FilterDropdown
-        label={t("filters.sellerRating")}
-        icon={<Star className="h-3.5 w-3.5" />}
-        active={filters.minRating > 0}
+        label={t("filters.pallets", "Nombre de palettes")}
+        icon={<Layers className="h-3.5 w-3.5" />}
+        active={filters.palletsRange[0] > 0 || filters.palletsRange[1] < PALLETS_MAX}
       >
-        <div className="flex gap-2">
-          {[0, 3, 3.5, 4, 4.5].map((r) => (
-            <button
-              key={r}
-              onClick={() => update({ minRating: r })}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                filters.minRating === r
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-foreground hover:bg-accent"
-              }`}
-            >
-              {r === 0 ? t("filters.all") : `≥ ${r}`}
-              {r > 0 && <Star className="h-3 w-3 fill-current" />}
-            </button>
-          ))}
+        <div className="space-y-3">
+          <Slider
+            min={0}
+            max={PALLETS_MAX}
+            step={1}
+            value={filters.palletsRange}
+            onValueChange={(val) => update({ palletsRange: val as [number, number] })}
+          />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>{filters.palletsRange[0]} {t("filters.palletsUnit", "pal.")}</span>
+            <span>{filters.palletsRange[1]} {t("filters.palletsUnit", "pal.")}</span>
+          </div>
         </div>
       </FilterDropdown>
 
-      {/* Discount */}
-      <FilterDropdown
-        label={t("filters.discount")}
-        icon={<Percent className="h-3.5 w-3.5" />}
-        active={filters.minDiscount > 0}
-      >
-        <div className="flex flex-wrap gap-2">
-          {[0, 20, 30, 50, 60, 70].map((d) => (
-            <button
-              key={d}
-              onClick={() => update({ minDiscount: d })}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                filters.minDiscount === d
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-foreground hover:bg-accent"
-              }`}
-            >
-              {d === 0 ? t("filters.all") : `≥ ${d}%`}
-            </button>
-          ))}
-        </div>
-      </FilterDropdown>
       <FilterDropdown
         label={t("filters.category")}
         icon={<Package className="h-3.5 w-3.5" />}
@@ -305,7 +283,7 @@ const FilterPanel = ({ filters, onChange, lotCounts, availableBrands }: FilterPa
       {/* Brands */}
       <FilterDropdown
         label={t("filters.brands")}
-        icon={<Percent className="h-3.5 w-3.5" />}
+        icon={<Package className="h-3.5 w-3.5" />}
         active={filters.brandsInclude.length > 0 || filters.brandsExclude.length > 0}
       >
         <div className="space-y-3">

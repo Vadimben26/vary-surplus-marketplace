@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { ShoppingBag, Store, ArrowRight } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import varyLogo from "@/assets/vary-logo.png";
 
 const Welcome = () => {
   const { t } = useTranslation();
@@ -10,7 +11,9 @@ const Welcome = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="px-4 md:px-8 py-4 flex items-center justify-between border-b border-border">
-        <Link to="/" className="font-heading text-2xl font-bold text-primary">VARY</Link>
+        <Link to="/" className="flex-shrink-0">
+          <img src={varyLogo} alt="Vary" className="h-9 w-auto" />
+        </Link>
         <LanguageSwitcher />
       </header>
 
