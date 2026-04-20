@@ -285,25 +285,6 @@ export default function AdminOrders() {
           </TableBody>
         </Table>
       </div>
-
-      <AlertDialog open={!!confirmAction} onOpenChange={(o) => !o && setConfirmAction(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {confirmAction?.type === "refund" ? "Rembourser l'acheteur ?" : "Libérer les fonds au vendeur ?"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {confirmAction?.type === "refund"
-                ? "Cette commande sera marquée comme remboursée. Le remboursement effectif devra être déclenché manuellement via Stripe."
-                : "Cette commande sera marquée comme confirmée. Le transfert effectif des fonds devra être déclenché manuellement via Stripe."}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmAction}>Confirmer</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </AdminLayout>
   );
 }
