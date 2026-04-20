@@ -399,6 +399,37 @@ const SellerDashboard = () => {
           )}
         </div>
 
+        {/* Public seller rating card (always visible — public info) */}
+        {profile?.id && (
+          <div className="mb-8 bg-card rounded-2xl border border-border p-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl text-amber-500 leading-none tracking-tight" aria-label={`${sellerRating?.average_rating ?? 0}/5`}>
+                {Array.from({ length: 5 }).map((_, i) =>
+                  i < Math.round(sellerRating?.average_rating || 0) ? "★" : "☆"
+                ).join("")}
+              </span>
+              <div>
+                <p className="font-heading text-xl font-bold text-foreground">
+                  {(sellerRating?.review_count ?? 0) > 0
+                    ? (sellerRating?.average_rating ?? 0).toFixed(1)
+                    : "—"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {sellerRating?.review_count ?? 0} avis acheteurs
+                </p>
+              </div>
+            </div>
+            <a
+              href={`/vendeur/${profile.id}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs font-semibold text-primary hover:underline"
+            >
+              Voir mon profil public →
+            </a>
+          </div>
+        )}
+
         {/* Tab filter */}
         <div className="flex gap-2 mb-6 overflow-x-auto">
           {(["active", "draft", "sold"] as const).map((tab) => (
