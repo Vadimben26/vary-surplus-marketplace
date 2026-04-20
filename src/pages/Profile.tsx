@@ -279,6 +279,30 @@ const Profile = () => {
               )}
             </div>
 
+            {isBuyer && buyerPrefs && (
+              <div className="bg-card rounded-2xl border border-border p-6">
+                <h3 className="font-heading font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Bell className="h-4 w-4 text-primary" />
+                  {t("profile.alertsTitle", "Alertes lots")}
+                </h3>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">
+                      {t("profile.alertsLabel", "Recevoir des alertes quand un lot correspond à mes critères")}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("profile.alertsSubtitle", "Basé sur vos catégories et budget renseignés lors de l'inscription")}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={alertsEnabled}
+                    onCheckedChange={toggleAlerts}
+                    aria-label={t("profile.alertsLabel", "Alertes lots")}
+                  />
+                </div>
+              </div>
+            )}
+
             {import.meta.env.DEV && profile && (
               <DevPanel profileId={profile.id} />
             )}
