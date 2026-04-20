@@ -58,7 +58,17 @@
     "sellerDesc": "Vende tus excedentes rápidamente a una red de compradores profesionales cualificados.",
     "continue": "Continuar",
     "fillForm": "Rellenar el formulario",
-    "alreadyAccount": "Ya tengo una cuenta → Iniciar sesión"
+    "alreadyAccount": "Ya tengo una cuenta → Iniciar sesión",
+    "tagline": "El marketplace B2B europeo del stock nuevo en lotes",
+    "valueProp": "Compra y revende stock nuevo en lotes, entre profesionales verificados, en toda Europa — pago seguro y transporte integrado.",
+    "stat1Value": "−40 a −70%",
+    "stat1Label": "vs precio retail",
+    "stat2Value": "100%",
+    "stat2Label": "vendedores verificados",
+    "stat3Value": "Pago",
+    "stat3Label": "en garantía",
+    "buyerCta": "Descubrir los lotes",
+    "sellerCta": "Vender mis excedentes"
   },
   "buyerWelcome": {
     "title": "¿Cómo deseas acceder?",
@@ -69,7 +79,11 @@
     "createCta": "Crear mi perfil",
     "guestTitle": "Continuar como invitado",
     "guestDesc": "Explora los lotes públicos sin registrarte. Se solicitará un perfil para comprar o contactar a un vendedor.",
-    "guestCta": "Explorar el marketplace"
+    "guestCta": "Explorar el marketplace",
+    "valueProp": "Accede a miles de lotes de stock nuevo (ropa, sneakers, accesorios) a precio mayorista, de marcas y distribuidores europeos verificados.",
+    "benefit1": "Stock nuevo −40 a −70% vs retail",
+    "benefit2": "Pago seguro en garantía",
+    "benefit3": "Transporte integrado hasta tu almacén"
   },
   "registration": {
     "joinVary": "Únete a Vary",
@@ -147,7 +161,6 @@
     "profileActivated": "Su perfil de comprador se activa inmediatamente, sin aprobación. Ya puede comprar en el marketplace.",
     "checkEmail": "Le hemos enviado un email de confirmación.",
     "goToMarketplace": "Ir al marketplace",
-    "continue": "Continuar",
     "validation": {
       "firstName": "Nombre requerido",
       "lastName": "Apellido requerido",

@@ -58,7 +58,17 @@
     "sellerDesc": "Écoulez vos surplus rapidement auprès d'un réseau d'acheteurs professionnels qualifiés.",
     "continue": "Continuer",
     "fillForm": "Remplir le formulaire",
-    "alreadyAccount": "J'ai déjà un compte → Se connecter"
+    "alreadyAccount": "J'ai déjà un compte → Se connecter",
+    "tagline": "La marketplace B2B européenne du surplus neuf",
+    "valueProp": "Achetez et revendez des stocks neufs en lots, entre professionnels vérifiés, partout en Europe — paiement sécurisé et transport intégré.",
+    "stat1Value": "−40 à −70%",
+    "stat1Label": "vs prix retail",
+    "stat2Value": "100%",
+    "stat2Label": "vendeurs vérifiés",
+    "stat3Value": "Paiement",
+    "stat3Label": "sous séquestre",
+    "buyerCta": "Découvrir les lots",
+    "sellerCta": "Vendre mes surplus"
   },
   "buyerWelcome": {
     "title": "Comment souhaitez-vous accéder ?",
@@ -69,7 +79,11 @@
     "createCta": "Créer mon profil",
     "guestTitle": "Continuer en tant qu'invité",
     "guestDesc": "Parcourez les lots publics sans inscription. Un profil sera demandé pour acheter ou contacter un vendeur.",
-    "guestCta": "Explorer la marketplace"
+    "guestCta": "Explorer la marketplace",
+    "valueProp": "Accédez à des milliers de lots de surplus neufs (vêtements, sneakers, accessoires) à prix grossiste, auprès de marques et distributeurs vérifiés en Europe.",
+    "benefit1": "Stocks neufs −40 à −70% vs retail",
+    "benefit2": "Paiement sécurisé sous séquestre",
+    "benefit3": "Transport intégré jusqu'à votre entrepôt"
   },
   "registration": {
     "joinVary": "Rejoignez Vary",
@@ -147,7 +161,6 @@
     "profileActivated": "Votre profil acheteur est activé immédiatement, sans approbation. Vous pouvez dès maintenant acheter sur la marketplace.",
     "checkEmail": "Un email de confirmation vous a été envoyé.",
     "goToMarketplace": "Accéder à la marketplace",
-    "continue": "Continuer",
     "validation": {
       "firstName": "Prénom requis",
       "lastName": "Nom requis",
