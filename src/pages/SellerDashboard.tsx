@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, DollarSign, MapPin,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
-  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers, CreditCard
+  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers, CreditCard, AlertTriangle
 } from "lucide-react";
 import ShippingReachPanel from "@/components/seller/ShippingReachPanel";
 import SellerApprovalBanner from "@/components/seller/SellerApprovalBanner";
