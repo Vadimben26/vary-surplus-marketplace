@@ -235,6 +235,9 @@ export default function AdminOrders() {
                     <TableCell className="text-right space-x-2 whitespace-nowrap">
                       {o.status === "disputed" && (
                         <>
+                          <Button size="sm" variant="ghost" onClick={() => triggerDisputeAlert(o.id)}>
+                            Notifier
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"

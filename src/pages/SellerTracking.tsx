@@ -5,9 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
-import { Truck, Package, CheckCircle2, Clock, AlertTriangle, MessageCircle } from "lucide-react";
+import { Truck, Package, CheckCircle2, Clock, AlertTriangle, MessageCircle, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const statusSteps = ["paid", "preparing", "shipped", "delivered", "confirmed"] as const;
 
