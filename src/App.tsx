@@ -33,6 +33,7 @@ import CGV from "./pages/CGV.tsx";
 import MentionsLegales from "./pages/MentionsLegales.tsx";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite.tsx";
 import PolitiqueCookies from "./pages/PolitiqueCookies.tsx";
+import GuestGate from "./components/GuestGate.tsx";
 
 const queryClient = new QueryClient();
 
