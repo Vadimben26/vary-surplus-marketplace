@@ -67,6 +67,20 @@ const LotDetail = () => {
   const isFilteredLot = sellerPrefs?.visibility_mode === "filtered";
   const requiresPrefs = isFilteredLot && !!user && !prefsLoading && !hasBuyerPrefs;
 
+  // Phase 6: shipping reachability check (lot.price >= 11 × real shipping cost)
+  const { country: buyerCountry } = useBuyerShippingCountry();
+  const { data: shippingMatrix } = useShippingMatrix();
+  const shippingReach = useMemo(() => {
+    if (!lot || !buyerCountry || !shippingMatrix) return null;
+    const origin = lot.location || (lot.profiles as any)?.country;
+    if (!origin) return null;
+    const r = computeShippingCost(origin, buyerCountry, lot.pallets || 1, shippingMatrix);
+    if (!r) return { reachable: false, minPrice: null, shippingCost: 0 };
+    const minPrice = Math.max(FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE * r.cost);
+    return { reachable: lot.price >= minPrice, minPrice, shippingCost: r.cost };
+  }, [lot, buyerCountry, shippingMatrix]);
+  const isUnreachable = !!shippingReach && !shippingReach.reachable;
+
   const { data: similarLots = [] } = useQuery({
     queryKey: ["similar-lots", lot?.category, lot?.brand, id],
     queryFn: async () => {
