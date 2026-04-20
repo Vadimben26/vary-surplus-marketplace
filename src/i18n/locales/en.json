@@ -742,7 +742,14 @@
     "cta": "Complete my profile",
     "later": "Later"
   },
-  "shipping": {
+  "guestGate": {
+    "title": "Account required",
+    "description": "You can't access these features without an account. Create your buyer profile in a few minutes to use the cart, favorites, messages and place orders.",
+    "createAccount": "Create my buyer account",
+    "alreadyAccount": "I already have an account",
+    "continueBrowsing": "Keep browsing the marketplace",
+    "close": "Close"
+  },
     "reachTitle": "Lot reach",
     "countriesAccessible": "reachable countries",
     "rule": "Rule: lot price ≥ 11× real shipping cost (floor {{floor}}). Countries too far away are automatically hidden from affected buyers.",

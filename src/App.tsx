@@ -33,13 +33,14 @@ import CGV from "./pages/CGV.tsx";
 import MentionsLegales from "./pages/MentionsLegales.tsx";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite.tsx";
 import PolitiqueCookies from "./pages/PolitiqueCookies.tsx";
+import GuestGate from "./components/GuestGate.tsx";
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isVerified, loading } = useAuth();
   if (loading) return null;
-  if (!isVerified()) return <Navigate to="/" replace />;
+  if (!isVerified()) return <GuestGate />;
   return <>{children}</>;
 };
 
