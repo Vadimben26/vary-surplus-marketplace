@@ -6,6 +6,9 @@ verify_jwt = false
 [functions.create-checkout]
 verify_jwt = false
 
+[functions.create-checkout-session]
+verify_jwt = false
+
 [functions.stripe-webhook]
 verify_jwt = false
 
@@ -13,4 +16,16 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.confirm-receipt]
+verify_jwt = false
+
+[functions.release-funds]
+verify_jwt = false
+
+[functions.auto-confirm-orders]
+verify_jwt = false
+
+[functions.create-stripe-connect-account]
+verify_jwt = false
+
+[functions.check-stripe-connect-status]
 verify_jwt = false

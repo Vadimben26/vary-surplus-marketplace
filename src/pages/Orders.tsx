@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Package, Truck, CheckCircle2, Clock, AlertTriangle, Loader2, Star } from "lucide-react";
@@ -214,6 +214,16 @@ const Orders = () => {
   const { t } = useTranslation();
   const { profile } = useAuth();
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+
+  // Show success banner when returning from Stripe Checkout
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("payment") === "success") {
+      toast.success("Paiement confirmé ! Votre commande est en cours de traitement.");
+      // Clean the URL
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
   const { data: orders = [], refetch } = useQuery({
     queryKey: ["orders", profile?.id],

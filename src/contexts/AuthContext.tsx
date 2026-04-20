@@ -12,6 +12,7 @@ interface Profile {
   company_description: string | null;
   user_type: "buyer" | "seller" | "both";
   siret: string | null;
+  stripe_account_id: string | null;
   created_at: string;
   updated_at: string;
 }

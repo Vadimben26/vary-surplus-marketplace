@@ -465,6 +465,7 @@ export type Database = {
           id: string
           phone: string | null
           siret: string | null
+          stripe_account_id: string | null
           updated_at: string
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"]
@@ -478,6 +479,7 @@ export type Database = {
           id?: string
           phone?: string | null
           siret?: string | null
+          stripe_account_id?: string | null
           updated_at?: string
           user_id: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -491,6 +493,7 @@ export type Database = {
           id?: string
           phone?: string | null
           siret?: string | null
+          stripe_account_id?: string | null
           updated_at?: string
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -876,6 +879,7 @@ export type Database = {
           id: string
           phone: string | null
           siret: string | null
+          stripe_account_id: string | null
           updated_at: string
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"]
