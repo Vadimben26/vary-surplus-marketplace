@@ -146,6 +146,27 @@ const Profile = () => {
     }
   };
 
+  // Default to true if buyer has prefs but alerts_consent is null/undefined
+  const alertsEnabled = buyerPrefs?.alerts_consent ?? true;
+
+  const toggleAlerts = async (enabled: boolean) => {
+    if (!user?.id) return;
+    const { error } = await supabase
+      .from("buyer_preferences")
+      .update({ alerts_consent: enabled })
+      .eq("user_id", user.id);
+    if (error) {
+      toast.error(t("profile.alertsSaveError", "Erreur lors de la sauvegarde"));
+      return;
+    }
+    toast.success(
+      enabled
+        ? t("profile.alertsEnabled", "Alertes activées")
+        : t("profile.alertsDisabled", "Alertes désactivées")
+    );
+    queryClient.invalidateQueries({ queryKey: ["buyer-preferences", user.id] });
+  };
+
   const hasPreferences = !!(buyerPrefs || sellerPrefs);
 
   return (
