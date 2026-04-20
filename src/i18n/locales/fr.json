@@ -742,7 +742,14 @@
     "cta": "Compléter mon profil",
     "later": "Plus tard"
   },
-  "shipping": {
+  "guestGate": {
+    "title": "Compte requis",
+    "description": "Vous n'avez pas accès à ces fonctionnalités sans compte. Créez votre profil acheteur en quelques minutes pour utiliser le panier, les favoris, les messages et passer commande.",
+    "createAccount": "Créer mon compte acheteur",
+    "alreadyAccount": "J'ai déjà un compte",
+    "continueBrowsing": "Continuer à explorer la marketplace",
+    "close": "Fermer"
+  },
     "reachTitle": "Portée du lot",
     "countriesAccessible": "pays accessibles",
     "rule": "Règle : prix du lot ≥ 11× coût réel de livraison (plancher {{floor}}). Les pays trop éloignés masquent automatiquement votre lot aux acheteurs concernés.",
