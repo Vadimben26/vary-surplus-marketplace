@@ -161,6 +161,10 @@ const LotDetail = () => {
       navigate("/connexion");
       return;
     }
+    if (isUnreachable) {
+      toast.error(t("shipping.unreachableToast", "Ce lot ne peut pas être livré dans votre pays."));
+      return;
+    }
     if (requiresPrefs) {
       setShowGate(true);
       return;
