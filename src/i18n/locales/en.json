@@ -750,6 +750,7 @@
     "continueBrowsing": "Keep browsing the marketplace",
     "close": "Close"
   },
+  "shipping": {
     "reachTitle": "Lot reach",
     "countriesAccessible": "reachable countries",
     "rule": "Rule: lot price ≥ 11× real shipping cost (floor {{floor}}). Countries too far away are automatically hidden from affected buyers.",
