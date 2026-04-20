@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { UserPlus, Eye, ArrowRight, ArrowLeft } from "lucide-react";
+import { UserPlus, Eye, ArrowRight, ArrowLeft, ShieldCheck, Truck, BadgeCheck } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import varyLogo from "@/assets/vary-logo.png";
 
 const BuyerWelcome = () => {
   const { t } = useTranslation();
@@ -10,7 +11,9 @@ const BuyerWelcome = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="px-4 md:px-8 py-4 flex items-center justify-between border-b border-border">
-        <Link to="/" className="font-heading text-2xl font-bold text-primary">VARY</Link>
+        <Link to="/" className="flex-shrink-0">
+          <img src={varyLogo} alt="Vary" className="h-9 w-auto" />
+        </Link>
         <LanguageSwitcher />
       </header>
 
@@ -25,13 +28,29 @@ const BuyerWelcome = () => {
             {t("common.back")}
           </Link>
 
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
             <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-3">
               {t("buyerWelcome.title")}
             </h1>
             <p className="text-muted-foreground text-base md:text-lg">
               {t("buyerWelcome.subtitle")}
             </p>
+          </div>
+
+          {/* Reassurance icons */}
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mb-10 px-4 py-4 bg-muted/50 rounded-2xl border border-border">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">{t("buyerWelcome.trustPayment", "Paiement sécurisé")}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Truck className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">{t("buyerWelcome.trustShipping", "Transport intégré")}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <BadgeCheck className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">{t("buyerWelcome.trustVerified", "Acheteurs vérifiés")}</span>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4 md:gap-6">
@@ -56,21 +75,22 @@ const BuyerWelcome = () => {
               </span>
             </Link>
 
+            {/* Guest option — visually softer to favor account creation */}
             <Link
               to="/marketplace"
-              className="group bg-card border border-border rounded-2xl p-6 md:p-8 hover:border-primary hover:shadow-lg transition-all"
+              className="group bg-transparent border border-dashed border-border rounded-2xl p-6 md:p-8 hover:border-muted-foreground/40 transition-all opacity-80 hover:opacity-100"
             >
-              <div className="w-14 h-14 bg-muted rounded-xl flex items-center justify-center mb-4">
-                <Eye className="h-7 w-7 text-muted-foreground" />
+              <div className="w-12 h-12 bg-muted/60 rounded-xl flex items-center justify-center mb-4">
+                <Eye className="h-6 w-6 text-muted-foreground" />
               </div>
-              <h2 className="font-heading text-xl font-bold text-foreground mb-2">
+              <h2 className="font-heading text-base font-semibold text-muted-foreground mb-2">
                 {t("buyerWelcome.guestTitle")}
               </h2>
-              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+              <p className="text-xs text-muted-foreground/80 mb-4 leading-relaxed">
                 {t("buyerWelcome.guestDesc")}
               </p>
-              <span className="inline-flex items-center gap-1 text-foreground font-semibold text-sm">
-                {t("buyerWelcome.guestCta")} <ArrowRight className="h-4 w-4" />
+              <span className="inline-flex items-center gap-1 text-muted-foreground font-medium text-xs">
+                {t("buyerWelcome.guestCta")} <ArrowRight className="h-3 w-3" />
               </span>
             </Link>
           </div>
