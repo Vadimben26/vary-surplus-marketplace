@@ -750,6 +750,7 @@
     "continueBrowsing": "Seguir explorando la marketplace",
     "close": "Cerrar"
   },
+  "shipping": {
     "reachTitle": "Alcance del lote",
     "countriesAccessible": "países accesibles",
     "rule": "Regla: precio del lote ≥ 11× coste real de envío (mínimo {{floor}}). Los países demasiado lejanos se ocultan automáticamente a los compradores afectados.",
