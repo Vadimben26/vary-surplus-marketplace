@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, DollarSign, MapPin,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
-  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers, CreditCard
+  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers, CreditCard, AlertTriangle
 } from "lucide-react";
 import ShippingReachPanel from "@/components/seller/ShippingReachPanel";
 import SellerApprovalBanner from "@/components/seller/SellerApprovalBanner";
@@ -214,6 +214,21 @@ const SellerDashboard = () => {
         average_rating: Number(row?.average_rating) || 0,
         review_count: Number(row?.review_count) || 0,
       };
+    },
+    enabled: !!profile?.id,
+  });
+
+  // Active disputes count for this seller
+  const { data: activeDisputesCount = 0 } = useQuery({
+    queryKey: ["seller-active-disputes", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return 0;
+      const { count } = await (supabase as any)
+        .from("disputes")
+        .select("id", { count: "exact", head: true })
+        .eq("seller_id", profile.id)
+        .in("status", ["open", "admin_review"]);
+      return count || 0;
     },
     enabled: !!profile?.id,
   });
@@ -492,34 +507,56 @@ const SellerDashboard = () => {
           )}
         </div>
 
-        {/* Public seller rating card (always visible — public info) */}
+        {/* Public seller rating + active disputes */}
         {profile?.id && (
-          <div className="mb-8 bg-card rounded-2xl border border-border p-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl text-amber-500 leading-none tracking-tight" aria-label={`${sellerRating?.average_rating ?? 0}/5`}>
-                {Array.from({ length: 5 }).map((_, i) =>
-                  i < Math.round(sellerRating?.average_rating || 0) ? "★" : "☆"
-                ).join("")}
-              </span>
-              <div>
-                <p className="font-heading text-xl font-bold text-foreground">
-                  {(sellerRating?.review_count ?? 0) > 0
-                    ? (sellerRating?.average_rating ?? 0).toFixed(1)
-                    : "—"}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {sellerRating?.review_count ?? 0} avis acheteurs
-                </p>
+          <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-card rounded-2xl border border-border p-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl text-amber-500 leading-none tracking-tight" aria-label={`${sellerRating?.average_rating ?? 0}/5`}>
+                  {Array.from({ length: 5 }).map((_, i) =>
+                    i < Math.round(sellerRating?.average_rating || 0) ? "★" : "☆"
+                  ).join("")}
+                </span>
+                <div>
+                  <p className="font-heading text-xl font-bold text-foreground">
+                    {(sellerRating?.review_count ?? 0) > 0
+                      ? (sellerRating?.average_rating ?? 0).toFixed(1)
+                      : "—"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {sellerRating?.review_count ?? 0} avis acheteurs
+                  </p>
+                </div>
               </div>
+              <a
+                href={`/vendeur/${profile.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs font-semibold text-primary hover:underline"
+              >
+                Voir mon profil public →
+              </a>
             </div>
-            <a
-              href={`/vendeur/${profile.id}`}
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs font-semibold text-primary hover:underline"
+
+            <button
+              onClick={() => navigate("/seller/suivi")}
+              className={`text-left bg-card rounded-2xl border p-4 flex items-center justify-between gap-3 transition-colors hover:bg-muted/30 ${
+                (activeDisputesCount ?? 0) > 0 ? "border-destructive/40" : "border-border"
+              }`}
             >
-              Voir mon profil public →
-            </a>
+              <div className="flex items-center gap-3">
+                <AlertTriangle className={`h-5 w-5 ${(activeDisputesCount ?? 0) > 0 ? "text-destructive" : "text-green-600"}`} />
+                <div>
+                  <p className={`font-heading text-xl font-bold ${(activeDisputesCount ?? 0) > 0 ? "text-destructive" : "text-foreground"}`}>
+                    {activeDisputesCount ?? 0}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {(activeDisputesCount ?? 0) > 0 ? "Litiges actifs" : "Aucun litige en cours"}
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-primary">Voir →</span>
+            </button>
           </div>
         )}
 

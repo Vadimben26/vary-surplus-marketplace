@@ -79,6 +79,71 @@ const SellerTracking = () => {
     enabled: !!profile?.id,
   });
 
+  const { data: disputeRecords = {} } = useQuery({
+    queryKey: ["seller-dispute-records", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return {};
+      const { data } = await (supabase as any)
+        .from("disputes")
+        .select("*")
+        .eq("seller_id", profile.id);
+      const map: Record<string, any> = {};
+      (data || []).forEach((d: any) => { map[d.order_id] = d; });
+      return map;
+    },
+    enabled: !!profile?.id,
+  });
+
+  const [expandedDispute, setExpandedDispute] = useState<string | null>(null);
+  const [evidenceUrls, setEvidenceUrls] = useState<Record<string, string[]>>({});
+  const [sellerResponse, setSellerResponse] = useState<Record<string, string>>({});
+  const [sendingResponse, setSendingResponse] = useState<string | null>(null);
+
+  const expandDispute = async (orderId: string, paths: string[] = []) => {
+    if (expandedDispute === orderId) {
+      setExpandedDispute(null);
+      return;
+    }
+    setExpandedDispute(orderId);
+    if (paths.length && !evidenceUrls[orderId]) {
+      const urls: string[] = [];
+      for (const p of paths) {
+        const { data } = await supabase.storage.from("dispute-evidence").createSignedUrl(p, 3600);
+        if (data?.signedUrl) urls.push(data.signedUrl);
+      }
+      setEvidenceUrls((prev) => ({ ...prev, [orderId]: urls }));
+    }
+  };
+
+  const sendResponse = async (orderId: string, lotId: string, buyerId: string) => {
+    const text = (sellerResponse[orderId] || "").trim();
+    if (!text || !profile?.id) return;
+    setSendingResponse(orderId);
+    try {
+      // Find an admin profile
+      const { data: admins } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_type", "admin")
+        .limit(1);
+      const adminId = admins?.[0]?.id;
+      const { error } = await (supabase.from("messages") as any).insert({
+        sender_id: profile.id,
+        receiver_id: adminId || buyerId,
+        lot_id: lotId,
+        content: `[Réponse vendeur — litige commande ${orderId.slice(0, 8)}]\n${text}`,
+      });
+      if (error) throw error;
+      toast.success("Votre réponse a été transmise à notre équipe.");
+      setSellerResponse((prev) => ({ ...prev, [orderId]: "" }));
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur lors de l'envoi");
+    } finally {
+      setSendingResponse(null);
+    }
+  };
+
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "paid": return <Clock className="h-4 w-4 text-amber-500" />;
@@ -205,17 +270,98 @@ const SellerTracking = () => {
                     </>
                   )}
 
-                  {/* Contact buyer for disputes */}
-                  {activeTab === "disputes" && (
-                    <div className="flex gap-2 mt-1">
-                      <button
-                        onClick={() => navigate(`/messages?with=${buyer?.id}&lot=${order.lot_id}`)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
-                      >
-                        <MessageCircle className="h-3 w-3" />
-                        {t("sellerDisputes.contactBuyer")}
-                      </button>
-                    </div>
+                  {/* Dispute alert + details for disputed orders */}
+                  {activeTab === "disputes" && order.status === "disputed" && (() => {
+                    const dispute = (disputeRecords as any)[order.id];
+                    return (
+                      <div className="mt-3 space-y-2">
+                        <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-start gap-2 min-w-0">
+                              <AlertTriangle className="h-4 w-4 text-amber-700 flex-shrink-0 mt-0.5" />
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-amber-800">
+                                  Litige ouvert par l'acheteur{dispute?.reason ? ` — ${dispute.reason}` : ""}
+                                </p>
+                                {dispute?.opened_at && (
+                                  <p className="text-[11px] text-amber-700 mt-0.5">
+                                    Ouvert le {new Date(dispute.opened_at).toLocaleString("fr-FR")}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            {dispute && (
+                              <button
+                                onClick={() => expandDispute(order.id, dispute.evidence_urls || [])}
+                                className="text-xs font-semibold text-amber-800 hover:underline whitespace-nowrap"
+                              >
+                                {expandedDispute === order.id ? "Masquer" : "Voir les détails"}
+                              </button>
+                            )}
+                          </div>
+
+                          {expandedDispute === order.id && dispute && (
+                            <div className="mt-3 pt-3 border-t border-amber-200 space-y-3">
+                              {dispute.details && (
+                                <div>
+                                  <p className="text-[10px] font-bold uppercase text-amber-700 tracking-wide mb-1">Détails de l'acheteur</p>
+                                  <p className="text-xs text-foreground whitespace-pre-wrap">{dispute.details}</p>
+                                </div>
+                              )}
+                              {(evidenceUrls[order.id] || []).length > 0 && (
+                                <div>
+                                  <p className="text-[10px] font-bold uppercase text-amber-700 tracking-wide mb-1">Preuves</p>
+                                  <ul className="space-y-1">
+                                    {evidenceUrls[order.id].map((u, i) => (
+                                      <li key={i}>
+                                        <a href={u} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline">
+                                          Pièce jointe {i + 1}
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              <div>
+                                <label className="text-[10px] font-bold uppercase text-amber-700 tracking-wide block mb-1">Votre réponse</label>
+                                <textarea
+                                  value={sellerResponse[order.id] || ""}
+                                  onChange={(e) => setSellerResponse({ ...sellerResponse, [order.id]: e.target.value })}
+                                  rows={3}
+                                  placeholder="Expliquez votre version des faits…"
+                                  className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground"
+                                />
+                                <button
+                                  onClick={() => sendResponse(order.id, order.lot_id, buyer?.id)}
+                                  disabled={!sellerResponse[order.id]?.trim() || sendingResponse === order.id}
+                                  className="mt-2 px-3 py-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-40"
+                                >
+                                  {sendingResponse === order.id ? "Envoi…" : "Transmettre à l'équipe"}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => navigate(`/messages?with=${buyer?.id}&lot=${order.lot_id}`)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                        >
+                          <MessageCircle className="h-3 w-3" />
+                          {t("sellerDisputes.contactBuyer")}
+                        </button>
+                      </div>
+                    );
+                  })()}
+
+                  {activeTab === "disputes" && order.status === "refunded" && (
+                    <button
+                      onClick={() => navigate(`/messages?with=${buyer?.id}&lot=${order.lot_id}`)}
+                      className="mt-3 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                    >
+                      <MessageCircle className="h-3 w-3" />
+                      {t("sellerDisputes.contactBuyer")}
+                    </button>
                   )}
 
                   {order.tracking_number ? (

@@ -9,6 +9,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { DisputeForm } from "@/components/orders/DisputeForm";
+
+const disputeStatusLabel: Record<string, string> = {
+  open: "En attente d'examen",
+  admin_review: "En cours d'examen",
+  resolved_refund: "Résolu — remboursement",
+  resolved_release: "Résolu — livraison confirmée",
+};
 
 const statusConfig: Record<string, { icon: any; color: string; label: string }> = {
   pending_payment: { icon: Clock, color: "text-yellow-600 bg-yellow-50", label: "orders.statusPending" },
@@ -212,8 +220,9 @@ const ReviewBlock = ({
 
 const Orders = () => {
   const { t } = useTranslation();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [disputingId, setDisputingId] = useState<string | null>(null);
 
   // Show success banner when returning from Stripe Checkout
   useEffect(() => {
@@ -234,6 +243,21 @@ const Orders = () => {
         .select("*, lots(title, brand, images, units)")
         .order("created_at", { ascending: false });
       return data || [];
+    },
+    enabled: !!profile?.id,
+  });
+
+  const { data: disputesByOrder = {}, refetch: refetchDisputes } = useQuery({
+    queryKey: ["my-disputes", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return {};
+      const { data } = await (supabase as any)
+        .from("disputes")
+        .select("order_id, status, reason, opened_at")
+        .eq("buyer_id", profile.id);
+      const map: Record<string, any> = {};
+      (data || []).forEach((d: any) => { map[d.order_id] = d; });
+      return map;
     },
     enabled: !!profile?.id,
   });
@@ -320,20 +344,60 @@ const Orders = () => {
                     </div>
                   </div>
 
-                  {isBuyer && order.status === "delivered" && (
-                    <button
-                      onClick={() => handleConfirmReceipt(order.id)}
-                      disabled={confirmingId === order.id}
-                      className="w-full mt-4 py-2.5 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                    >
-                      {confirmingId === order.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <CheckCircle2 className="h-4 w-4" />
-                      )}
-                      {t("orders.confirmReceipt")}
-                    </button>
-                  )}
+                  {(() => {
+                    const dispute = (disputesByOrder as any)[order.id];
+                    const showDisputeBadge = !!dispute || order.status === "disputed";
+
+                    if (isBuyer && order.status === "delivered" && !dispute && disputingId !== order.id) {
+                      return (
+                        <div className="flex flex-col sm:flex-row gap-2 mt-4">
+                          <button
+                            onClick={() => handleConfirmReceipt(order.id)}
+                            disabled={confirmingId === order.id}
+                            className="flex-1 py-2.5 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                          >
+                            {confirmingId === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                            {t("orders.confirmReceipt")}
+                          </button>
+                          <button
+                            onClick={() => setDisputingId(order.id)}
+                            className="flex-1 py-2.5 border border-destructive/40 text-destructive font-semibold rounded-xl hover:bg-destructive/5 transition-colors flex items-center justify-center gap-2"
+                          >
+                            <AlertTriangle className="h-4 w-4" />
+                            Ouvrir un litige
+                          </button>
+                        </div>
+                      );
+                    }
+
+                    if (isBuyer && disputingId === order.id && profile?.id && user?.id) {
+                      return (
+                        <DisputeForm
+                          order={order}
+                          buyerProfileId={profile.id}
+                          buyerUserId={user.id}
+                          onCancel={() => setDisputingId(null)}
+                          onSubmitted={() => {
+                            setDisputingId(null);
+                            refetch();
+                            refetchDisputes();
+                          }}
+                        />
+                      );
+                    }
+
+                    if (showDisputeBadge) {
+                      const status = dispute?.status || "open";
+                      return (
+                        <div className="mt-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
+                          <AlertTriangle className="h-4 w-4" />
+                          Litige en cours — {disputeStatusLabel[status] || status}
+                        </div>
+                      );
+                    }
+
+                    return null;
+                  })()}
 
                   {isBuyer && order.status === "confirmed" && profile?.id && (
                     <ReviewBlock order={order} buyerProfileId={profile.id} onSaved={() => refetch()} />
