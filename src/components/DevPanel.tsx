@@ -33,10 +33,13 @@ const DevPanel = ({ profileId }: DevPanelProps) => {
   if (!import.meta.env.DEV) return null;
 
   const toggle = async (plan: string, current: boolean) => {
-    if (current) {
-      await supabase.from("subscriptions").delete().eq("user_id", profileId).eq("plan", plan);
-    } else {
-      await supabase.from("subscriptions").insert({ user_id: profileId, plan, status: "active" });
+    const { error } = current
+      ? await supabase.from("subscriptions").delete().eq("user_id", profileId).eq("plan", plan)
+      : await supabase.from("subscriptions").insert({ user_id: profileId, plan, status: "active" });
+    if (error) {
+      console.warn("[DevPanel] Subscriptions are now managed exclusively by the stripe-webhook Edge Function (service role). Direct client writes are blocked by RLS.", error);
+      toast.error("Abonnements gérés par le serveur (Stripe webhook). Écritures client bloquées.");
+      return;
     }
     await fetchStatus();
     // Invalidate all VIP-related queries so other pages pick up the change
