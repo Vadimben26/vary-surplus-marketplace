@@ -17,6 +17,35 @@ const SellerTracking = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"active" | "disputes">("active");
+  const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
+  const [savingId, setSavingId] = useState<string | null>(null);
+
+  const handleSaveTracking = async (orderId: string) => {
+    const tracking = (trackingInputs[orderId] || "").trim();
+    if (!tracking) {
+      toast.error("Numéro de suivi requis");
+      return;
+    }
+    setSavingId(orderId);
+    try {
+      const { error } = await (supabase.from("orders") as any)
+        .update({
+          tracking_number: tracking,
+          shipped_at: new Date().toISOString(),
+        })
+        .eq("id", orderId);
+      if (error) throw error;
+      await supabase.functions.invoke("send-shipment-notification", {
+        body: { orderId },
+      });
+      toast.success("Expédition enregistrée — acheteur notifié");
+      window.location.reload();
+    } catch {
+      toast.error("Erreur lors de l'enregistrement");
+    } finally {
+      setSavingId(null);
+    }
+  };
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["seller-tracking", profile?.id],
