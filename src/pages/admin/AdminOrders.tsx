@@ -11,6 +11,9 @@ import { DisputeResolutionPanel } from "@/components/admin/DisputeResolutionPane
 
 interface OrderRow {
   id: string;
+  lot_id: string;
+  buyer_id: string;
+  seller_id: string;
   amount: number;
   commission: number;
   status: string;
@@ -101,6 +104,9 @@ export default function AdminOrders() {
     setOrders(
       (ordersData ?? []).map((o: any) => ({
         id: o.id,
+        lot_id: o.lot_id,
+        buyer_id: o.buyer_id,
+        seller_id: o.seller_id,
         amount: o.amount,
         commission: o.commission,
         status: o.status,
