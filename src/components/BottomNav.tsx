@@ -10,14 +10,36 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 const SELLER_PATHS = ["/seller", "/seller/vip", "/seller/suivi"];
+const LAST_VISIT_KEY = "vary_last_marketplace_visit";
+
+const matchesCategory = (lotCategory: string | null, buyerCats: string[] | null): boolean => {
+  if (!buyerCats || buyerCats.length === 0) return true;
+  if (!lotCategory) return false;
+  const lc = lotCategory.toLowerCase();
+  return buyerCats.some((bc) => lc.includes(bc.toLowerCase()));
+};
+
+const budgetCeiling = (raw: string | null | undefined): number | null => {
+  if (!raw) return null;
+  const cleaned = raw.toLowerCase().replace(/\s|€|eur/g, "");
+  if (cleaned.includes("<1000") || cleaned.includes("moins")) return 1000;
+  if (cleaned.includes("1000") && cleaned.includes("5000")) return 5000;
+  if (cleaned.includes("5000") && cleaned.includes("15000")) return 15000;
+  if (cleaned.includes("15000") && cleaned.includes("50000")) return 50000;
+  if (cleaned.includes(">50000") || cleaned.includes("plus")) return null;
+  const nums = cleaned.match(/\d+/g);
+  if (!nums) return null;
+  return parseInt(nums[nums.length - 1]);
+};
 
 const BottomNav = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const { favorites } = useFavorites();
   const { cartItems } = useCart();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [matchingNewLots, setMatchingNewLots] = useState(0);
 
   // Track last interface in sessionStorage so /messages knows which side we're on
   const isOnSellerPath = SELLER_PATHS.some(p => location.pathname.startsWith(p));
@@ -68,6 +90,67 @@ const BottomNav = () => {
     return () => window.removeEventListener("vary-unread-count", handler);
   }, []);
 
+  // Count matching new lots since last marketplace visit (buyer interface only)
+  useEffect(() => {
+    if (!user?.id || isSellerInterface) {
+      setMatchingNewLots(0);
+      return;
+    }
+    const lastVisit = localStorage.getItem(LAST_VISIT_KEY);
+    if (!lastVisit) {
+      // Never visited: don't show badge
+      setMatchingNewLots(0);
+      return;
+    }
+
+    const fetchMatching = async () => {
+      const { data: prefs } = await supabase
+        .from("buyer_preferences")
+        .select("categories, budget, alerts_consent")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!prefs || prefs.alerts_consent === false) {
+        setMatchingNewLots(0);
+        return;
+      }
+
+      const since48h = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+      const sinceLastVisit = new Date(Math.max(new Date(lastVisit).getTime(), Date.now() - 48 * 60 * 60 * 1000)).toISOString();
+      void since48h;
+
+      const { data: lots } = await supabase
+        .from("lots")
+        .select("id, category, price")
+        .eq("status", "active")
+        .gt("created_at", sinceLastVisit)
+        .limit(100);
+
+      if (!lots) {
+        setMatchingNewLots(0);
+        return;
+      }
+
+      const ceiling = budgetCeiling(prefs.budget);
+      const matched = lots.filter((l: any) => {
+        if (!matchesCategory(l.category, prefs.categories)) return false;
+        if (ceiling !== null && Number(l.price) > ceiling) return false;
+        return true;
+      });
+      setMatchingNewLots(matched.length);
+    };
+
+    fetchMatching();
+  }, [user?.id, isSellerInterface, location.pathname]);
+
+  // Clear badge when visiting /marketplace
+  useEffect(() => {
+    if (location.pathname === "/marketplace") {
+      localStorage.setItem(LAST_VISIT_KEY, new Date().toISOString());
+      setMatchingNewLots(0);
+    }
+  }, [location.pathname]);
+
   const buyerNavItems = [
     { icon: null, label: t("nav.home"), path: "/marketplace", isLogo: true },
     { icon: Heart, label: t("nav.favorites"), path: "/favoris", isLogo: false },
@@ -96,6 +179,7 @@ const BottomNav = () => {
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || (item.path === "/messages" && location.pathname.startsWith("/messages"));
           const badge = getBadge(item.path);
+          const showLogoDot = item.isLogo && !isSellerInterface && matchingNewLots > 0;
           return (
             <Link
               key={item.path}
@@ -105,13 +189,23 @@ const BottomNav = () => {
               }`}
             >
               {item.isLogo ? (
-                <motion.img
-                  src={varyLogo}
-                  alt="Vary"
-                  className="h-6 md:h-7 w-auto"
-                  whileHover={{ scale: 1.1, rotate: -3 }}
-                  whileTap={{ scale: 0.9 }}
-                />
+                <span className="relative">
+                  <motion.img
+                    src={varyLogo}
+                    alt="Vary"
+                    className="h-6 md:h-7 w-auto"
+                    whileHover={{ scale: 1.1, rotate: -3 }}
+                    whileTap={{ scale: 0.9 }}
+                  />
+                  {showLogoDot && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-card"
+                      aria-label={`${matchingNewLots} nouveaux lots correspondants`}
+                    />
+                  )}
+                </span>
               ) : (
                 <span className="relative">
                   {item.icon && <item.icon className={`h-5 w-5 md:h-6 md:w-6 ${isActive ? "text-primary" : ""}`} />}
