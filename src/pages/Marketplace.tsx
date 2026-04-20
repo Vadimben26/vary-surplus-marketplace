@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Crown, Lock, X } from "lucide-react";
+import { Crown, Lock, X, ShieldCheck, Truck, BadgeCheck } from "lucide-react";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import LotCard from "@/components/LotCard";
@@ -95,7 +95,8 @@ const Marketplace = () => {
       const ppi = lot.units > 0 ? lot.price / lot.units : 0;
       if (ppi < filters.pricePerItemRange[0] || ppi > filters.pricePerItemRange[1]) return false;
       if (lot.units < filters.unitsRange[0] || lot.units > filters.unitsRange[1]) return false;
-      if (filters.minRating > 0 && (lot.rating || 0) < filters.minRating) return false;
+      const palletCount = lot.pallets || 1;
+      if (palletCount < filters.palletsRange[0] || palletCount > filters.palletsRange[1]) return false;
       if (filters.categories.length > 0) {
         const lotCat = (lot.category || "").toLowerCase();
         const match = filters.categories.some((c) => lotCat.includes(c.toLowerCase()));
@@ -103,7 +104,6 @@ const Marketplace = () => {
       }
       if (filters.brandsInclude.length > 0 && !filters.brandsInclude.includes(lot.brand)) return false;
       if (filters.brandsExclude.length > 0 && filters.brandsExclude.includes(lot.brand)) return false;
-      if (filters.minDiscount > 0 && (lot.discount || 0) < filters.minDiscount) return false;
       if (!isReachable(lot)) return false;
       return true;
     });
@@ -161,6 +161,24 @@ const Marketplace = () => {
       />
 
       <div className="max-w-[1600px] mx-auto">
+        {/* Trust banner */}
+        <div className="px-4 md:px-8 pt-3">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 py-2.5 bg-primary/5 border border-primary/15 rounded-xl text-xs">
+            <div className="flex items-center gap-1.5 text-foreground">
+              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+              <span className="font-medium">{t("marketplace.trustPayment", "Paiement sécurisé")}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-foreground">
+              <Truck className="h-3.5 w-3.5 text-primary" />
+              <span className="font-medium">{t("marketplace.trustShipping", "Transport intégré")}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-foreground">
+              <BadgeCheck className="h-3.5 w-3.5 text-primary" />
+              <span className="font-medium">{t("marketplace.trustVerified", "Vendeurs vérifiés")}</span>
+            </div>
+          </div>
+        </div>
+
         {firstName && (
           <div className="px-4 md:px-8 pt-4">
             <h2 className="font-heading text-xl md:text-2xl font-bold text-foreground">
@@ -179,7 +197,7 @@ const Marketplace = () => {
                 </div>
               </div>
               <div className="relative">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 blur-[8px] select-none pointer-events-none" aria-hidden="true">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 blur-[3px] select-none pointer-events-none" aria-hidden="true">
                   {vipLots.map((lot: any) => renderLotCard(lot, "vip-blur-"))}
                 </div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
