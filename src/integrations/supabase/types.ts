@@ -45,6 +45,7 @@ export type Database = {
           shipping_address_line2: string | null
           shipping_city: string | null
           shipping_country: string | null
+          shipping_country_for_filter: string | null
           shipping_postal_code: string | null
           store_link: string | null
           store_photos: string[] | null
@@ -85,6 +86,7 @@ export type Database = {
           shipping_address_line2?: string | null
           shipping_city?: string | null
           shipping_country?: string | null
+          shipping_country_for_filter?: string | null
           shipping_postal_code?: string | null
           store_link?: string | null
           store_photos?: string[] | null
@@ -125,6 +127,7 @@ export type Database = {
           shipping_address_line2?: string | null
           shipping_city?: string | null
           shipping_country?: string | null
+          shipping_country_for_filter?: string | null
           shipping_postal_code?: string | null
           store_link?: string | null
           store_photos?: string[] | null
@@ -268,6 +271,7 @@ export type Database = {
           id: string
           images: string[] | null
           location: string | null
+          pallets: number
           price: number
           rating: number | null
           seller_id: string
@@ -284,6 +288,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           location?: string | null
+          pallets?: number
           price?: number
           rating?: number | null
           seller_id: string
@@ -300,6 +305,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           location?: string | null
+          pallets?: number
           price?: number
           rating?: number | null
           seller_id?: string
@@ -635,6 +641,81 @@ export type Database = {
           warehouse_location?: string | null
           website?: string | null
           years_in_business?: string | null
+        }
+        Relationships: []
+      }
+      shipping_pallet_coefficients: {
+        Row: {
+          coefficient: number
+          created_at: string
+          display_order: number
+          id: string
+          max_pallets: number
+        }
+        Insert: {
+          coefficient: number
+          created_at?: string
+          display_order: number
+          id?: string
+          max_pallets: number
+        }
+        Update: {
+          coefficient?: number
+          created_at?: string
+          display_order?: number
+          id?: string
+          max_pallets?: number
+        }
+        Relationships: []
+      }
+      shipping_pricing: {
+        Row: {
+          category: string
+          cost_per_pallet: number
+          created_at: string
+          display_order: number
+          id: string
+        }
+        Insert: {
+          category: string
+          cost_per_pallet: number
+          created_at?: string
+          display_order: number
+          id?: string
+        }
+        Update: {
+          category?: string
+          cost_per_pallet?: number
+          created_at?: string
+          display_order?: number
+          id?: string
+        }
+        Relationships: []
+      }
+      shipping_routes: {
+        Row: {
+          category: string
+          created_at: string
+          destination_country: string
+          distance_km: number
+          id: string
+          origin_country: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          destination_country: string
+          distance_km: number
+          id?: string
+          origin_country: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          destination_country?: string
+          distance_km?: number
+          id?: string
+          origin_country?: string
         }
         Relationships: []
       }

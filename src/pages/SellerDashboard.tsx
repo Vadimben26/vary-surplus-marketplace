@@ -60,6 +60,7 @@ const SellerDashboard = () => {
   const [price, setPrice] = useState("");
   const [retailPrice, setRetailPrice] = useState("");
   const [units, setUnits] = useState("");
+  const [pallets, setPallets] = useState("1");
   const [categories, setCategories] = useState<string[]>([]);
   const [description, setDescription] = useState("");
   const [lotItems, setLotItems] = useState<LotItem[]>([{ ...emptyItem }]);
@@ -157,7 +158,7 @@ const SellerDashboard = () => {
   };
 
   const resetForm = () => {
-    setTitle(""); setPrice(""); setRetailPrice(""); setUnits("");
+    setTitle(""); setPrice(""); setRetailPrice(""); setUnits(""); setPallets("1");
     setCategories([]); setDescription("");
     setLotItems([{ ...emptyItem }]);
     setPhotos([]); setExistingImages([]);
@@ -173,6 +174,7 @@ const SellerDashboard = () => {
     const rv = (lot.lot_items || []).reduce((s: number, it: any) => s + (it.retail_price || 0) * (it.quantity || 0), 0);
     setRetailPrice(rv > 0 ? String(rv) : "");
     setUnits(String(lot.units));
+    setPallets(String(lot.pallets || 1));
     setCategories(lot.category ? lot.category.split(",").map((c: string) => c.trim()) : []);
     
     setDescription(lot.description || "");
@@ -234,6 +236,7 @@ const SellerDashboard = () => {
         const { error } = await supabase.from("lots").update({
           title, brand: brandName, price: parseFloat(price),
           units: parseInt(units) || 0,
+          pallets: Math.max(1, parseInt(pallets) || 1),
           category: categories.join(", "),
           location: autoLocation,
           description,
@@ -254,6 +257,7 @@ const SellerDashboard = () => {
         const { data: newLot, error } = await supabase.from("lots").insert({
           seller_id: profile.id, title, brand: brandName,
           price: parseFloat(price), units: parseInt(units) || 0,
+          pallets: Math.max(1, parseInt(pallets) || 1),
           category: categories.join(", "), description,
           location: autoLocation,
           status: "active",
