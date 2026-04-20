@@ -750,6 +750,7 @@
     "continueBrowsing": "Continuer à explorer la marketplace",
     "close": "Fermer"
   },
+  "shipping": {
     "reachTitle": "Portée du lot",
     "countriesAccessible": "pays accessibles",
     "rule": "Règle : prix du lot ≥ 11× coût réel de livraison (plancher {{floor}}). Les pays trop éloignés masquent automatiquement votre lot aux acheteurs concernés.",
