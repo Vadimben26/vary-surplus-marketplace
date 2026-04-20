@@ -554,17 +554,74 @@ const SellerRegistration = () => {
               </motion.div>
             )}
 
-            {/* ── SUCCESS ── */}
+            {/* ── SUCCESS — preview de l'impact du profil ── */}
             {step === totalSteps + 1 && (
-              <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="py-12 text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle2 className="h-8 w-8 text-primary" />
+              <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="py-8">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-5">
+                    <CheckCircle2 className="h-8 w-8 text-primary" />
+                  </div>
+                  <h2 className="font-heading text-2xl font-bold text-foreground mb-2">{t("sellerReg.thanksTitle")}</h2>
+                  <p className="text-muted-foreground max-w-md mx-auto text-sm">{t("sellerReg.thanksDesc")}</p>
                 </div>
-                <h2 className="font-heading text-2xl font-bold text-foreground mb-3">{t("sellerReg.thanksTitle")}</h2>
-                <p className="text-muted-foreground mb-2 max-w-md mx-auto">{t("sellerReg.thanksDesc")}</p>
-                <button onClick={() => navigate(isAlreadyLoggedIn ? "/seller" : "/connexion")} className="mt-6 px-8 py-3 bg-foreground text-background font-semibold rounded-md hover:opacity-90 transition-opacity">
-                  {isAlreadyLoggedIn ? t("sellerReg.goToSellerDashboard") : t("common.login")}
-                </button>
+
+                {/* Impact preview block */}
+                <div className="bg-card border border-border rounded-2xl p-5 md:p-6 mb-6 space-y-4">
+                  <h3 className="font-heading text-base font-bold text-foreground flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-primary" />
+                    {t("sellerReg.previewTitle", "Voici ce que votre profil va déclencher")}
+                  </h3>
+
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-start gap-3 p-3 bg-muted/40 rounded-xl">
+                      <Globe className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-foreground">{t("sellerReg.previewVisible", "Vos lots seront visibles par")}</p>
+                        <p className="text-muted-foreground text-xs mt-0.5">
+                          {buyerGeography === "specific" && targetCountries.length > 0
+                            ? t("sellerReg.previewVisibleSpecific", { countries: targetCountries.join(", ") })
+                            : t("sellerReg.previewVisibleAll", "tous les acheteurs vérifiés en Europe")}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 bg-muted/40 rounded-xl">
+                      <Filter className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-foreground">{t("sellerReg.previewMatch", "Vous recevrez des demandes d'acheteurs")}</p>
+                        <p className="text-muted-foreground text-xs mt-0.5">
+                          {buyerCategories.length > 0
+                            ? t("sellerReg.previewMatchCats", { list: buyerCategories.join(", ") })
+                            : t("sellerReg.previewMatchAll", "intéressés par toutes vos catégories")}
+                          {" · "}
+                          {t(`sellerReg.revenueOptions.${buyerMinRevenue}`)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 bg-muted/40 rounded-xl">
+                      <Shield className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-foreground">{t("sellerReg.previewSecure", "Vary sécurise chaque transaction")}</p>
+                        <p className="text-muted-foreground text-xs mt-0.5">
+                          {t("sellerReg.previewSecureDesc", "Paiement séquestre, transport intégré, gestion des litiges incluse.")}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border pt-4">
+                    <p className="text-xs text-muted-foreground italic">
+                      {t("sellerReg.previewValidation", "Notre équipe valide votre profil sous 24h. Vos brouillons de lots seront publiés automatiquement après validation.")}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button onClick={() => navigate(isAlreadyLoggedIn ? "/seller" : "/connexion")} className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors">
+                    {isAlreadyLoggedIn ? t("sellerReg.goToSellerDashboard") : t("common.login")}
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
