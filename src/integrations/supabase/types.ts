@@ -833,7 +833,7 @@ export type Database = {
         | "refunded"
         | "cancelled"
       subscription_status: "active" | "cancelled" | "past_due" | "trialing"
-      user_type: "buyer" | "seller" | "both"
+      user_type: "buyer" | "seller" | "both" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -974,7 +974,7 @@ export const Constants = {
         "cancelled",
       ],
       subscription_status: ["active", "cancelled", "past_due", "trialing"],
-      user_type: ["buyer", "seller", "both"],
+      user_type: ["buyer", "seller", "both", "admin"],
     },
   },
 } as const
