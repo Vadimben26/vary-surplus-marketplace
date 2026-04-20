@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Package, DollarSign, MapPin,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
-  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet
+  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers
 } from "lucide-react";
+import ShippingReachPanel from "@/components/seller/ShippingReachPanel";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -94,7 +95,7 @@ const SellerDashboard = () => {
       if (!profile?.user_id) return null;
       const { data } = await supabase
         .from("seller_preferences")
-        .select("warehouse_location, country, city")
+        .select("warehouse_location, country, city, pickup_country")
         .eq("user_id", profile.user_id)
         .maybeSingle();
       return data;
@@ -103,6 +104,8 @@ const SellerDashboard = () => {
   });
 
   const autoLocation = sellerPrefs?.warehouse_location || sellerPrefs?.city || sellerPrefs?.country || "";
+  // Country used for shipping cost calculation (must match a row in shipping_routes.origin_country).
+  const originCountry = sellerPrefs?.pickup_country || sellerPrefs?.country || "";
 
   const { data: isVipSeller = false } = useQuery({
     queryKey: ["seller-vip-status", profile?.id],
