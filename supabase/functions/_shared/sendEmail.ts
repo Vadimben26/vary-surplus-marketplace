@@ -18,7 +18,7 @@ export async function sendEmail({ to, subject, html }: EmailPayload): Promise<vo
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Vary <noreply@vary-marketplace.fr>",
+        from: "Vary <onboarding@resend.dev>",
         to,
         subject,
         html,
