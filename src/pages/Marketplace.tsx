@@ -10,6 +10,9 @@ import FilterChips from "@/components/marketplace/FilterChips";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useShippingMatrix } from "@/hooks/useShippingMatrix";
+import { useBuyerShippingCountry } from "@/hooks/useBuyerShippingCountry";
+import { computeShippingCost, FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE } from "@/lib/shipping";
 
 const Marketplace = () => {
   const { t } = useTranslation();
