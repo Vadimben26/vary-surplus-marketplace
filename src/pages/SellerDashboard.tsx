@@ -218,6 +218,21 @@ const SellerDashboard = () => {
     enabled: !!profile?.id,
   });
 
+  // Active disputes count for this seller
+  const { data: activeDisputesCount = 0 } = useQuery({
+    queryKey: ["seller-active-disputes", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return 0;
+      const { count } = await (supabase as any)
+        .from("disputes")
+        .select("id", { count: "exact", head: true })
+        .eq("seller_id", profile.id)
+        .in("status", ["open", "admin_review"]);
+      return count || 0;
+    },
+    enabled: !!profile?.id,
+  });
+
   // Group interests by lot
   const interestsByLot = (buyerInterests as any[]).reduce((acc: Record<string, any[]>, item: any) => {
     if (!acc[item.lot_id]) acc[item.lot_id] = [];
