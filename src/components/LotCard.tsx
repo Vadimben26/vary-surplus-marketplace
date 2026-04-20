@@ -15,10 +15,13 @@ interface LotCardProps {
   category: string;
   isNew?: boolean;
   discount?: number;
+  sellerId?: string;
+  sellerCompanyName?: string;
 }
 
 const LotCard = ({
   id, image, title, brand, price, pricePerUnit, units, location, isNew, discount,
+  sellerId, sellerCompanyName,
 }: LotCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -60,6 +63,14 @@ const LotCard = ({
       <div className="space-y-1">
         <span className="text-xs font-semibold text-primary uppercase tracking-wide">{brand}</span>
         <h3 className="font-heading font-semibold text-foreground text-sm leading-snug line-clamp-2">{title}</h3>
+        {sellerId && sellerCompanyName && (
+          <button
+            onClick={(e) => { e.stopPropagation(); navigate(`/vendeur/${sellerId}`); }}
+            className="block text-[11px] text-muted-foreground hover:text-primary hover:underline truncate text-left"
+          >
+            {sellerCompanyName}
+          </button>
+        )}
         <div className="flex items-center gap-3 text-muted-foreground">
           <span className="flex items-center gap-1 text-xs">
             <Package className="h-3 w-3" />

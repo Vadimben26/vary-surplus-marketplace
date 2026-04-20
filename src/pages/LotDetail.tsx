@@ -323,12 +323,21 @@ const LotDetail = () => {
             {/* Seller + note & avis */}
             {seller && (
               <div className="flex items-start gap-2.5 p-3 bg-muted rounded-xl">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <button
+                  onClick={() => navigate(`/vendeur/${lot.seller_id}`)}
+                  className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 hover:bg-primary/20 transition-colors"
+                  aria-label="Voir le profil du vendeur"
+                >
                   <User className="h-4 w-4 text-primary" />
-                </div>
+                </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-xs font-bold text-foreground truncate">{seller.company_name || seller.full_name || "Vendeur"}</p>
+                    <button
+                      onClick={() => navigate(`/vendeur/${lot.seller_id}`)}
+                      className="text-xs font-bold text-foreground truncate hover:text-primary hover:underline text-left"
+                    >
+                      {seller.company_name || seller.full_name || "Vendeur"}
+                    </button>
                     {lot.rating && (
                       <span className="flex items-center gap-0.5 text-[10px] font-semibold text-amber-500">
                         <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
@@ -340,7 +349,7 @@ const LotDetail = () => {
                     <p className="text-[10px] text-muted-foreground leading-snug mt-1">{seller.company_description}</p>
                   )}
                   <button
-                    onClick={() => navigate(`/profil/${lot.seller_id}`)}
+                    onClick={() => navigate(`/vendeur/${lot.seller_id}`)}
                     className="flex items-center gap-1 mt-1.5 text-[10px] text-primary hover:underline"
                   >
                     <Star className="h-3 w-3" />

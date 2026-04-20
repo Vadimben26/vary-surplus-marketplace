@@ -163,10 +163,11 @@ const Marketplace = () => {
         price={`${totalTTC.toLocaleString("fr-FR")} €`}
         pricePerUnit={ppu ? `${ppu} €` : undefined}
         units={lot.units}
-        
         location={lot.location || ""}
         category={lot.category || ""}
         discount={lot.discount > 0 ? lot.discount : undefined}
+        sellerId={lot.seller_id}
+        sellerCompanyName={(lot.profiles as any)?.company_name}
       />
     );
   };

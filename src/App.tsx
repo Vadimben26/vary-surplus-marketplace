@@ -40,6 +40,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
 import AdminSellers from "./pages/admin/AdminSellers.tsx";
 import AdminLots from "./pages/admin/AdminLots.tsx";
 import AdminOrders from "./pages/admin/AdminOrders.tsx";
+import SellerProfile from "./pages/SellerProfile.tsx";
 
 const queryClient = new QueryClient();
 
@@ -114,6 +115,7 @@ const App = () => (
                 {/* Public pages */}
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/lot/:id" element={<LotDetail />} />
+                <Route path="/vendeur/:id" element={<SellerProfile />} />
                 <Route path="/contact" element={<ContactFAQ />} />
                 <Route path="/devenir/:role" element={<RoleGateway />} />
                 <Route path="/cgv" element={<CGV />} />

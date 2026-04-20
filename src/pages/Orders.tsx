@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Package, Truck, CheckCircle2, Clock, AlertTriangle, Loader2 } from "lucide-react";
+import { Package, Truck, CheckCircle2, Clock, AlertTriangle, Loader2, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
@@ -20,6 +20,194 @@ const statusConfig: Record<string, { icon: any; color: string; label: string }> 
   disputed: { icon: AlertTriangle, color: "text-red-600 bg-red-50", label: "orders.statusDisputed" },
   refunded: { icon: AlertTriangle, color: "text-gray-600 bg-gray-50", label: "orders.statusRefunded" },
   cancelled: { icon: AlertTriangle, color: "text-gray-500 bg-gray-50", label: "orders.statusCancelled" },
+};
+
+const StarRow = ({
+  value,
+  hover,
+  onChange,
+  onHover,
+  readOnly,
+}: {
+  value: number;
+  hover?: number;
+  onChange?: (v: number) => void;
+  onHover?: (v: number) => void;
+  readOnly?: boolean;
+}) => (
+  <div
+    className="flex items-center gap-1"
+    onMouseLeave={() => onHover?.(0)}
+  >
+    {[1, 2, 3, 4, 5].map((n) => {
+      const filled = (hover ?? value) >= n;
+      return (
+        <button
+          key={n}
+          type="button"
+          disabled={readOnly}
+          onClick={() => onChange?.(n)}
+          onMouseEnter={() => onHover?.(n)}
+          className={`text-2xl leading-none ${filled ? "text-amber-500" : "text-muted-foreground/40"} ${readOnly ? "cursor-default" : "cursor-pointer hover:scale-110 transition-transform"}`}
+          aria-label={`${n} étoile${n > 1 ? "s" : ""}`}
+        >
+          {filled ? "★" : "☆"}
+        </button>
+      );
+    })}
+  </div>
+);
+
+const ReviewBlock = ({
+  order,
+  buyerProfileId,
+  onSaved,
+}: {
+  order: any;
+  buyerProfileId: string;
+  onSaved: () => void;
+}) => {
+  const { data: review, refetch, isLoading } = useQuery({
+    queryKey: ["review", order.id],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("reviews")
+        .select("*")
+        .eq("order_id", order.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const [editing, setEditing] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [comment, setComment] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const startNew = () => {
+    setRating(0);
+    setComment("");
+    setEditing(true);
+  };
+
+  const startEdit = () => {
+    setRating(review?.rating || 0);
+    setComment(review?.comment || "");
+    setEditing(true);
+  };
+
+  const submit = async () => {
+    if (!rating) return;
+    setSaving(true);
+    try {
+      if (review) {
+        const { error } = await (supabase as any)
+          .from("reviews")
+          .update({ rating, comment: comment.trim() || null })
+          .eq("id", review.id);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase as any)
+          .from("reviews")
+          .insert({
+            order_id: order.id,
+            lot_id: order.lot_id,
+            buyer_id: buyerProfileId,
+            seller_id: order.seller_id,
+            rating,
+            comment: comment.trim() || null,
+          });
+        if (error) throw error;
+      }
+      toast.success("Merci pour votre avis !");
+      setEditing(false);
+      await refetch();
+      onSaved();
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur lors de l'enregistrement");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (isLoading) return null;
+
+  const within48h = review
+    ? Date.now() - new Date(review.created_at).getTime() < 48 * 3600 * 1000
+    : false;
+
+  if (editing) {
+    return (
+      <div className="mt-4 p-4 rounded-xl border border-border bg-muted/30 space-y-3">
+        <div>
+          <p className="text-xs font-semibold text-foreground mb-2">Votre note</p>
+          <StarRow value={rating} hover={hover} onChange={setRating} onHover={setHover} />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-foreground block mb-1">
+            Votre commentaire (optionnel)
+          </label>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value.slice(0, 500))}
+            rows={3}
+            className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+            placeholder="Décrivez votre expérience…"
+          />
+          <p className="text-[10px] text-muted-foreground mt-1 text-right">{comment.length}/500</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={submit}
+            disabled={!rating || saving}
+            className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {saving ? "Envoi…" : "Publier l'avis"}
+          </button>
+          <button
+            onClick={() => setEditing(false)}
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            Annuler
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (review) {
+    return (
+      <div className="mt-4 p-4 rounded-xl border border-border bg-muted/30">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <StarRow value={review.rating} readOnly />
+            {review.comment && (
+              <p className="text-sm text-foreground mt-2 leading-relaxed">{review.comment}</p>
+            )}
+          </div>
+          {within48h && (
+            <button
+              onClick={startEdit}
+              className="text-xs font-semibold text-primary hover:underline flex-shrink-0"
+            >
+              Modifier
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={startNew}
+      className="w-full mt-4 py-2.5 text-sm font-semibold rounded-xl border border-primary/30 text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-2"
+    >
+      <Star className="h-4 w-4" />
+      Laisser un avis
+    </button>
+  );
 };
 
 const Orders = () => {
@@ -135,6 +323,10 @@ const Orders = () => {
                       )}
                       {t("orders.confirmReceipt")}
                     </button>
+                  )}
+
+                  {isBuyer && order.status === "confirmed" && profile?.id && (
+                    <ReviewBlock order={order} buyerProfileId={profile.id} onSaved={() => refetch()} />
                   )}
                 </motion.div>
               );

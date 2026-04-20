@@ -146,6 +146,21 @@ const SellerDashboard = () => {
     enabled: !!profile?.id && isVipSeller && lots.length > 0,
   });
 
+  // Fetch seller rating (public profile rating + count)
+  const { data: sellerRating } = useQuery({
+    queryKey: ["seller-rating-dashboard", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return { average_rating: 0, review_count: 0 };
+      const { data } = await (supabase as any).rpc("get_seller_rating", { seller_profile_id: profile.id });
+      const row = Array.isArray(data) ? data[0] : data;
+      return {
+        average_rating: Number(row?.average_rating) || 0,
+        review_count: Number(row?.review_count) || 0,
+      };
+    },
+    enabled: !!profile?.id,
+  });
+
   // Group interests by lot
   const interestsByLot = (buyerInterests as any[]).reduce((acc: Record<string, any[]>, item: any) => {
     if (!acc[item.lot_id]) acc[item.lot_id] = [];
@@ -383,6 +398,37 @@ const SellerDashboard = () => {
             </div>
           )}
         </div>
+
+        {/* Public seller rating card (always visible — public info) */}
+        {profile?.id && (
+          <div className="mb-8 bg-card rounded-2xl border border-border p-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl text-amber-500 leading-none tracking-tight" aria-label={`${sellerRating?.average_rating ?? 0}/5`}>
+                {Array.from({ length: 5 }).map((_, i) =>
+                  i < Math.round(sellerRating?.average_rating || 0) ? "★" : "☆"
+                ).join("")}
+              </span>
+              <div>
+                <p className="font-heading text-xl font-bold text-foreground">
+                  {(sellerRating?.review_count ?? 0) > 0
+                    ? (sellerRating?.average_rating ?? 0).toFixed(1)
+                    : "—"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {sellerRating?.review_count ?? 0} avis acheteurs
+                </p>
+              </div>
+            </div>
+            <a
+              href={`/vendeur/${profile.id}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs font-semibold text-primary hover:underline"
+            >
+              Voir mon profil public →
+            </a>
+          </div>
+        )}
 
         {/* Tab filter */}
         <div className="flex gap-2 mb-6 overflow-x-auto">
