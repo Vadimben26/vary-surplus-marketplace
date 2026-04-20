@@ -18,6 +18,7 @@ import GuestGate from "@/components/GuestGate";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
 import LegalFooter from "@/components/LegalFooter";
+import TrustBar from "@/components/TrustBar";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 
@@ -189,6 +190,7 @@ const LotDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <TrustBar />
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
         <div className="flex items-center justify-between px-4 md:px-8 h-14">
