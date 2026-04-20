@@ -132,25 +132,6 @@ export default function AdminOrders() {
     toast.success("Copié");
   };
 
-  const handleConfirmAction = async () => {
-    if (!confirmAction) return;
-    const { order, type } = confirmAction;
-    const newStatus = type === "refund" ? "refunded" : "confirmed";
-    const { error } = await supabase.from("orders").update({ status: newStatus as any }).eq("id", order.id);
-    if (error) {
-      toast.error("Erreur lors de la mise à jour");
-      setConfirmAction(null);
-      return;
-    }
-    if (type === "refund") {
-      toast.success("Remboursement à traiter manuellement via Stripe Dashboard");
-    } else {
-      toast.success("Fonds libérés — transfert à déclencher via Stripe Dashboard");
-    }
-    setConfirmAction(null);
-    load();
-  };
-
   const triggerDisputeAlert = async (orderId: string) => {
     await supabase.functions.invoke("send-dispute-alert", { body: { orderId } });
     toast.success("Alerte litige envoyée à l'équipe admin");
