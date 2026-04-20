@@ -79,6 +79,71 @@ const SellerTracking = () => {
     enabled: !!profile?.id,
   });
 
+  const { data: disputeRecords = {} } = useQuery({
+    queryKey: ["seller-dispute-records", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return {};
+      const { data } = await (supabase as any)
+        .from("disputes")
+        .select("*")
+        .eq("seller_id", profile.id);
+      const map: Record<string, any> = {};
+      (data || []).forEach((d: any) => { map[d.order_id] = d; });
+      return map;
+    },
+    enabled: !!profile?.id,
+  });
+
+  const [expandedDispute, setExpandedDispute] = useState<string | null>(null);
+  const [evidenceUrls, setEvidenceUrls] = useState<Record<string, string[]>>({});
+  const [sellerResponse, setSellerResponse] = useState<Record<string, string>>({});
+  const [sendingResponse, setSendingResponse] = useState<string | null>(null);
+
+  const expandDispute = async (orderId: string, paths: string[] = []) => {
+    if (expandedDispute === orderId) {
+      setExpandedDispute(null);
+      return;
+    }
+    setExpandedDispute(orderId);
+    if (paths.length && !evidenceUrls[orderId]) {
+      const urls: string[] = [];
+      for (const p of paths) {
+        const { data } = await supabase.storage.from("dispute-evidence").createSignedUrl(p, 3600);
+        if (data?.signedUrl) urls.push(data.signedUrl);
+      }
+      setEvidenceUrls((prev) => ({ ...prev, [orderId]: urls }));
+    }
+  };
+
+  const sendResponse = async (orderId: string, lotId: string, buyerId: string) => {
+    const text = (sellerResponse[orderId] || "").trim();
+    if (!text || !profile?.id) return;
+    setSendingResponse(orderId);
+    try {
+      // Find an admin profile
+      const { data: admins } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_type", "admin")
+        .limit(1);
+      const adminId = admins?.[0]?.id;
+      const { error } = await (supabase.from("messages") as any).insert({
+        sender_id: profile.id,
+        receiver_id: adminId || buyerId,
+        lot_id: lotId,
+        content: `[Réponse vendeur — litige commande ${orderId.slice(0, 8)}]\n${text}`,
+      });
+      if (error) throw error;
+      toast.success("Votre réponse a été transmise à notre équipe.");
+      setSellerResponse((prev) => ({ ...prev, [orderId]: "" }));
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur lors de l'envoi");
+    } finally {
+      setSendingResponse(null);
+    }
+  };
+
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "paid": return <Clock className="h-4 w-4 text-amber-500" />;
