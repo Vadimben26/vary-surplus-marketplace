@@ -236,6 +236,7 @@ const SellerDashboard = () => {
         const { error } = await supabase.from("lots").update({
           title, brand: brandName, price: parseFloat(price),
           units: parseInt(units) || 0,
+          pallets: Math.max(1, parseInt(pallets) || 1),
           category: categories.join(", "),
           location: autoLocation,
           description,
@@ -256,6 +257,7 @@ const SellerDashboard = () => {
         const { data: newLot, error } = await supabase.from("lots").insert({
           seller_id: profile.id, title, brand: brandName,
           price: parseFloat(price), units: parseInt(units) || 0,
+          pallets: Math.max(1, parseInt(pallets) || 1),
           category: categories.join(", "), description,
           location: autoLocation,
           status: "active",
