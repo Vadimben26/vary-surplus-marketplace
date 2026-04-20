@@ -1,0 +1,1 @@
+ALTER TABLE public.lots ADD COLUMN IF NOT EXISTS expires_at timestamp with time zone DEFAULT (now() + interval '30 days');
