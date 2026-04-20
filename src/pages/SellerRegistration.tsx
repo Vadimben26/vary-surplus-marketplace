@@ -202,7 +202,7 @@ const SellerRegistration = () => {
       target_countries: buyerGeography === "specific" ? targetCountries : [],
       buyer_categories: buyerCategories,
       buyer_min_revenue: buyerMinRevenue,
-      visibility_mode: visibilityMode,
+      visibility_mode: "filtered",
     } as any, { onConflict: "user_id" } as any);
   };
 
