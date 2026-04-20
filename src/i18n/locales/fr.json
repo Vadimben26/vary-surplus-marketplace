@@ -297,14 +297,20 @@
     "vipExclusive": "Offres VIP exclusives",
     "vipDesc": "Ces offres sont réservées aux membres VIP. Accédez à toutes les offres 24h avant les autres acheteurs.",
     "vipOnly": "Réservé aux abonnés VIP",
-    "becomeVip": "Devenir VIP — 299 €/mois"
+    "becomeVip": "Devenir VIP — 299 €/mois",
+    "trustPayment": "Paiement sécurisé",
+    "trustShipping": "Transport intégré",
+    "trustVerified": "Vendeurs vérifiés"
   },
   "filters": {
     "title": "Filtres",
     "country": "Pays de stock",
+    "sellerCountry": "Pays vendeur",
     "totalPrice": "Prix total du lot",
     "pricePerItem": "Prix par pièce",
     "totalUnits": "Nombre de pièces",
+    "pallets": "Nombre de palettes",
+    "palletsUnit": "pal.",
     "sellerRating": "Note vendeur",
     "category": "Catégorie",
     "brands": "Marques",
@@ -353,7 +359,9 @@
     "totalTTC": "Total TTC",
     "add": "Ajouter",
     "addedToCart": "Lot ajouté au panier",
-    "thumbnail": "Miniature"
+    "thumbnail": "Miniature",
+    "pallets": "palettes",
+    "expiresAt": "Expire le"
   },
   "cart": {
     "title": "Votre panier",
