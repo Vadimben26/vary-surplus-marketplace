@@ -7,6 +7,8 @@ import {
   Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers
 } from "lucide-react";
 import ShippingReachPanel from "@/components/seller/ShippingReachPanel";
+import SellerApprovalBanner from "@/components/seller/SellerApprovalBanner";
+import { useSellerApproval } from "@/hooks/useSellerApproval";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,6 +40,7 @@ const SellerDashboard = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
+  const { isApproved: sellerIsApproved } = useSellerApproval();
 
   const [activeTab, setActiveTab] = useState<"active" | "draft" | "sold">("active");
   const [showForm, setShowForm] = useState(false);
@@ -256,14 +259,16 @@ const SellerDashboard = () => {
           if (itemErr) throw itemErr;
         }
       } else {
-        // Create lot
+        // Create lot — only approved sellers can publish active. Otherwise
+        // the lot is saved as a draft and will be auto-published once the
+        // Vary team validates the seller profile.
         const { data: newLot, error } = await supabase.from("lots").insert({
           seller_id: profile.id, title, brand: brandName,
           price: parseFloat(price), units: parseInt(units) || 0,
           pallets: Math.max(1, parseInt(pallets) || 1),
           category: categories.join(", "), description,
           location: autoLocation,
-          status: "active",
+          status: sellerIsApproved ? "active" : "draft",
           images: [],
         }).select().single();
         if (error) throw error;
@@ -281,7 +286,12 @@ const SellerDashboard = () => {
       }
     },
     onSuccess: () => {
-      toast.success(editingLotId ? t("sellerDashboard.lotModified") : t("sellerDashboard.lotPublished"));
+      const successMsg = editingLotId
+        ? t("sellerDashboard.lotModified")
+        : sellerIsApproved
+          ? t("sellerDashboard.lotPublished")
+          : t("sellerDashboard.lotSavedAsDraft", "Lot enregistré en brouillon. Il sera publié dès que votre profil vendeur sera validé.");
+      toast.success(successMsg);
       setShowForm(false);
       resetForm();
       queryClient.invalidateQueries({ queryKey: ["seller-lots"] });
@@ -328,6 +338,7 @@ const SellerDashboard = () => {
     <div className="min-h-screen bg-background">
       <TopNav />
       <main className="px-4 md:px-8 py-6 pb-24 max-w-[1400px] mx-auto">
+        <SellerApprovalBanner />
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-heading text-xl md:text-2xl font-bold text-foreground">
