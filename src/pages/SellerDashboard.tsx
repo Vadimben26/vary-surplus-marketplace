@@ -947,6 +947,13 @@ const SellerDashboard = () => {
                       )}
                     </div>
 
+                    {/* Live shipping reach preview */}
+                    <ShippingReachPanel
+                      originCountry={originCountry}
+                      lotPrice={parseFloat(price) || 0}
+                      pallets={Math.max(1, parseInt(pallets) || 1)}
+                    />
+
                     {/* Action buttons */}
                     <div className="flex gap-2">
                       <button
