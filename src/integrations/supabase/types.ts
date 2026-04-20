@@ -497,6 +497,8 @@ export type Database = {
       seller_preferences: {
         Row: {
           address: string | null
+          approval_status: string
+          approved_at: string | null
           auth_document_url: string | null
           avg_retail_price: string | null
           billing_address_line1: string | null
@@ -530,6 +532,7 @@ export type Database = {
           pickup_postal_code: string | null
           postal_code: string | null
           referral_source: string | null
+          rejection_reason: string | null
           same_pickup_address: boolean | null
           seller_certified: boolean | null
           sells_unbranded: string | null
@@ -546,6 +549,8 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          approval_status?: string
+          approved_at?: string | null
           auth_document_url?: string | null
           avg_retail_price?: string | null
           billing_address_line1?: string | null
@@ -579,6 +584,7 @@ export type Database = {
           pickup_postal_code?: string | null
           postal_code?: string | null
           referral_source?: string | null
+          rejection_reason?: string | null
           same_pickup_address?: boolean | null
           seller_certified?: boolean | null
           sells_unbranded?: string | null
@@ -595,6 +601,8 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          approval_status?: string
+          approved_at?: string | null
           auth_document_url?: string | null
           avg_retail_price?: string | null
           billing_address_line1?: string | null
@@ -628,6 +636,7 @@ export type Database = {
           pickup_postal_code?: string | null
           postal_code?: string | null
           referral_source?: string | null
+          rejection_reason?: string | null
           same_pickup_address?: boolean | null
           seller_certified?: boolean | null
           sells_unbranded?: string | null
@@ -773,6 +782,7 @@ export type Database = {
     Functions: {
       get_my_profile_id: { Args: never; Returns: string }
       is_seller: { Args: never; Returns: boolean }
+      is_seller_approved: { Args: never; Returns: boolean }
       is_seller_of_lot: { Args: { _lot_id: string }; Returns: boolean }
       is_vip_buyer: { Args: never; Returns: boolean }
       is_vip_seller: { Args: never; Returns: boolean }
