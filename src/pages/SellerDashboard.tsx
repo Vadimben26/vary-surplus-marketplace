@@ -886,6 +886,18 @@ const SellerDashboard = () => {
                         <Input type="number" value={units} onChange={e => setUnits(e.target.value)} placeholder="200" className="bg-muted/50 border-none" />
                       </div>
 
+                      {/* Pallets — drives shipping cost */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                          <Layers className="h-3 w-3" />
+                          {t("sellerDashboard.pallets", "Palettes")} *
+                        </label>
+                        <Input type="number" min="1" value={pallets} onChange={e => setPallets(e.target.value)} placeholder="1" className="bg-muted/50 border-none" />
+                        <p className="text-[10px] text-muted-foreground italic">
+                          {t("sellerDashboard.palletsHint", "Détermine le coût de transport et donc les pays accessibles.")}
+                        </p>
+                      </div>
+
                       {/* Retail price */}
                       <div className="space-y-1.5">
                         <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.retailPrice")}</label>
