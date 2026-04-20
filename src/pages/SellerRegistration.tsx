@@ -475,20 +475,25 @@ const SellerRegistration = () => {
               </motion.div>
             )}
 
-            {/* ── STEP 3: Visibility + Targeting ── */}
+            {/* ── STEP 3: Access Control ── */}
             {step === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                {/* Intro note */}
+                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                  <p className="text-sm text-foreground">{t("sellerReg.accessIntro")}</p>
+                </div>
+
                 {/* Geography */}
                 <div>
-                  <h3 className="font-heading text-base font-bold text-foreground mb-4">🌍 {t("sellerReg.geographyTitle")}</h3>
+                  <h3 className="font-heading text-base font-bold text-foreground mb-1">🌍 {t("sellerReg.geographyTitle")}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">{t("sellerReg.geographyHelp")}</p>
                   <div className="space-y-3">
                     <RadioCard value="all_verified" selected={buyerGeography} onSelect={setBuyerGeography} label={t("sellerReg.allVerifiedBuyers")} icon={<Globe className="h-4 w-4 text-primary" />} />
-                    <RadioCard value="europe" selected={buyerGeography} onSelect={setBuyerGeography} label={t("sellerReg.europe")} />
-                    <RadioCard value="specific" selected={buyerGeography} onSelect={setBuyerGeography} label={t("sellerReg.specificCountries")} />
+                    <RadioCard value="specific" selected={buyerGeography} onSelect={setBuyerGeography} label={t("sellerReg.specificCountries")} icon={<Filter className="h-4 w-4 text-primary" />} />
                   </div>
                   {buyerGeography === "specific" && (
                     <div className="mt-4 space-y-3">
-                      <Input placeholder={t("sellerReg.searchCountry")} value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} />
+                      <Input placeholder={t("sellerReg.addCountriesPlaceholder")} value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} />
                       {targetCountries.length > 0 && (
                         <div className="flex flex-wrap gap-2">
                           {targetCountries.map(c => (
@@ -501,7 +506,7 @@ const SellerRegistration = () => {
                       )}
                       <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
                         {filteredCountries.map(c => (
-                          <button key={c} type="button" onClick={() => setTargetCountries(prev => [...prev, c])} className="px-3 py-1.5 rounded-full text-sm border border-border bg-card text-foreground hover:border-primary/40 transition-all">{c}</button>
+                          <button key={c} type="button" onClick={() => { setTargetCountries(prev => [...prev, c]); setCountrySearch(""); }} className="px-3 py-1.5 rounded-full text-sm border border-border bg-card text-foreground hover:border-primary/40 transition-all">{c}</button>
                         ))}
                       </div>
                     </div>
@@ -510,14 +515,15 @@ const SellerRegistration = () => {
 
                 {/* Categories */}
                 <div>
-                  <h3 className="font-heading text-base font-bold text-foreground mb-4">🏷️ {t("sellerReg.categoriesTitle")}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">{t("sellerReg.categoriesDesc")}</p>
+                  <h3 className="font-heading text-base font-bold text-foreground mb-1">🏷️ {t("sellerReg.buyerCategoriesTitle")}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">{t("sellerReg.buyerCategoriesHelp")}</p>
                   <ChipSelect options={CATEGORIES} selected={buyerCategories} onToggle={(c) => setBuyerCategories(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])} />
                 </div>
 
                 {/* Buyer min revenue */}
                 <div>
-                  <h3 className="font-heading text-base font-bold text-foreground mb-4">💰 {t("sellerReg.buyerMinRevenueTitle")}</h3>
+                  <h3 className="font-heading text-base font-bold text-foreground mb-1">💰 {t("sellerReg.buyerMinRevenueTitle")}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">{t("sellerReg.buyerMinRevenueHelp")}</p>
                   <div className="space-y-2">
                     {["all", "under100k", "100k_500k", "500k_1m", "1m_plus"].map(v => (
                       <label key={v} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${buyerMinRevenue === v ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"}`} onClick={() => setBuyerMinRevenue(v)}>
@@ -528,13 +534,22 @@ const SellerRegistration = () => {
                   </div>
                 </div>
 
-                {/* Visibility mode */}
-                <div>
-                  <h3 className="font-heading text-base font-bold text-foreground mb-4">👁️ {t("sellerReg.visibilityTitle")}</h3>
-                  <div className="space-y-3">
-                    <RadioCard value="filtered" selected={visibilityMode} onSelect={(v) => setVisibilityMode(v as any)} label={t("sellerReg.visibleFiltered")} description={t("sellerReg.visibleFilteredDesc")} icon={<Filter className="h-4 w-4 text-primary" />} />
-                    <RadioCard value="all" selected={visibilityMode} onSelect={(v) => setVisibilityMode(v as any)} label={t("sellerReg.visibleAll")} description={t("sellerReg.visibleAllDesc")} icon={<Globe className="h-4 w-4 text-primary" />} />
-                  </div>
+                {/* Recap */}
+                <div className="p-5 rounded-xl border border-border bg-muted/30 space-y-2">
+                  <p className="text-sm font-semibold text-foreground">{t("sellerReg.recapTitle")}</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>
+                      🌍 {buyerGeography === "specific" && targetCountries.length > 0
+                        ? t("sellerReg.recapGeoSpecific", { countries: targetCountries.join(", ") })
+                        : t("sellerReg.recapGeoAll")}
+                    </li>
+                    <li>
+                      🏷️ {t("sellerReg.recapCategories", { list: buyerCategories.length > 0 ? buyerCategories.join(", ") : t("sellerReg.recapNone") })}
+                    </li>
+                    <li>
+                      💰 {t("sellerReg.recapMinRevenue", { value: t(`sellerReg.revenueOptions.${buyerMinRevenue}`) })}
+                    </li>
+                  </ul>
                 </div>
               </motion.div>
             )}
