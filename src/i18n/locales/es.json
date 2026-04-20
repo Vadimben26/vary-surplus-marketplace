@@ -742,7 +742,14 @@
     "cta": "Completar mi perfil",
     "later": "Más tarde"
   },
-  "shipping": {
+  "guestGate": {
+    "title": "Cuenta requerida",
+    "description": "No tienes acceso a estas funciones sin una cuenta. Crea tu perfil de comprador en unos minutos para usar el carrito, favoritos, mensajes y realizar pedidos.",
+    "createAccount": "Crear mi cuenta de comprador",
+    "alreadyAccount": "Ya tengo una cuenta",
+    "continueBrowsing": "Seguir explorando la marketplace",
+    "close": "Cerrar"
+  },
     "reachTitle": "Alcance del lote",
     "countriesAccessible": "países accesibles",
     "rule": "Regla: precio del lote ≥ 11× coste real de envío (mínimo {{floor}}). Los países demasiado lejanos se ocultan automáticamente a los compradores afectados.",
