@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, User, Package, Clock, CheckCircle, Edit2, Save, X, Building2, Truck, AlertTriangle, MessageCircle, Settings2 } from "lucide-react";
+import { ArrowLeft, User, Package, Clock, CheckCircle, Edit2, Save, X, Building2, Truck, AlertTriangle, MessageCircle, Settings2, Bell } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
@@ -145,6 +146,27 @@ const Profile = () => {
     }
   };
 
+  // Default to true if buyer has prefs but alerts_consent is null/undefined
+  const alertsEnabled = buyerPrefs?.alerts_consent ?? true;
+
+  const toggleAlerts = async (enabled: boolean) => {
+    if (!user?.id) return;
+    const { error } = await supabase
+      .from("buyer_preferences")
+      .update({ alerts_consent: enabled })
+      .eq("user_id", user.id);
+    if (error) {
+      toast.error(t("profile.alertsSaveError", "Erreur lors de la sauvegarde"));
+      return;
+    }
+    toast.success(
+      enabled
+        ? t("profile.alertsEnabled", "Alertes activées")
+        : t("profile.alertsDisabled", "Alertes désactivées")
+    );
+    queryClient.invalidateQueries({ queryKey: ["buyer-preferences", user.id] });
+  };
+
   const hasPreferences = !!(buyerPrefs || sellerPrefs);
 
   return (
@@ -256,6 +278,30 @@ const Profile = () => {
                 </>
               )}
             </div>
+
+            {isBuyer && buyerPrefs && (
+              <div className="bg-card rounded-2xl border border-border p-6">
+                <h3 className="font-heading font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Bell className="h-4 w-4 text-primary" />
+                  {t("profile.alertsTitle", "Alertes lots")}
+                </h3>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">
+                      {t("profile.alertsLabel", "Recevoir des alertes quand un lot correspond à mes critères")}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("profile.alertsSubtitle", "Basé sur vos catégories et budget renseignés lors de l'inscription")}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={alertsEnabled}
+                    onCheckedChange={toggleAlerts}
+                    aria-label={t("profile.alertsLabel", "Alertes lots")}
+                  />
+                </div>
+              </div>
+            )}
 
             {import.meta.env.DEV && profile && (
               <DevPanel profileId={profile.id} />

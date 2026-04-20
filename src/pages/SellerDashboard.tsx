@@ -298,6 +298,13 @@ const SellerDashboard = () => {
             validItems.map(it => ({ lot_id: newLot.id, name: it.name, quantity: it.quantity, size: it.size, brand: it.brand, category: it.category, gender: it.gender, reference: it.reference, retail_price: it.retail_price || null, image_url: it.image_url || null }))
           );
         }
+
+        // Fire-and-forget: notify matching buyers if lot was published active
+        if (sellerIsApproved) {
+          supabase.functions.invoke("match-lot-to-buyers", {
+            body: { lotId: newLot.id },
+          }).catch((e) => console.warn("match-lot-to-buyers failed:", e));
+        }
       }
     },
     onSuccess: () => {
