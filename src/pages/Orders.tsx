@@ -215,6 +215,16 @@ const Orders = () => {
   const { profile } = useAuth();
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
+  // Show success banner when returning from Stripe Checkout
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("payment") === "success") {
+      toast.success("Paiement confirmé ! Votre commande est en cours de traitement.");
+      // Clean the URL
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
   const { data: orders = [], refetch } = useQuery({
     queryKey: ["orders", profile?.id],
     queryFn: async () => {

@@ -54,18 +54,19 @@ const Checkout = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: {
-          lot_id: lotId,
-          success_url: `${window.location.origin}/commandes?success=true`,
-          cancel_url: `${window.location.origin}/checkout`,
-        },
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { lotId },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Try to surface the function's error message (e.g. seller not configured)
+        const msg = (error as any)?.context?.error || (error as any)?.message;
+        toast.error(msg || "Erreur lors de la création du paiement");
+        return;
+      }
 
-      if (data?.error?.includes("Stripe not configured")) {
-        toast.error(t("checkout.stripeNotReady"));
+      if (data?.error) {
+        toast.error(data.error);
         return;
       }
 
@@ -74,7 +75,7 @@ const Checkout = () => {
       }
     } catch (err: any) {
       console.error("Checkout error:", err);
-      toast.error(t("checkout.error"));
+      toast.error("Erreur lors de la création du paiement");
     } finally {
       setLoading(false);
     }
