@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Package, Truck, CheckCircle2, Clock, AlertTriangle, Loader2, Star } from "lucide-react";
