@@ -110,6 +110,20 @@ export default function AdminLots() {
     load();
   };
 
+  const publishLot = async (l: LotRow) => {
+    const { error } = await supabase.from("lots").update({ status: "active" }).eq("id", l.id);
+    if (error) {
+      toast.error("Erreur");
+      return;
+    }
+    toast.success("Lot publié");
+    // Fire-and-forget buyer notification
+    supabase.functions.invoke("match-lot-to-buyers", {
+      body: { lotId: l.id },
+    }).catch((e) => console.warn("match-lot-to-buyers failed:", e));
+    load();
+  };
+
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     const { error } = await supabase.from("lots").delete().eq("id", deleteTarget.id);
@@ -189,6 +203,11 @@ export default function AdminLots() {
                     {l.status === "active" && (
                       <Button size="sm" variant="secondary" onClick={() => setDraft(l)}>
                         Mettre en draft
+                      </Button>
+                    )}
+                    {l.status === "draft" && (
+                      <Button size="sm" onClick={() => publishLot(l)}>
+                        Publier
                       </Button>
                     )}
                     {l.has_active_order ? (
