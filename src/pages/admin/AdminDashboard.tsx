@@ -3,14 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Package, ShoppingCart, AlertTriangle } from "lucide-react";
+import { Users, Package, AlertTriangle, CheckCircle2 } from "lucide-react";
 import AdminLayout from "./AdminLayout";
 
 interface Metrics {
   totalSellers: number;
   pendingValidations: number;
   activeLots: number;
-  disputedOrders: number;
+  openDisputes: number;
+  resolvedThisMonth: number;
 }
 
 interface RecentSeller {
@@ -21,12 +22,13 @@ interface RecentSeller {
   validation_status: string;
 }
 
-interface DisputedOrder {
+interface OpenDispute {
   id: string;
+  reason: string;
+  opened_at: string;
   amount: number;
-  created_at: string;
-  lot_title: string;
   buyer_name: string;
+  seller_company: string;
 }
 
 const statusBadge = (status: string) => {
@@ -35,39 +37,58 @@ const statusBadge = (status: string) => {
   return <Badge className="bg-amber-500 hover:bg-amber-600">En attente</Badge>;
 };
 
+const relativeDate = (iso: string) => {
+  const diff = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return "aujourd'hui";
+  if (days === 1) return "hier";
+  if (days < 30) return `il y a ${days} j`;
+  return new Date(iso).toLocaleDateString("fr-FR");
+};
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [metrics, setMetrics] = useState<Metrics>({
     totalSellers: 0,
     pendingValidations: 0,
     activeLots: 0,
-    disputedOrders: 0,
+    openDisputes: 0,
+    resolvedThisMonth: 0,
   });
   const [recentSellers, setRecentSellers] = useState<RecentSeller[]>([]);
-  const [disputedOrders, setDisputedOrders] = useState<DisputedOrder[]>([]);
+  const [openDisputes, setOpenDisputes] = useState<OpenDispute[]>([]);
 
   useEffect(() => {
     const load = async () => {
+      const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+
       const [
         { count: totalSellers },
         { count: pendingValidations },
         { count: activeLots },
-        { count: disputedCount },
+        { count: openCount },
+        { count: resolvedCount },
       ] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }).in("user_type", ["seller", "both"]),
         (supabase.from("seller_preferences") as any).select("*", { count: "exact", head: true }).eq("validation_status", "pending"),
         supabase.from("lots").select("*", { count: "exact", head: true }).eq("status", "active"),
-        supabase.from("orders").select("*", { count: "exact", head: true }).eq("status", "disputed"),
+        (supabase as any).from("disputes").select("*", { count: "exact", head: true }).in("status", ["open", "admin_review"]),
+        (supabase as any)
+          .from("disputes")
+          .select("*", { count: "exact", head: true })
+          .in("status", ["resolved_refund", "resolved_release"])
+          .gte("resolved_at", monthStart),
       ]);
 
       setMetrics({
         totalSellers: totalSellers ?? 0,
         pendingValidations: pendingValidations ?? 0,
         activeLots: activeLots ?? 0,
-        disputedOrders: disputedCount ?? 0,
+        openDisputes: openCount ?? 0,
+        resolvedThisMonth: resolvedCount ?? 0,
       });
 
-      // Recent sellers — join with seller_preferences for validation_status
+      // Recent sellers
       const { data: sellers } = await supabase
         .from("profiles")
         .select("id, full_name, company_name, created_at, user_id")
@@ -80,7 +101,6 @@ export default function AdminDashboard() {
         const { data: prefs } = await (supabase.from("seller_preferences") as any)
           .select("user_id, validation_status")
           .in("user_id", userIds);
-
         const prefsMap = new Map((prefs ?? []).map((p: any) => [p.user_id, p.validation_status]));
         setRecentSellers(
           sellers.map((s: any) => ({
@@ -93,63 +113,95 @@ export default function AdminDashboard() {
         );
       }
 
-      // Disputed orders
-      const { data: disputed } = await supabase
-        .from("orders")
-        .select("id, amount, created_at, lot_id, buyer_id")
-        .eq("status", "disputed")
-        .order("created_at", { ascending: false })
+      // Recent open disputes
+      const { data: disputes } = await (supabase as any)
+        .from("disputes")
+        .select("id, reason, opened_at, order_id, buyer_id, seller_id")
+        .in("status", ["open", "admin_review"])
+        .order("opened_at", { ascending: false })
         .limit(5);
 
-      if (disputed && disputed.length > 0) {
-        const lotIds = disputed.map((o: any) => o.lot_id);
-        const buyerIds = disputed.map((o: any) => o.buyer_id);
-        const [{ data: lots }, { data: buyers }] = await Promise.all([
-          supabase.from("lots").select("id, title").in("id", lotIds),
-          supabase.from("profiles").select("id, full_name, company_name").in("id", buyerIds),
+      if (disputes && disputes.length > 0) {
+        const orderIds = disputes.map((d: any) => d.order_id);
+        const buyerIds = disputes.map((d: any) => d.buyer_id);
+        const sellerIds = disputes.map((d: any) => d.seller_id);
+        const profileIds = [...new Set([...buyerIds, ...sellerIds])];
+
+        const [{ data: orders }, { data: profiles }] = await Promise.all([
+          supabase.from("orders").select("id, amount").in("id", orderIds),
+          supabase.from("profiles").select("id, full_name, company_name").in("id", profileIds),
         ]);
-        const lotsMap = new Map((lots ?? []).map((l: any) => [l.id, l.title]));
-        const buyersMap = new Map((buyers ?? []).map((b: any) => [b.id, b.company_name || b.full_name || "—"]));
-        setDisputedOrders(
-          disputed.map((o: any) => ({
-            id: o.id,
-            amount: o.amount,
-            created_at: o.created_at,
-            lot_title: lotsMap.get(o.lot_id) || "—",
-            buyer_name: buyersMap.get(o.buyer_id) || "—",
-          }))
+
+        const ordersMap = new Map((orders ?? []).map((o: any) => [o.id, o.amount]));
+        const profilesMap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
+
+        setOpenDisputes(
+          disputes.map((d: any) => {
+            const buyer = profilesMap.get(d.buyer_id) as any;
+            const seller = profilesMap.get(d.seller_id) as any;
+            return {
+              id: d.id,
+              reason: d.reason,
+              opened_at: d.opened_at,
+              amount: Number(ordersMap.get(d.order_id) || 0),
+              buyer_name: buyer?.full_name || buyer?.company_name || "—",
+              seller_company: seller?.company_name || seller?.full_name || "—",
+            };
+          })
         );
+      } else {
+        setOpenDisputes([]);
       }
     };
     load();
   }, []);
-
-  const cards = [
-    { title: "Total vendeurs", value: metrics.totalSellers, icon: Users },
-    { title: "Validations en attente", value: metrics.pendingValidations, icon: AlertTriangle },
-    { title: "Lots actifs", value: metrics.activeLots, icon: Package },
-    { title: "Commandes en litige", value: metrics.disputedOrders, icon: ShoppingCart },
-  ];
 
   return (
     <AdminLayout>
       <h1 className="text-3xl font-bold mb-8">Vue d'ensemble</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {cards.map((c) => {
-          const Icon = c.icon;
-          return (
-            <Card key={c.title}>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{c.title}</CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{c.value}</div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total vendeurs</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{metrics.totalSellers}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Lots actifs</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{metrics.activeLots}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Litiges ouverts</CardTitle>
+            <AlertTriangle className={`h-4 w-4 ${metrics.openDisputes > 0 ? "text-destructive" : "text-green-600"}`} />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-3xl font-bold ${metrics.openDisputes > 0 ? "text-destructive" : "text-green-600"}`}>
+              {metrics.openDisputes}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Résolus ce mois</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{metrics.resolvedThisMonth}</div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -184,26 +236,33 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Commandes en litige</CardTitle>
+            <CardTitle>Litiges ouverts récents</CardTitle>
           </CardHeader>
           <CardContent>
-            {disputedOrders.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aucune commande en litige.</p>
+            {openDisputes.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Aucun litige ouvert.</p>
             ) : (
               <div className="space-y-2">
-                {disputedOrders.map((o) => (
+                {openDisputes.map((d) => (
                   <div
-                    key={o.id}
-                    onClick={() => navigate("/admin/commandes")}
-                    className="flex items-center justify-between p-3 rounded-md hover:bg-accent cursor-pointer"
+                    key={d.id}
+                    className="flex items-center justify-between gap-3 p-3 rounded-md hover:bg-accent"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{o.lot_title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {o.buyer_name} · {new Date(o.created_at).toLocaleDateString("fr-FR")}
+                      <p className="text-sm font-medium truncate">{d.reason}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {d.buyer_name} → {d.seller_company} · {relativeDate(d.opened_at)}
                       </p>
                     </div>
-                    <p className="text-sm font-semibold">{Number(o.amount).toLocaleString("fr-FR")} €</p>
+                    <p className="text-sm font-semibold whitespace-nowrap">
+                      {d.amount.toLocaleString("fr-FR")} €
+                    </p>
+                    <button
+                      onClick={() => navigate("/admin/commandes")}
+                      className="text-xs font-medium text-primary hover:underline whitespace-nowrap"
+                    >
+                      Résoudre →
+                    </button>
                   </div>
                 ))}
               </div>

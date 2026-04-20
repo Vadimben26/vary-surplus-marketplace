@@ -11,6 +11,9 @@ import { DisputeResolutionPanel } from "@/components/admin/DisputeResolutionPane
 
 interface OrderRow {
   id: string;
+  lot_id: string;
+  buyer_id: string;
+  seller_id: string;
   amount: number;
   commission: number;
   status: string;
@@ -69,10 +72,7 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [confirmAction, setConfirmAction] = useState<{
-    order: OrderRow;
-    type: "refund" | "release";
-  } | null>(null);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -104,6 +104,9 @@ export default function AdminOrders() {
     setOrders(
       (ordersData ?? []).map((o: any) => ({
         id: o.id,
+        lot_id: o.lot_id,
+        buyer_id: o.buyer_id,
+        seller_id: o.seller_id,
         amount: o.amount,
         commission: o.commission,
         status: o.status,
@@ -133,25 +136,6 @@ export default function AdminOrders() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copié");
-  };
-
-  const handleConfirmAction = async () => {
-    if (!confirmAction) return;
-    const { order, type } = confirmAction;
-    const newStatus = type === "refund" ? "refunded" : "confirmed";
-    const { error } = await supabase.from("orders").update({ status: newStatus as any }).eq("id", order.id);
-    if (error) {
-      toast.error("Erreur lors de la mise à jour");
-      setConfirmAction(null);
-      return;
-    }
-    if (type === "refund") {
-      toast.success("Remboursement à traiter manuellement via Stripe Dashboard");
-    } else {
-      toast.success("Fonds libérés — transfert à déclencher via Stripe Dashboard");
-    }
-    setConfirmAction(null);
-    load();
   };
 
   const triggerDisputeAlert = async (orderId: string) => {
@@ -231,13 +215,12 @@ export default function AdminOrders() {
                           </Button>
                           <Button
                             size="sm"
-                            variant="outline"
-                            onClick={() => setConfirmAction({ order: o, type: "refund" })}
+                            onClick={() => {
+                              setResolvingId(resolvingId === o.id ? null : o.id);
+                              setExpanded(o.id);
+                            }}
                           >
-                            Rembourser acheteur
-                          </Button>
-                          <Button size="sm" onClick={() => setConfirmAction({ order: o, type: "release" })}>
-                            Libérer fonds vendeur
+                            {resolvingId === o.id ? "Fermer" : "Résoudre ce litige"}
                           </Button>
                         </>
                       )}
@@ -246,36 +229,46 @@ export default function AdminOrders() {
                   {expanded === o.id && (
                     <TableRow key={`${o.id}-detail`}>
                       <TableCell colSpan={9} className="bg-muted/50">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-2 text-sm">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">Stripe PaymentIntent:</span>
-                            <code className="text-xs">{o.stripe_payment_intent_id || "—"}</code>
-                            {o.stripe_payment_intent_id && (
-                              <button
-                                onClick={() => copyToClipboard(o.stripe_payment_intent_id!)}
-                                className="p-1 hover:bg-accent rounded"
-                              >
-                                <Copy className="h-3 w-3" />
-                              </button>
-                            )}
+                        {resolvingId === o.id && o.status === "disputed" ? (
+                          <DisputeResolutionPanel
+                            order={o}
+                            onResolved={() => {
+                              setResolvingId(null);
+                              load();
+                            }}
+                          />
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-2 text-sm">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">Stripe PaymentIntent:</span>
+                              <code className="text-xs">{o.stripe_payment_intent_id || "—"}</code>
+                              {o.stripe_payment_intent_id && (
+                                <button
+                                  onClick={() => copyToClipboard(o.stripe_payment_intent_id!)}
+                                  className="p-1 hover:bg-accent rounded"
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </button>
+                              )}
+                            </div>
+                            <div>
+                              <span className="font-medium">N° de suivi: </span>
+                              {o.tracking_number || "—"}
+                            </div>
+                            <div>
+                              <span className="font-medium">Expédié le: </span>
+                              {o.shipped_at ? new Date(o.shipped_at).toLocaleString("fr-FR") : "—"}
+                            </div>
+                            <div>
+                              <span className="font-medium">Livré le: </span>
+                              {o.delivered_at ? new Date(o.delivered_at).toLocaleString("fr-FR") : "—"}
+                            </div>
+                            <div>
+                              <span className="font-medium">Confirmé le: </span>
+                              {o.confirmed_at ? new Date(o.confirmed_at).toLocaleString("fr-FR") : "—"}
+                            </div>
                           </div>
-                          <div>
-                            <span className="font-medium">N° de suivi: </span>
-                            {o.tracking_number || "—"}
-                          </div>
-                          <div>
-                            <span className="font-medium">Expédié le: </span>
-                            {o.shipped_at ? new Date(o.shipped_at).toLocaleString("fr-FR") : "—"}
-                          </div>
-                          <div>
-                            <span className="font-medium">Livré le: </span>
-                            {o.delivered_at ? new Date(o.delivered_at).toLocaleString("fr-FR") : "—"}
-                          </div>
-                          <div>
-                            <span className="font-medium">Confirmé le: </span>
-                            {o.confirmed_at ? new Date(o.confirmed_at).toLocaleString("fr-FR") : "—"}
-                          </div>
-                        </div>
+                        )}
                       </TableCell>
                     </TableRow>
                   )}
