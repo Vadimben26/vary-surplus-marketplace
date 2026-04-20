@@ -84,13 +84,13 @@ const ShippingReachPanel = ({ originCountry, lotPrice, pallets }: Props) => {
 
           {accessible.length > 0 && (
             <div className="space-y-1">
-              <div className="text-[10px] font-bold text-green-700 uppercase tracking-wide">
+              <div className="text-[10px] font-bold text-primary uppercase tracking-wide">
                 ✓ {t("shipping.accessible", "Accessibles")} ({accessible.length})
               </div>
               <div className="grid grid-cols-2 gap-1">
                 {accessible.map((r) => (
-                  <div key={r.country} className="flex items-center gap-1.5 text-[11px] bg-green-50 dark:bg-green-950/20 px-2 py-1 rounded">
-                    <Check className="h-3 w-3 text-green-600 shrink-0" />
+                  <div key={r.country} className="flex items-center gap-1.5 text-[11px] bg-primary/10 px-2 py-1 rounded">
+                    <Check className="h-3 w-3 text-primary shrink-0" />
                     <span className="font-medium text-foreground truncate">{r.country}</span>
                   </div>
                 ))}
