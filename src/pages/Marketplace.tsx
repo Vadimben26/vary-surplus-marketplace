@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useShippingMatrix } from "@/hooks/useShippingMatrix";
 import { useBuyerShippingCountry } from "@/hooks/useBuyerShippingCountry";
+import { useBuyerMatching } from "@/hooks/useBuyerMatching";
+import { sortLotsByMatch } from "@/lib/buyerMatching";
 import { computeShippingCost, FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE } from "@/lib/shipping";
 
 const Marketplace = () => {
@@ -59,6 +61,7 @@ const Marketplace = () => {
 
   const { country: buyerCountry } = useBuyerShippingCountry();
   const { data: shippingMatrix } = useShippingMatrix();
+  const { profile: matchingProfile } = useBuyerMatching();
 
   const filteredLots = useMemo(() => {
     /**
@@ -66,6 +69,11 @@ const Marketplace = () => {
      * - For buyers with a profile (buyerCountry set), hide lots whose
      *   `price < max(FLOOR_PRICE, 11 × shipping cost)` from origin → buyer.
      * - For guests / no profile, no filter is applied.
+     *
+     * Phase 7: results are then sorted by buyer ↔ lot match score
+     * (categories, delivery countries, budget, revenue tier, recency)
+     * so the most relevant lots surface first. Guests keep the default
+     * recency order.
      */
     const isReachable = (lot: any): boolean => {
       if (!buyerCountry || !shippingMatrix) return true;
@@ -77,7 +85,7 @@ const Marketplace = () => {
       return lot.price >= minPrice;
     };
 
-    return dbLots.filter((lot: any) => {
+    const filtered = dbLots.filter((lot: any) => {
       if (filters.search) {
         const q = filters.search.toLowerCase();
         if (!lot.title.toLowerCase().includes(q) && !lot.brand.toLowerCase().includes(q)) return false;
@@ -99,7 +107,10 @@ const Marketplace = () => {
       if (!isReachable(lot)) return false;
       return true;
     });
-  }, [filters, dbLots, buyerCountry, shippingMatrix]);
+
+    // Personalized sort for buyers with a completed questionnaire.
+    return matchingProfile ? sortLotsByMatch(filtered, matchingProfile) : filtered;
+  }, [filters, dbLots, buyerCountry, shippingMatrix, matchingProfile]);
 
   const firstName = profile?.full_name?.split(" ")[0];
   const vipLots = dbLots.slice(0, 5);
