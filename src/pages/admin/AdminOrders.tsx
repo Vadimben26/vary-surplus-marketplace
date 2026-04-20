@@ -163,6 +163,11 @@ export default function AdminOrders() {
     load();
   };
 
+  const triggerDisputeAlert = async (orderId: string) => {
+    await supabase.functions.invoke("send-dispute-alert", { body: { orderId } });
+    toast.success("Alerte litige envoyée à l'équipe admin");
+  };
+
   return (
     <AdminLayout>
       <h1 className="text-3xl font-bold mb-6">Commandes</h1>
@@ -230,6 +235,9 @@ export default function AdminOrders() {
                     <TableCell className="text-right space-x-2 whitespace-nowrap">
                       {o.status === "disputed" && (
                         <>
+                          <Button size="sm" variant="ghost" onClick={() => triggerDisputeAlert(o.id)}>
+                            Notifier
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"

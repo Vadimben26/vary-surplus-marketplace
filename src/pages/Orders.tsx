@@ -47,7 +47,7 @@ const Orders = () => {
         body: { order_id: orderId },
       });
       if (error) throw error;
-      toast.success(t("orders.receiptConfirmed"));
+      toast.success("Réception confirmée. Les fonds seront versés au vendeur sous 24h.");
       refetch();
     } catch {
       toast.error(t("orders.confirmError"));

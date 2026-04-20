@@ -104,20 +104,14 @@ export default function AdminSellers() {
   };
 
   const approve = async (s: SellerRow) => {
-    const { error: prefErr } = await (supabase.from("seller_preferences") as any)
-      .update({
-        validation_status: "approved",
-        validated_at: new Date().toISOString(),
-        validated_by: profile?.id,
-        approval_status: "approved",
-        approved_at: new Date().toISOString(),
-      })
-      .eq("user_id", s.user_id);
-    if (prefErr) {
+    const { data, error } = await supabase.functions.invoke("send-seller-approved", {
+      body: { sellerUserId: s.user_id },
+    });
+    if (error || (data as any)?.error) {
       toast.error("Erreur lors de l'approbation");
       return;
     }
-    toast.success(`${s.company_name || s.full_name} approuvé`);
+    toast.success(`${s.company_name || s.full_name} approuvé — email envoyé`);
     load();
   };
 
