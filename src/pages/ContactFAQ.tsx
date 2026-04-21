@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { HelpCircle, Mail, Phone, MessageCircle, ChevronDown, Send } from "lucide-react";
+import { HelpCircle, Mail, Phone, MessageCircle, ChevronDown, Send, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const ContactFAQ = () => {
   const { t } = useTranslation();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [contactForm, setContactForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [sending, setSending] = useState(false);
 
   const faqs = [
     { question: t("contactFaq.faq1q"), answer: t("contactFaq.faq1a") },
@@ -22,9 +24,47 @@ const ContactFAQ = () => {
     { question: t("contactFaq.faq6q"), answer: t("contactFaq.faq6a") },
   ];
 
-  const handleSubmit = () => {
-    toast.success(t("contactFaq.messageSent"));
-    setContactForm({ name: "", email: "", subject: "", message: "" });
+  const handleSubmit = async () => {
+    // Inline validation — server validates again.
+    if (!contactForm.name.trim() || contactForm.name.trim().length < 2) {
+      toast.error("Veuillez renseigner votre nom");
+      return;
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contactForm.email)) {
+      toast.error("Email invalide");
+      return;
+    }
+    if (!contactForm.subject.trim()) {
+      toast.error("Veuillez renseigner un sujet");
+      return;
+    }
+    if (contactForm.message.trim().length < 10) {
+      toast.error("Message trop court (10 caractères minimum)");
+      return;
+    }
+
+    setSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-contact-message", {
+        body: contactForm,
+      });
+      if (error) {
+        const msg = (error as any)?.context?.error || (error as any)?.message;
+        toast.error(msg || "Échec de l'envoi, veuillez réessayer");
+        return;
+      }
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+      toast.success(t("contactFaq.messageSent"));
+      setContactForm({ name: "", email: "", subject: "", message: "" });
+    } catch (err: any) {
+      console.error("contact send error", err);
+      toast.error("Échec de l'envoi, veuillez réessayer");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (

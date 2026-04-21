@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.check-stripe-connect-status]
 verify_jwt = false
+
+[functions.send-contact-message]
+verify_jwt = false
