@@ -376,9 +376,10 @@ const SellerDashboard = () => {
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!profile?.id) throw new Error("No profile");
-      const totalPhotos = photos.length + existingImages.length;
-      if (totalPhotos < 4) {
-        throw new Error(t("sellerDashboard.need4Photos"));
+      if (!workingLotId) throw new Error("No working lot");
+      const requiredFilled = countRequiredFilled(slotPhotos);
+      if (requiredFilled < 6) {
+        throw new Error(t("lotPhotos.blockedPublish", "Les 6 photos obligatoires doivent être téléversées avant publication."));
       }
       const validItems = lotItems.filter(it => it.name.trim());
       if (validItems.length === 0) {
@@ -389,64 +390,50 @@ const SellerDashboard = () => {
         throw new Error(t("sellerDashboard.fillRequired"));
       }
 
-      if (editingLotId) {
-        // Upload new photos
-        let allImages = [...existingImages];
-        if (photos.length > 0) {
-          const newUrls = await uploadImages(photos, editingLotId);
-          allImages = [...allImages, ...newUrls];
-        }
-        const { error } = await supabase.from("lots").update({
-          title, brand: brandName, price: parseFloat(price),
-          units: parseInt(units) || 0,
-          pallets: Math.max(1, parseInt(pallets) || 1),
-          category: categories.join(", "),
-          location: autoLocation,
-          description,
-          images: allImages,
-        }).eq("id", editingLotId);
-        if (error) throw error;
+      // Build legacy images array from slot photos (photos only, ordered).
+      const orderedImages = ALL_SLOTS
+        .map((n) => slotPhotos[n])
+        .filter((s): s is NonNullable<typeof s> => !!s && s.mediaType === "photo")
+        .map((s) => s.url);
 
-        // Update lot items
-        await supabase.from("lot_items").delete().eq("lot_id", editingLotId);
-        if (validItems.length > 0) {
-          const { error: itemErr } = await supabase.from("lot_items").insert(
-            validItems.map(it => ({ lot_id: editingLotId, name: it.name, quantity: it.quantity, size: it.size, brand: it.brand, category: it.category, gender: it.gender, reference: it.reference, retail_price: it.retail_price || null, image_url: it.image_url || null }))
-          );
-          if (itemErr) throw itemErr;
-        }
-      } else {
-        // Create lot — only approved sellers can publish active. Otherwise
-        // the lot is saved as a draft and will be auto-published once the
-        // Vary team validates the seller profile.
-        const { data: newLot, error } = await supabase.from("lots").insert({
-          seller_id: profile.id, title, brand: brandName,
-          price: parseFloat(price), units: parseInt(units) || 0,
-          pallets: Math.max(1, parseInt(pallets) || 1),
-          category: categories.join(", "), description,
-          location: autoLocation,
-          status: sellerIsApproved ? "active" : "draft",
-          images: [],
-        }).select().single();
-        if (error) throw error;
+      const desiredStatus = editingLotId
+        ? undefined // keep current status when editing
+        : (sellerIsApproved ? "active" : "draft");
 
-        // Upload photos
-        const urls = await uploadImages(photos, newLot.id);
-        await supabase.from("lots").update({ images: urls }).eq("id", newLot.id);
+      const updatePayload: any = {
+        title,
+        brand: brandName,
+        price: parseFloat(price),
+        units: parseInt(units) || 0,
+        pallets: Math.max(1, parseInt(pallets) || 1),
+        category: categories.join(", "),
+        location: autoLocation,
+        description,
+        images: orderedImages,
+      };
+      if (desiredStatus) updatePayload.status = desiredStatus;
 
-        // Insert items
-        if (validItems.length > 0) {
-          await supabase.from("lot_items").insert(
-            validItems.map(it => ({ lot_id: newLot.id, name: it.name, quantity: it.quantity, size: it.size, brand: it.brand, category: it.category, gender: it.gender, reference: it.reference, retail_price: it.retail_price || null, image_url: it.image_url || null }))
-          );
-        }
+      const { error } = await supabase.from("lots").update(updatePayload).eq("id", workingLotId);
+      if (error) throw error;
 
-        // Fire-and-forget: notify matching buyers if lot was published active
-        if (sellerIsApproved) {
-          supabase.functions.invoke("match-lot-to-buyers", {
-            body: { lotId: newLot.id },
-          }).catch((e) => console.warn("match-lot-to-buyers failed:", e));
-        }
+      // Replace lot items
+      await supabase.from("lot_items").delete().eq("lot_id", workingLotId);
+      if (validItems.length > 0) {
+        const { error: itemErr } = await supabase.from("lot_items").insert(
+          validItems.map(it => ({
+            lot_id: workingLotId, name: it.name, quantity: it.quantity, size: it.size,
+            brand: it.brand, category: it.category, gender: it.gender, reference: it.reference,
+            retail_price: it.retail_price || null, image_url: it.image_url || null,
+          }))
+        );
+        if (itemErr) throw itemErr;
+      }
+
+      // Fire-and-forget: notify matching buyers if lot was published active
+      if (!editingLotId && sellerIsApproved) {
+        supabase.functions.invoke("match-lot-to-buyers", {
+          body: { lotId: workingLotId },
+        }).catch((e) => console.warn("match-lot-to-buyers failed:", e));
       }
     },
     onSuccess: () => {
