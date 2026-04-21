@@ -51,6 +51,11 @@ const CGV = () => {
           <h2>{t("legal.cgv.s8Title")}</h2>
           <p>{t("legal.cgv.s8Text")}</p>
         </section>
+
+        <section>
+          <h2>{t("legal.cgv.s9Title")}</h2>
+          <p>{t("legal.cgv.s9Text")}</p>
+        </section>
       </main>
       <BottomNav />
     </div>

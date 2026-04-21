@@ -655,14 +655,16 @@
       "s3Text": "Todos los precios se muestran sin impuestos. El pago se realiza al contado en el momento del pedido. Los fondos se retienen en escrow por Vary hasta la confirmación de recepción por el comprador. Se aplica una comisión en cada transacción.",
       "s4Title": "4. Pedidos y entrega",
       "s4Text": "Una vez confirmado el pedido y validado el pago, el vendedor dispone de 5 días hábiles para enviar la mercancía. El vendedor es responsable del embalaje y envío. El comprador dispone de 48h tras la recepción para informar de cualquier problema.",
-      "s5Title": "5. Escrow y liberación de fondos",
-      "s5Text": "Los fondos son conservados por Vary durante toda la duración de la transacción. Se liberan al vendedor tras la confirmación de recepción por el comprador o automáticamente después de 7 días sin reclamación.",
-      "s6Title": "6. Disputas y reclamaciones",
-      "s6Text": "En caso de disputa, las partes disponen de 7 días para llegar a un acuerdo amistoso a través de la mensajería de Vary. Pasado este plazo, Vary interviene como mediador y toma una decisión final basada en las pruebas proporcionadas.",
+      "s5Title": "5. Pago y depósito en garantía",
+      "s5Text": "El importe total del pedido se cobra al confirmarlo y se retiene en depósito de garantía a través de Stripe Connect. El vendedor recibe el pago 48 horas después de la fecha de entrega confirmada por el transportista, siempre que no se haya abierto ninguna disputa en dicho plazo.",
+      "s6Title": "6. Disputas",
+      "s6Text": "El comprador dispone de un plazo de 48 horas desde la fecha de entrega confirmada por el transportista para notificar una disputa. Pasado este plazo, ninguna reclamación será admisible y el pago se liberará al vendedor. Toda disputa debe ir acompañada de un mínimo de 3 fotografías fechadas que demuestren la diferencia entre la mercancía recibida y la descripción del lote. En su defecto, la disputa será rechazada automáticamente. Vary SAS examina las pruebas y resuelve en un plazo de 5 días hábiles según el siguiente baremo: discrepancia inferior al 5% — disputa rechazada, vendedor pagado íntegramente; discrepancia entre el 5% y el 99% — reembolso parcial proporcional a la discrepancia constatada; discrepancia del 100% (lote totalmente no conforme) — reembolso total del precio del lote. En todos los casos, los gastos de transporte corren a cargo del comprador. En caso de reembolso total, el comprador recibe un código promocional que ofrece un descuento del 2% sobre la comisión del comprador de su próximo pedido (válido 6 meses, uso único, no acumulable).",
       "s7Title": "7. Suscripciones VIP",
       "s7Text": "Las suscripciones VIP de comprador y vendedor se facturan mensualmente a 299€ sin impuestos/mes. La suscripción se renueva automáticamente salvo cancelación antes del final del período actual.",
-      "s8Title": "8. Derecho aplicable",
-      "s8Text": "Las presentes CGV se rigen por el derecho francés. Cualquier litigio no resuelto amistosamente será sometido a los tribunales competentes de París."
+      "s8Title": "8. Suspensión y exclusión",
+      "s8Text": "Vary SAS se reserva el derecho de suspender o excluir definitivamente a cualquier usuario, sea vendedor o comprador, que sea objeto de disputas reiteradas. Un vendedor que haya acumulado 3 disputas validadas en un período de 6 meses, o que haya sido objeto de una disputa con reembolso total, verá su cuenta suspendida a la espera de una revisión por Vary SAS. Las mismas disposiciones se aplican al comprador en caso de disputas abusivas reiteradas.",
+      "s9Title": "9. Derecho aplicable",
+      "s9Text": "Las presentes CGV se rigen por el derecho francés. Cualquier litigio no resuelto amistosamente será sometido a los tribunales competentes de París."
     },
     "mentions": {
       "title": "Aviso Legal",
