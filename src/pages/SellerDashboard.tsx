@@ -450,6 +450,22 @@ const SellerDashboard = () => {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  // Cancel: if we created a draft for a brand-new lot but the user cancels
+  // without saving, delete the empty draft and orphan photo rows.
+  const cancelForm = async () => {
+    if (!editingLotId && workingLotId) {
+      try {
+        await supabase.from("lot_photos").delete().eq("lot_id", workingLotId);
+        await supabase.from("lots").delete().eq("id", workingLotId);
+      } catch (e) {
+        console.warn("Failed to cleanup draft lot:", e);
+      }
+    }
+    setShowForm(false);
+    resetForm();
+    queryClient.invalidateQueries({ queryKey: ["seller-lots"] });
+  };
+
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       await supabase.from("lot_items").delete().eq("lot_id", id);
