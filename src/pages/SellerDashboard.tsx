@@ -282,6 +282,17 @@ const SellerDashboard = () => {
       toast.error(t("common.loading"));
       return;
     }
+    // Block lot creation if seller has no pickup address on profile.
+    if (!autoLocation || !originCountry) {
+      toast.error(
+        t(
+          "sellerDashboard.addressRequired",
+          "Adresse d'enlèvement manquante sur votre profil. Complétez-la avant de déposer un lot."
+        )
+      );
+      navigate("/profil");
+      return;
+    }
     setCreatingDraft(true);
     try {
       const brandName = profile?.company_name || "—";
