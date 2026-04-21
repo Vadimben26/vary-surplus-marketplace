@@ -806,5 +806,64 @@
     "noRoute": "Aucune route de livraison disponible.",
     "unavailable": "Indisponible",
     "unreachableToast": "Ce lot ne peut pas être livré dans votre pays."
+  },
+  "lotPhotos": {
+    "requiredProgress": "{{filled}}/6 photos obligatoires complétées",
+    "allRequiredDone": "Toutes les obligatoires sont prêtes",
+    "missing": "{{count}} manquante(s)",
+    "group1Title": "Vue d'ensemble de la palette",
+    "group2Title": "Contenu et qualité des pièces",
+    "optionalGroupTitle": "Optionnels — encouragés",
+    "photoLabel": "Photo",
+    "required": "Obligatoire",
+    "optional": "Optionnel",
+    "dropOrClick": "Cliquez ou déposez ici",
+    "replaceHint": "Cliquez pour supprimer puis ré-ajouter.",
+    "blockedPublish": "Les 6 photos obligatoires doivent être téléversées avant publication.",
+    "uploadSuccess": "Photo téléversée",
+    "uploadError": "Échec du téléversement",
+    "removed": "Photo supprimée",
+    "removeError": "Erreur de suppression",
+    "errorPhotoOnly": "Cet emplacement n'accepte que des photos.",
+    "errorPhotoFormat": "Format photo non accepté (jpg, png, webp uniquement).",
+    "errorVideoFormat": "Format vidéo non accepté (mp4, mov uniquement).",
+    "errorPhotoSize": "Photo trop lourde (max 10MB).",
+    "errorVideoSize": "Vidéo trop lourde (max 100MB).",
+    "slot1": {
+      "label": "Palette entière de face",
+      "desc": "Photo complète, palette posée au sol, fond neutre. Montre le volume réel."
+    },
+    "slot2": {
+      "label": "Vue du dessus (plongeante)",
+      "desc": "Depuis une hauteur, densité d'emballage et répartition des cartons visible."
+    },
+    "slot3": {
+      "label": "Étiquette palette / bon de livraison",
+      "desc": "Référence fournisseur, poids, nombre de colis. Traçabilité B2B."
+    },
+    "slot4": {
+      "label": "Carton ouvert représentatif",
+      "desc": "1 carton ouvert, pièces en vrac. Représente la moyenne du lot, pas le meilleur."
+    },
+    "slot5": {
+      "label": "Éventail de 10 pièces à plat",
+      "desc": "10 pièces au hasard sur fond blanc/gris. Diversité styles et couleurs visible."
+    },
+    "slot6": {
+      "label": "Gros plan étiquettes / tags",
+      "desc": "Photo nette des étiquettes sur 3-4 pièces. Marque, taille, prix barré si présent."
+    },
+    "slot7": {
+      "label": "Pièce \"star\" mise en valeur",
+      "desc": "Meilleure pièce du lot, sur cintre ou à plat. Donne envie sans tromper."
+    },
+    "slot8": {
+      "label": "Vidéo 30s palette ouverte",
+      "desc": "Scroll rapide dans les cartons. Formats : mp4, mov. Max 100MB."
+    },
+    "slot9": {
+      "label": "Répartition des états (tableau)",
+      "desc": "Document de contrôle qualité ou tri visuel : neuf / légères traces / défaut."
+    }
   }
 }

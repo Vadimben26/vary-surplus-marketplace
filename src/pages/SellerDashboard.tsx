@@ -18,6 +18,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import LotPhotosUploader, {
+  emptyPhotosState,
+  countRequiredFilled,
+  ALL_SLOTS,
+  SLOT_META,
+  type LotPhotosState,
+} from "@/components/seller/LotPhotosUploader";
 
 interface LotItem {
   name: string;
@@ -127,6 +134,12 @@ const SellerDashboard = () => {
   const [lotItems, setLotItems] = useState<LotItem[]>([{ ...emptyItem }]);
   const [photos, setPhotos] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+  // Structured photos state — 9 numbered slots (6 required + 3 optional)
+  const [slotPhotos, setSlotPhotos] = useState<LotPhotosState>(emptyPhotosState());
+  // Working lot id used to scope uploads to a stable storage path. For new
+  // lots we pre-create a draft so we can persist photos as the seller picks them.
+  const [workingLotId, setWorkingLotId] = useState<string | null>(null);
+  const [creatingDraft, setCreatingDraft] = useState(false);
 
   const sellerLocation = profile?.company_name
     ? `${profile.company_name}`
@@ -255,13 +268,52 @@ const SellerDashboard = () => {
     setCategories([]); setDescription("");
     setLotItems([{ ...emptyItem }]);
     setPhotos([]); setExistingImages([]);
+    setSlotPhotos(emptyPhotosState());
+    setWorkingLotId(null);
     setEditingLotId(null);
   };
 
-  const openAdd = () => { resetForm(); setShowForm(true); };
+  // Pre-create a draft lot so that photos uploaded during the form session
+  // can be scoped to a stable lot_id and persisted in the lot_photos table.
+  const openAdd = async () => {
+    resetForm();
+    if (!profile?.id) {
+      toast.error(t("common.loading"));
+      return;
+    }
+    setCreatingDraft(true);
+    try {
+      const brandName = profile?.company_name || "—";
+      const { data, error } = await supabase
+        .from("lots")
+        .insert({
+          seller_id: profile.id,
+          title: t("sellerDashboard.draftPlaceholderTitle", "Brouillon en cours"),
+          brand: brandName,
+          price: 0,
+          units: 0,
+          pallets: 1,
+          category: "",
+          description: "",
+          location: autoLocation,
+          status: "draft",
+          images: [],
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      setWorkingLotId(data.id);
+      setShowForm(true);
+    } catch (err: any) {
+      toast.error(err?.message || "Erreur");
+    } finally {
+      setCreatingDraft(false);
+    }
+  };
 
-  const openEdit = (lot: any) => {
+  const openEdit = async (lot: any) => {
     setEditingLotId(lot.id);
+    setWorkingLotId(lot.id);
     setTitle(lot.title);
     setPrice(String(lot.price));
     const rv = (lot.lot_items || []).reduce((s: number, it: any) => s + (it.retail_price || 0) * (it.quantity || 0), 0);
@@ -269,10 +321,28 @@ const SellerDashboard = () => {
     setUnits(String(lot.units));
     setPallets(String(lot.pallets || 1));
     setCategories(lot.category ? lot.category.split(",").map((c: string) => c.trim()) : []);
-    
+
     setDescription(lot.description || "");
     setExistingImages(lot.images || []);
     setPhotos([]);
+
+    // Load structured photos from lot_photos
+    const { data: existingPhotos } = await supabase
+      .from("lot_photos")
+      .select("photo_number, url, media_type, is_required")
+      .eq("lot_id", lot.id);
+    const next = emptyPhotosState();
+    (existingPhotos || []).forEach((p: any) => {
+      if (p.photo_number >= 1 && p.photo_number <= 9) {
+        next[p.photo_number] = {
+          url: p.url,
+          mediaType: p.media_type === "video" ? "video" : "photo",
+          isRequired: !!p.is_required,
+        };
+      }
+    });
+    setSlotPhotos(next);
+
     const items = lot.lot_items?.length
       ? lot.lot_items.map((it: any) => ({
           name: it.name,
@@ -306,9 +376,10 @@ const SellerDashboard = () => {
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!profile?.id) throw new Error("No profile");
-      const totalPhotos = photos.length + existingImages.length;
-      if (totalPhotos < 4) {
-        throw new Error(t("sellerDashboard.need4Photos"));
+      if (!workingLotId) throw new Error("No working lot");
+      const requiredFilled = countRequiredFilled(slotPhotos);
+      if (requiredFilled < 6) {
+        throw new Error(t("lotPhotos.blockedPublish", "Les 6 photos obligatoires doivent être téléversées avant publication."));
       }
       const validItems = lotItems.filter(it => it.name.trim());
       if (validItems.length === 0) {
@@ -319,64 +390,50 @@ const SellerDashboard = () => {
         throw new Error(t("sellerDashboard.fillRequired"));
       }
 
-      if (editingLotId) {
-        // Upload new photos
-        let allImages = [...existingImages];
-        if (photos.length > 0) {
-          const newUrls = await uploadImages(photos, editingLotId);
-          allImages = [...allImages, ...newUrls];
-        }
-        const { error } = await supabase.from("lots").update({
-          title, brand: brandName, price: parseFloat(price),
-          units: parseInt(units) || 0,
-          pallets: Math.max(1, parseInt(pallets) || 1),
-          category: categories.join(", "),
-          location: autoLocation,
-          description,
-          images: allImages,
-        }).eq("id", editingLotId);
-        if (error) throw error;
+      // Build legacy images array from slot photos (photos only, ordered).
+      const orderedImages = ALL_SLOTS
+        .map((n) => slotPhotos[n])
+        .filter((s): s is NonNullable<typeof s> => !!s && s.mediaType === "photo")
+        .map((s) => s.url);
 
-        // Update lot items
-        await supabase.from("lot_items").delete().eq("lot_id", editingLotId);
-        if (validItems.length > 0) {
-          const { error: itemErr } = await supabase.from("lot_items").insert(
-            validItems.map(it => ({ lot_id: editingLotId, name: it.name, quantity: it.quantity, size: it.size, brand: it.brand, category: it.category, gender: it.gender, reference: it.reference, retail_price: it.retail_price || null, image_url: it.image_url || null }))
-          );
-          if (itemErr) throw itemErr;
-        }
-      } else {
-        // Create lot — only approved sellers can publish active. Otherwise
-        // the lot is saved as a draft and will be auto-published once the
-        // Vary team validates the seller profile.
-        const { data: newLot, error } = await supabase.from("lots").insert({
-          seller_id: profile.id, title, brand: brandName,
-          price: parseFloat(price), units: parseInt(units) || 0,
-          pallets: Math.max(1, parseInt(pallets) || 1),
-          category: categories.join(", "), description,
-          location: autoLocation,
-          status: sellerIsApproved ? "active" : "draft",
-          images: [],
-        }).select().single();
-        if (error) throw error;
+      const desiredStatus = editingLotId
+        ? undefined // keep current status when editing
+        : (sellerIsApproved ? "active" : "draft");
 
-        // Upload photos
-        const urls = await uploadImages(photos, newLot.id);
-        await supabase.from("lots").update({ images: urls }).eq("id", newLot.id);
+      const updatePayload: any = {
+        title,
+        brand: brandName,
+        price: parseFloat(price),
+        units: parseInt(units) || 0,
+        pallets: Math.max(1, parseInt(pallets) || 1),
+        category: categories.join(", "),
+        location: autoLocation,
+        description,
+        images: orderedImages,
+      };
+      if (desiredStatus) updatePayload.status = desiredStatus;
 
-        // Insert items
-        if (validItems.length > 0) {
-          await supabase.from("lot_items").insert(
-            validItems.map(it => ({ lot_id: newLot.id, name: it.name, quantity: it.quantity, size: it.size, brand: it.brand, category: it.category, gender: it.gender, reference: it.reference, retail_price: it.retail_price || null, image_url: it.image_url || null }))
-          );
-        }
+      const { error } = await supabase.from("lots").update(updatePayload).eq("id", workingLotId);
+      if (error) throw error;
 
-        // Fire-and-forget: notify matching buyers if lot was published active
-        if (sellerIsApproved) {
-          supabase.functions.invoke("match-lot-to-buyers", {
-            body: { lotId: newLot.id },
-          }).catch((e) => console.warn("match-lot-to-buyers failed:", e));
-        }
+      // Replace lot items
+      await supabase.from("lot_items").delete().eq("lot_id", workingLotId);
+      if (validItems.length > 0) {
+        const { error: itemErr } = await supabase.from("lot_items").insert(
+          validItems.map(it => ({
+            lot_id: workingLotId, name: it.name, quantity: it.quantity, size: it.size,
+            brand: it.brand, category: it.category, gender: it.gender, reference: it.reference,
+            retail_price: it.retail_price || null, image_url: it.image_url || null,
+          }))
+        );
+        if (itemErr) throw itemErr;
+      }
+
+      // Fire-and-forget: notify matching buyers if lot was published active
+      if (!editingLotId && sellerIsApproved) {
+        supabase.functions.invoke("match-lot-to-buyers", {
+          body: { lotId: workingLotId },
+        }).catch((e) => console.warn("match-lot-to-buyers failed:", e));
       }
     },
     onSuccess: () => {
@@ -392,6 +449,22 @@ const SellerDashboard = () => {
     },
     onError: (err: Error) => toast.error(err.message),
   });
+
+  // Cancel: if we created a draft for a brand-new lot but the user cancels
+  // without saving, delete the empty draft and orphan photo rows.
+  const cancelForm = async () => {
+    if (!editingLotId && workingLotId) {
+      try {
+        await supabase.from("lot_photos").delete().eq("lot_id", workingLotId);
+        await supabase.from("lots").delete().eq("id", workingLotId);
+      } catch (e) {
+        console.warn("Failed to cleanup draft lot:", e);
+      }
+    }
+    setShowForm(false);
+    resetForm();
+    queryClient.invalidateQueries({ queryKey: ["seller-lots"] });
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -470,7 +543,11 @@ const SellerDashboard = () => {
                 : t("sellerDashboard.title")}
             </h1>
           </div>
-          <button onClick={openAdd} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors">
+          <button
+            onClick={openAdd}
+            disabled={creatingDraft}
+            className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50"
+          >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">{t("sellerDashboard.addLot")}</span>
           </button>
@@ -818,7 +895,7 @@ const SellerDashboard = () => {
             {/* Header */}
             <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
               <div className="flex items-center justify-between px-4 md:px-8 h-14 max-w-6xl mx-auto">
-                <button onClick={() => setShowForm(false)} className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+                <button onClick={cancelForm} className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
                   <X className="h-5 w-5" />
                   <span className="text-sm font-medium hidden sm:inline">{t("common.cancel")}</span>
                 </button>
@@ -827,8 +904,13 @@ const SellerDashboard = () => {
                 </h2>
                 <button
                   onClick={() => saveMutation.mutate()}
-                  disabled={saveMutation.isPending}
-                  className="px-4 py-1.5 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm"
+                  disabled={saveMutation.isPending || countRequiredFilled(slotPhotos) < 6}
+                  title={
+                    countRequiredFilled(slotPhotos) < 6
+                      ? t("lotPhotos.blockedPublish", "Les 6 photos obligatoires doivent être téléversées avant publication.")
+                      : undefined
+                  }
+                  className="px-4 py-1.5 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   {saveMutation.isPending ? t("common.loading") : editingLotId ? t("common.save") : t("sellerDashboard.publishLot")}
                 </button>
@@ -838,55 +920,20 @@ const SellerDashboard = () => {
             <main className="max-w-6xl mx-auto px-4 md:px-8 py-4 pb-24">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
 
-                {/* LEFT COL — Photos (mirrors LotDetail image area) */}
+                {/* LEFT COL — Structured photo slots (6 required + 3 optional) */}
                 <div className="md:col-span-4 space-y-3">
-                  {/* Main photo preview */}
-                  <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-muted">
-                    {(existingImages.length > 0 || photos.length > 0) ? (
-                      <img
-                        src={existingImages[0] || (photos[0] ? URL.createObjectURL(photos[0]) : "")}
-                        alt="Aperçu"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-muted/80 transition-colors">
-                        <ImagePlus className="h-10 w-10 text-muted-foreground mb-2" />
-                        <p className="text-sm font-medium text-muted-foreground">{t("sellerDashboard.dragDrop")}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{t("sellerDashboard.photoFormat")}</p>
-                        <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoSelect} />
-                      </label>
-                    )}
-                  </div>
-
-                  {/* Thumbnails row */}
-                  <div className="flex gap-1.5">
-                    {existingImages.map((url, idx) => (
-                      <div key={`ex-${idx}`} className="relative flex-1 aspect-square rounded-lg overflow-hidden border-2 border-primary/20">
-                        <img src={url} alt="" className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => removeExistingImage(idx)} className="absolute top-0.5 right-0.5 bg-foreground/70 text-background rounded-full p-0.5">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
-                    {photos.map((file, idx) => (
-                      <div key={`new-${idx}`} className="relative flex-1 aspect-square rounded-lg overflow-hidden border-2 border-primary/20">
-                        <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => removePhoto(idx)} className="absolute top-0.5 right-0.5 bg-foreground/70 text-background rounded-full p-0.5">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
-                    {/* Add more button */}
-                    {(existingImages.length + photos.length) < 8 && (
-                      <label className="flex-1 aspect-square rounded-lg border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-primary/40 transition-colors">
-                        <ImagePlus className="h-5 w-5 text-muted-foreground" />
-                        <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoSelect} />
-                      </label>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground text-center">
-                    {photos.length + existingImages.length}/4 {t("sellerDashboard.photosMin")}
-                  </p>
+                  {workingLotId && profile?.id ? (
+                    <LotPhotosUploader
+                      lotId={workingLotId}
+                      sellerProfileId={profile.id}
+                      state={slotPhotos}
+                      onChange={setSlotPhotos}
+                    />
+                  ) : (
+                    <div className="rounded-xl border border-border bg-muted/40 p-4 text-xs text-muted-foreground">
+                      {t("common.loading")}
+                    </div>
+                  )}
 
                   {/* Seller info block (auto, read-only) */}
                   {profile && (
@@ -1144,15 +1191,20 @@ const SellerDashboard = () => {
                     {/* Action buttons */}
                     <div className="flex gap-2">
                       <button
-                        onClick={() => setShowForm(false)}
+                        onClick={cancelForm}
                         className="flex-1 py-2.5 border border-border rounded-xl hover:bg-muted transition-colors text-sm font-medium text-foreground"
                       >
                         {t("common.cancel")}
                       </button>
                       <button
                         onClick={() => saveMutation.mutate()}
-                        disabled={saveMutation.isPending}
-                        className="flex-1 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm"
+                        disabled={saveMutation.isPending || countRequiredFilled(slotPhotos) < 6}
+                        title={
+                          countRequiredFilled(slotPhotos) < 6
+                            ? t("lotPhotos.blockedPublish", "Les 6 photos obligatoires doivent être téléversées avant publication.")
+                            : undefined
+                        }
+                        className="flex-1 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                       >
                         {saveMutation.isPending ? t("common.loading") : editingLotId ? t("common.save") : t("sellerDashboard.publishLot")}
                       </button>

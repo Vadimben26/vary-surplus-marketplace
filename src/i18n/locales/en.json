@@ -806,5 +806,64 @@
     "noRoute": "No shipping route available.",
     "unavailable": "Unavailable",
     "unreachableToast": "This lot cannot be shipped to your country."
+  },
+  "lotPhotos": {
+    "requiredProgress": "{{filled}}/6 required photos completed",
+    "allRequiredDone": "All required photos are ready",
+    "missing": "{{count}} missing",
+    "group1Title": "Pallet overview",
+    "group2Title": "Content and item quality",
+    "optionalGroupTitle": "Optional — encouraged",
+    "photoLabel": "Photo",
+    "required": "Required",
+    "optional": "Optional",
+    "dropOrClick": "Click or drop here",
+    "replaceHint": "Click to remove, then re-upload.",
+    "blockedPublish": "All 6 required photos must be uploaded before publishing.",
+    "uploadSuccess": "Photo uploaded",
+    "uploadError": "Upload failed",
+    "removed": "Photo removed",
+    "removeError": "Could not remove photo",
+    "errorPhotoOnly": "This slot only accepts photos.",
+    "errorPhotoFormat": "Unsupported photo format (jpg, png, webp only).",
+    "errorVideoFormat": "Unsupported video format (mp4, mov only).",
+    "errorPhotoSize": "Photo too large (max 10MB).",
+    "errorVideoSize": "Video too large (max 100MB).",
+    "slot1": {
+      "label": "Pallet front view",
+      "desc": "Full shot, pallet on the ground, neutral background. Shows real volume."
+    },
+    "slot2": {
+      "label": "Top-down view",
+      "desc": "From above, packing density and box layout visible."
+    },
+    "slot3": {
+      "label": "Pallet label / delivery slip",
+      "desc": "Supplier reference, weight, parcel count. B2B traceability."
+    },
+    "slot4": {
+      "label": "Representative open box",
+      "desc": "One open box, items loose. Average of the lot, not the best."
+    },
+    "slot5": {
+      "label": "10 items laid flat",
+      "desc": "10 random items on white/grey background. Style and color diversity visible."
+    },
+    "slot6": {
+      "label": "Close-up of tags",
+      "desc": "Sharp shot of tags on 3-4 items. Brand, size, MSRP if present."
+    },
+    "slot7": {
+      "label": "Hero item showcase",
+      "desc": "Best item of the lot, on hanger or flat. Inviting without misleading."
+    },
+    "slot8": {
+      "label": "30s video of opened pallet",
+      "desc": "Quick scroll through the boxes. Formats: mp4, mov. Max 100MB."
+    },
+    "slot9": {
+      "label": "Condition breakdown (table)",
+      "desc": "QC document or visual sorting: new / light wear / visible defect."
+    }
   }
 }
