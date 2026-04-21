@@ -806,5 +806,64 @@
     "noRoute": "No hay ruta de envío disponible.",
     "unavailable": "No disponible",
     "unreachableToast": "Este lote no puede enviarse a tu país."
+  },
+  "lotPhotos": {
+    "requiredProgress": "{{filled}}/6 fotos obligatorias completadas",
+    "allRequiredDone": "Todas las obligatorias están listas",
+    "missing": "{{count}} faltante(s)",
+    "group1Title": "Vista general del palet",
+    "group2Title": "Contenido y calidad de las piezas",
+    "optionalGroupTitle": "Opcionales — recomendadas",
+    "photoLabel": "Foto",
+    "required": "Obligatoria",
+    "optional": "Opcional",
+    "dropOrClick": "Haz clic o suelta aquí",
+    "replaceHint": "Haz clic para eliminar y volver a subir.",
+    "blockedPublish": "Las 6 fotos obligatorias deben subirse antes de publicar.",
+    "uploadSuccess": "Foto subida",
+    "uploadError": "Error al subir",
+    "removed": "Foto eliminada",
+    "removeError": "No se pudo eliminar la foto",
+    "errorPhotoOnly": "Este espacio solo acepta fotos.",
+    "errorPhotoFormat": "Formato de foto no aceptado (jpg, png, webp).",
+    "errorVideoFormat": "Formato de vídeo no aceptado (mp4, mov).",
+    "errorPhotoSize": "Foto demasiado pesada (máx 10MB).",
+    "errorVideoSize": "Vídeo demasiado pesado (máx 100MB).",
+    "slot1": {
+      "label": "Palet entero de frente",
+      "desc": "Foto completa, palet en el suelo, fondo neutro. Muestra el volumen real."
+    },
+    "slot2": {
+      "label": "Vista cenital",
+      "desc": "Desde arriba, densidad de embalaje y distribución de cajas visible."
+    },
+    "slot3": {
+      "label": "Etiqueta del palet / albarán",
+      "desc": "Referencia del proveedor, peso, número de bultos. Trazabilidad B2B."
+    },
+    "slot4": {
+      "label": "Caja abierta representativa",
+      "desc": "Una caja abierta, piezas a granel. Representa el promedio del lote."
+    },
+    "slot5": {
+      "label": "10 piezas extendidas",
+      "desc": "10 piezas al azar sobre fondo blanco/gris. Diversidad de estilos y colores."
+    },
+    "slot6": {
+      "label": "Primer plano de etiquetas",
+      "desc": "Foto nítida de etiquetas en 3-4 piezas. Marca, talla, precio."
+    },
+    "slot7": {
+      "label": "Pieza estrella destacada",
+      "desc": "Mejor pieza del lote, en percha o plana. Atractiva sin engañar."
+    },
+    "slot8": {
+      "label": "Vídeo de 30s del palet abierto",
+      "desc": "Recorrido rápido por las cajas. Formatos: mp4, mov. Máx 100MB."
+    },
+    "slot9": {
+      "label": "Reparto de estados (tabla)",
+      "desc": "Documento de control de calidad o clasificación visual."
+    }
   }
 }
