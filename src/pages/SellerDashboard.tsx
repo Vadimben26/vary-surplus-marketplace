@@ -268,13 +268,52 @@ const SellerDashboard = () => {
     setCategories([]); setDescription("");
     setLotItems([{ ...emptyItem }]);
     setPhotos([]); setExistingImages([]);
+    setSlotPhotos(emptyPhotosState());
+    setWorkingLotId(null);
     setEditingLotId(null);
   };
 
-  const openAdd = () => { resetForm(); setShowForm(true); };
+  // Pre-create a draft lot so that photos uploaded during the form session
+  // can be scoped to a stable lot_id and persisted in the lot_photos table.
+  const openAdd = async () => {
+    resetForm();
+    if (!profile?.id) {
+      toast.error(t("common.loading"));
+      return;
+    }
+    setCreatingDraft(true);
+    try {
+      const brandName = profile?.company_name || "—";
+      const { data, error } = await supabase
+        .from("lots")
+        .insert({
+          seller_id: profile.id,
+          title: t("sellerDashboard.draftPlaceholderTitle", "Brouillon en cours"),
+          brand: brandName,
+          price: 0,
+          units: 0,
+          pallets: 1,
+          category: "",
+          description: "",
+          location: autoLocation,
+          status: "draft",
+          images: [],
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      setWorkingLotId(data.id);
+      setShowForm(true);
+    } catch (err: any) {
+      toast.error(err?.message || "Erreur");
+    } finally {
+      setCreatingDraft(false);
+    }
+  };
 
-  const openEdit = (lot: any) => {
+  const openEdit = async (lot: any) => {
     setEditingLotId(lot.id);
+    setWorkingLotId(lot.id);
     setTitle(lot.title);
     setPrice(String(lot.price));
     const rv = (lot.lot_items || []).reduce((s: number, it: any) => s + (it.retail_price || 0) * (it.quantity || 0), 0);
@@ -282,10 +321,28 @@ const SellerDashboard = () => {
     setUnits(String(lot.units));
     setPallets(String(lot.pallets || 1));
     setCategories(lot.category ? lot.category.split(",").map((c: string) => c.trim()) : []);
-    
+
     setDescription(lot.description || "");
     setExistingImages(lot.images || []);
     setPhotos([]);
+
+    // Load structured photos from lot_photos
+    const { data: existingPhotos } = await supabase
+      .from("lot_photos")
+      .select("photo_number, url, media_type, is_required")
+      .eq("lot_id", lot.id);
+    const next = emptyPhotosState();
+    (existingPhotos || []).forEach((p: any) => {
+      if (p.photo_number >= 1 && p.photo_number <= 9) {
+        next[p.photo_number] = {
+          url: p.url,
+          mediaType: p.media_type === "video" ? "video" : "photo",
+          isRequired: !!p.is_required,
+        };
+      }
+    });
+    setSlotPhotos(next);
+
     const items = lot.lot_items?.length
       ? lot.lot_items.map((it: any) => ({
           name: it.name,
