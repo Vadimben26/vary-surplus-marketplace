@@ -1178,8 +1178,13 @@ const SellerDashboard = () => {
                       </button>
                       <button
                         onClick={() => saveMutation.mutate()}
-                        disabled={saveMutation.isPending}
-                        className="flex-1 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm"
+                        disabled={saveMutation.isPending || countRequiredFilled(slotPhotos) < 6}
+                        title={
+                          countRequiredFilled(slotPhotos) < 6
+                            ? t("lotPhotos.blockedPublish", "Les 6 photos obligatoires doivent être téléversées avant publication.")
+                            : undefined
+                        }
+                        className="flex-1 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                       >
                         {saveMutation.isPending ? t("common.loading") : editingLotId ? t("common.save") : t("sellerDashboard.publishLot")}
                       </button>
