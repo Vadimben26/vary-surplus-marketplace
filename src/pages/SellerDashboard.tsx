@@ -26,6 +26,7 @@ import LotPhotosUploader, {
   SLOT_META,
   type LotPhotosState,
 } from "@/components/seller/LotPhotosUploader";
+import ExcelInventoryImporter, { type ImportedLotItem, type ImportSummary } from "@/components/seller/ExcelInventoryImporter";
 
 interface LotItem {
   name: string;
