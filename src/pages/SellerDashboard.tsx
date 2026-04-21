@@ -513,6 +513,96 @@ const SellerDashboard = () => {
   const removePhoto = (idx: number) => setPhotos(prev => prev.filter((_, i) => i !== idx));
   const removeExistingImage = (idx: number) => setExistingImages(prev => prev.filter((_, i) => i !== idx));
 
+  // Excel import for the inventory table
+  const excelInputRef = useRef<HTMLInputElement>(null);
+
+  const downloadInventoryTemplate = () => {
+    const headers = [
+      ["Marque", "Nom", "Catégorie", "Genre", "Taille", "Référence", "Quantité", "Prix retail (€)", "Photo (URL)"],
+      ["Nike", "T-shirt logo", "clothing", "men", "M", "REF-001", 50, 19.9, ""],
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(headers);
+    ws["!cols"] = [{ wch: 14 }, { wch: 24 }, { wch: 14 }, { wch: 10 }, { wch: 8 }, { wch: 14 }, { wch: 10 }, { wch: 14 }, { wch: 30 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Inventaire");
+    XLSX.writeFile(wb, "vary-inventaire-template.xlsx");
+  };
+
+  const normalizeCategory = (raw: string): string => {
+    const v = (raw || "").toString().trim().toLowerCase();
+    if (["clothing", "vetements", "vêtements", "vetement", "vêtement"].includes(v)) return "clothing";
+    if (["sneakers", "sneaker", "chaussures", "chaussure"].includes(v)) return "sneakers";
+    if (["accessories", "accessoires", "accessoire"].includes(v)) return "accessories";
+    return "";
+  };
+
+  const normalizeGender = (raw: string): string => {
+    const v = (raw || "").toString().trim().toLowerCase();
+    if (["men", "homme", "h", "m"].includes(v)) return "men";
+    if (["women", "femme", "f", "w"].includes(v)) return "women";
+    if (["unisex", "mixte", "u"].includes(v)) return "unisex";
+    if (["kids", "enfant", "kid"].includes(v)) return "kids";
+    return "";
+  };
+
+  const handleExcelImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      if (!sheet) throw new Error("Feuille Excel vide");
+      const rows: any[] = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+      if (rows.length === 0) throw new Error("Aucune ligne trouvée");
+
+      const imported: LotItem[] = rows
+        .map((r: any) => {
+          const get = (...keys: string[]): string => {
+            for (const k of keys) {
+              const found = Object.keys(r).find((rk) => rk.trim().toLowerCase() === k.toLowerCase());
+              if (found && r[found] !== "" && r[found] != null) return String(r[found]).trim();
+            }
+            return "";
+          };
+          const qty = parseInt(get("Quantité", "Quantite", "Quantity", "Qty")) || 0;
+          const retail = parseFloat(get("Prix retail (€)", "Prix retail", "Retail", "Retail price", "Price")) || 0;
+          return {
+            brand: get("Marque", "Brand"),
+            name: get("Nom", "Name", "Désignation", "Designation"),
+            category: normalizeCategory(get("Catégorie", "Categorie", "Category")),
+            gender: normalizeGender(get("Genre", "Gender")),
+            size: get("Taille", "Size"),
+            reference: get("Référence", "Reference", "Ref", "SKU"),
+            quantity: qty,
+            retail_price: retail,
+            image_url: get("Photo (URL)", "Photo", "Image", "Image URL", "URL"),
+          } as LotItem;
+        })
+        .filter((it) => it.name.trim());
+
+      if (imported.length === 0) {
+        toast.error("Aucune ligne valide (colonne 'Nom' requise).");
+        return;
+      }
+
+      setLotItems(imported);
+
+      const totalQty = imported.reduce((s, it) => s + (it.quantity || 0), 0);
+      if (totalQty > 0 && !units) setUnits(String(totalQty));
+
+      const totalRetail = imported.reduce((s, it) => s + (it.retail_price || 0) * (it.quantity || 0), 0);
+      if (totalRetail > 0 && !retailPrice) setRetailPrice(String(Math.round(totalRetail)));
+
+      toast.success(`${imported.length} ligne(s) importée(s) depuis Excel`);
+    } catch (err: any) {
+      console.error("Excel import failed:", err);
+      toast.error(err?.message || "Échec de l'import Excel");
+    } finally {
+      if (excelInputRef.current) excelInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <TopNav />
