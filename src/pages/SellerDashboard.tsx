@@ -884,8 +884,13 @@ const SellerDashboard = () => {
                 </h2>
                 <button
                   onClick={() => saveMutation.mutate()}
-                  disabled={saveMutation.isPending}
-                  className="px-4 py-1.5 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm"
+                  disabled={saveMutation.isPending || countRequiredFilled(slotPhotos) < 6}
+                  title={
+                    countRequiredFilled(slotPhotos) < 6
+                      ? t("lotPhotos.blockedPublish", "Les 6 photos obligatoires doivent être téléversées avant publication.")
+                      : undefined
+                  }
+                  className="px-4 py-1.5 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   {saveMutation.isPending ? t("common.loading") : editingLotId ? t("common.save") : t("sellerDashboard.publishLot")}
                 </button>
@@ -895,55 +900,20 @@ const SellerDashboard = () => {
             <main className="max-w-6xl mx-auto px-4 md:px-8 py-4 pb-24">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
 
-                {/* LEFT COL — Photos (mirrors LotDetail image area) */}
+                {/* LEFT COL — Structured photo slots (6 required + 3 optional) */}
                 <div className="md:col-span-4 space-y-3">
-                  {/* Main photo preview */}
-                  <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-muted">
-                    {(existingImages.length > 0 || photos.length > 0) ? (
-                      <img
-                        src={existingImages[0] || (photos[0] ? URL.createObjectURL(photos[0]) : "")}
-                        alt="Aperçu"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-muted/80 transition-colors">
-                        <ImagePlus className="h-10 w-10 text-muted-foreground mb-2" />
-                        <p className="text-sm font-medium text-muted-foreground">{t("sellerDashboard.dragDrop")}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{t("sellerDashboard.photoFormat")}</p>
-                        <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoSelect} />
-                      </label>
-                    )}
-                  </div>
-
-                  {/* Thumbnails row */}
-                  <div className="flex gap-1.5">
-                    {existingImages.map((url, idx) => (
-                      <div key={`ex-${idx}`} className="relative flex-1 aspect-square rounded-lg overflow-hidden border-2 border-primary/20">
-                        <img src={url} alt="" className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => removeExistingImage(idx)} className="absolute top-0.5 right-0.5 bg-foreground/70 text-background rounded-full p-0.5">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
-                    {photos.map((file, idx) => (
-                      <div key={`new-${idx}`} className="relative flex-1 aspect-square rounded-lg overflow-hidden border-2 border-primary/20">
-                        <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => removePhoto(idx)} className="absolute top-0.5 right-0.5 bg-foreground/70 text-background rounded-full p-0.5">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
-                    {/* Add more button */}
-                    {(existingImages.length + photos.length) < 8 && (
-                      <label className="flex-1 aspect-square rounded-lg border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-primary/40 transition-colors">
-                        <ImagePlus className="h-5 w-5 text-muted-foreground" />
-                        <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoSelect} />
-                      </label>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground text-center">
-                    {photos.length + existingImages.length}/4 {t("sellerDashboard.photosMin")}
-                  </p>
+                  {workingLotId && profile?.id ? (
+                    <LotPhotosUploader
+                      lotId={workingLotId}
+                      sellerProfileId={profile.id}
+                      state={slotPhotos}
+                      onChange={setSlotPhotos}
+                    />
+                  ) : (
+                    <div className="rounded-xl border border-border bg-muted/40 p-4 text-xs text-muted-foreground">
+                      {t("common.loading")}
+                    </div>
+                  )}
 
                   {/* Seller info block (auto, read-only) */}
                   {profile && (
