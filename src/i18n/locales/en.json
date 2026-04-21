@@ -655,14 +655,16 @@
       "s3Text": "All prices are displayed excluding tax (excl. VAT). Payment is made upfront at the time of order. Funds are held in escrow by Vary until the buyer confirms receipt. A commission is applied on each transaction.",
       "s4Title": "4. Orders and Delivery",
       "s4Text": "Once the order is confirmed and payment validated, the seller has 5 business days to ship the goods. The seller is responsible for packaging and shipping. The buyer has 48 hours after receipt to report any issues.",
-      "s5Title": "5. Escrow and Fund Release",
-      "s5Text": "Funds are held by Vary throughout the transaction. They are released to the seller after the buyer confirms receipt or automatically after 7 days without a claim.",
-      "s6Title": "6. Disputes and Claims",
-      "s6Text": "In case of a dispute, parties have 7 days to reach an amicable agreement via Vary messaging. After this period, Vary intervenes as a mediator and makes a final decision based on evidence provided (photos, shipping documents).",
+      "s5Title": "5. Payment and Escrow",
+      "s5Text": "The total order amount is charged upon confirmation and held in escrow via Stripe Connect. The seller receives payment 48 hours after the delivery date confirmed by the carrier, provided no dispute has been opened within that period.",
+      "s6Title": "6. Disputes",
+      "s6Text": "The buyer has 48 hours from the delivery date confirmed by the carrier to report a dispute. After this period, no claim shall be admissible and payment will be released to the seller. Every dispute must be supported by at least 3 dated photographs demonstrating the discrepancy between the goods received and the lot description. Failing this, the dispute will be automatically rejected. Vary SAS reviews the evidence and decides within 5 business days according to the following scale: discrepancy below 5% — dispute rejected, seller paid in full; discrepancy between 5% and 99% — partial refund proportional to the discrepancy; 100% discrepancy (lot entirely non-compliant) — full refund of the lot price. In all cases, shipping fees remain payable by the buyer. In case of a full refund, the buyer receives a promotional code granting a 2% discount on the buyer commission of their next order (valid 6 months, single use, non-cumulative).",
       "s7Title": "7. VIP Subscriptions",
       "s7Text": "Buyer and seller VIP subscriptions are billed monthly at €299 excl. VAT/month. The subscription is automatically renewed unless cancelled before the end of the current period. Cancellation takes effect at the end of the current month.",
-      "s8Title": "8. Applicable Law",
-      "s8Text": "These T&Cs are governed by French law. Any dispute not resolved amicably shall be submitted to the competent courts of Paris."
+      "s8Title": "8. Suspension and Exclusion",
+      "s8Text": "Vary SAS reserves the right to suspend or permanently exclude any user, whether seller or buyer, who is the subject of repeated disputes. A seller who has accumulated 3 validated disputes over a 6-month period, or who has been the subject of a dispute resulting in a full refund, will have their account suspended pending review by Vary SAS. The same provisions apply to buyers in the event of repeated abusive disputes.",
+      "s9Title": "9. Applicable Law",
+      "s9Text": "These T&Cs are governed by French law. Any dispute not resolved amicably shall be submitted to the competent courts of Paris."
     },
     "mentions": {
       "title": "Legal Notice",

@@ -655,14 +655,16 @@
       "s3Text": "Tous les prix sont affichés hors taxes (HT). Le paiement s'effectue au comptant lors de la commande. Les fonds sont retenus en escrow par Vary jusqu'à la confirmation de réception par l'acheteur. Une commission est appliquée sur chaque transaction.",
       "s4Title": "4. Commandes et livraison",
       "s4Text": "Une fois la commande confirmée et le paiement validé, le vendeur dispose de 5 jours ouvrés pour expédier les marchandises. Le vendeur est responsable de l'emballage et de l'expédition. L'acheteur dispose de 48h après réception pour signaler tout problème.",
-      "s5Title": "5. Escrow et libération des fonds",
-      "s5Text": "Les fonds sont conservés par Vary pendant toute la durée de la transaction. Ils sont libérés au vendeur après confirmation de réception par l'acheteur ou automatiquement après 7 jours sans réclamation.",
-      "s6Title": "6. Litiges et réclamations",
-      "s6Text": "En cas de litige, les parties disposent de 7 jours pour trouver un accord amiable via la messagerie Vary. Passé ce délai, Vary intervient en tant que médiateur et prend une décision finale basée sur les preuves fournies (photos, documents de transport).",
+      "s5Title": "5. Paiement et séquestre",
+      "s5Text": "Le montant total de la commande est débité à la confirmation et placé en séquestre via Stripe Connect. Le vendeur reçoit le paiement 48 heures après la date de livraison confirmée par le transporteur, sous réserve d'absence de litige ouvert dans ce délai.",
+      "s6Title": "6. Litiges",
+      "s6Text": "L'acheteur dispose d'un délai de 48 heures à compter de la date de livraison confirmée par le transporteur pour signaler un litige. Passé ce délai, aucune réclamation ne sera recevable et le paiement sera libéré au vendeur. Tout litige doit être accompagné d'un minimum de 3 photographies datées démontrant l'écart entre les marchandises reçues et la description du lot. À défaut, le litige sera automatiquement rejeté. Vary SAS examine les preuves et tranche sous 5 jours ouvrés selon la grille suivante : écart inférieur à 5% — litige rejeté, vendeur payé intégralement ; écart entre 5% et 99% — remboursement partiel proportionnel à l'écart constaté ; écart de 100% (lot entièrement non conforme) — remboursement total du prix lot. Dans tous les cas, les frais de transport restent à la charge de l'acheteur. En cas de remboursement total, l'acheteur reçoit un code promotionnel offrant une réduction de 2% sur la commission acheteur de sa prochaine commande (valable 6 mois, usage unique, non cumulable).",
       "s7Title": "7. Abonnements VIP",
       "s7Text": "Les abonnements VIP acheteur et vendeur sont facturés mensuellement à 299€ HT/mois. L'abonnement est renouvelé automatiquement sauf résiliation avant la fin de la période en cours. La résiliation prend effet à la fin du mois en cours.",
-      "s8Title": "8. Droit applicable",
-      "s8Text": "Les présentes CGV sont régies par le droit français. Tout litige non résolu à l'amiable sera soumis aux tribunaux compétents de Paris."
+      "s8Title": "8. Suspension et exclusion",
+      "s8Text": "Vary SAS se réserve le droit de suspendre ou d'exclure définitivement tout utilisateur faisant l'objet de litiges répétés, qu'il soit vendeur ou acheteur. Un vendeur ayant cumulé 3 litiges validés sur une période de 6 mois, ou ayant fait l'objet d'un litige avec remboursement total, verra son compte suspendu dans l'attente d'un examen par Vary SAS. Les mêmes dispositions s'appliquent à l'acheteur en cas de litiges abusifs répétés.",
+      "s9Title": "9. Droit applicable",
+      "s9Text": "Les présentes CGV sont régies par le droit français. Tout litige non résolu à l'amiable sera soumis aux tribunaux compétents de Paris."
     },
     "mentions": {
       "title": "Mentions Légales",
