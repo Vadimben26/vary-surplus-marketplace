@@ -527,7 +527,11 @@ const SellerDashboard = () => {
                 : t("sellerDashboard.title")}
             </h1>
           </div>
-          <button onClick={openAdd} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors">
+          <button
+            onClick={openAdd}
+            disabled={creatingDraft}
+            className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50"
+          >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">{t("sellerDashboard.addLot")}</span>
           </button>
