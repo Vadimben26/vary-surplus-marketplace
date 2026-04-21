@@ -895,7 +895,7 @@ const SellerDashboard = () => {
             {/* Header */}
             <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
               <div className="flex items-center justify-between px-4 md:px-8 h-14 max-w-6xl mx-auto">
-                <button onClick={() => setShowForm(false)} className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+                <button onClick={cancelForm} className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
                   <X className="h-5 w-5" />
                   <span className="text-sm font-medium hidden sm:inline">{t("common.cancel")}</span>
                 </button>
@@ -1191,7 +1191,7 @@ const SellerDashboard = () => {
                     {/* Action buttons */}
                     <div className="flex gap-2">
                       <button
-                        onClick={() => setShowForm(false)}
+                        onClick={cancelForm}
                         className="flex-1 py-2.5 border border-border rounded-xl hover:bg-muted transition-colors text-sm font-medium text-foreground"
                       >
                         {t("common.cancel")}
