@@ -18,6 +18,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import LotPhotosUploader, {
+  emptyPhotosState,
+  countRequiredFilled,
+  ALL_SLOTS,
+  SLOT_META,
+  type LotPhotosState,
+} from "@/components/seller/LotPhotosUploader";
 
 interface LotItem {
   name: string;
@@ -127,6 +134,12 @@ const SellerDashboard = () => {
   const [lotItems, setLotItems] = useState<LotItem[]>([{ ...emptyItem }]);
   const [photos, setPhotos] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+  // Structured photos state — 9 numbered slots (6 required + 3 optional)
+  const [slotPhotos, setSlotPhotos] = useState<LotPhotosState>(emptyPhotosState());
+  // Working lot id used to scope uploads to a stable storage path. For new
+  // lots we pre-create a draft so we can persist photos as the seller picks them.
+  const [workingLotId, setWorkingLotId] = useState<string | null>(null);
+  const [creatingDraft, setCreatingDraft] = useState(false);
 
   const sellerLocation = profile?.company_name
     ? `${profile.company_name}`
