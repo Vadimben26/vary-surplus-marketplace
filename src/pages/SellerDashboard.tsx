@@ -26,6 +26,7 @@ import LotPhotosUploader, {
   SLOT_META,
   type LotPhotosState,
 } from "@/components/seller/LotPhotosUploader";
+import ExcelInventoryImporter, { type ImportedLotItem, type ImportSummary } from "@/components/seller/ExcelInventoryImporter";
 
 interface LotItem {
   name: string;
@@ -1108,130 +1109,30 @@ const SellerDashboard = () => {
                     <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t("sellerDashboard.describeLot")} className="resize-none bg-muted/50 border-none rounded-lg" rows={4} />
                   </div>
 
-                  {/* Inline editable inventory table */}
+                  {/* Inventaire — import Excel uniquement */}
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                        {t("sellerDashboard.lotContent")} *
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                          <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
-                          {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={downloadInventoryTemplate}
-                          className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
-                          title="Télécharger le modèle Excel"
-                        >
-                          <Download className="h-3 w-3" />
-                          Modèle
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => excelInputRef.current?.click()}
-                          className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-                          title="Importer depuis Excel"
-                        >
-                          <Upload className="h-3 w-3" />
-                          Importer Excel
-                        </button>
-                        <input
-                          ref={excelInputRef}
-                          type="file"
-                          accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-                          className="hidden"
-                          onChange={handleExcelImport}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="border border-border rounded-xl overflow-hidden">
-                      <div className="overflow-x-auto max-h-[360px] overflow-y-auto">
-                        <table className="w-full text-xs">
-                          <thead className="bg-muted sticky top-0 z-10">
-                            <tr>
-                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap">{t("sellerDashboard.brand", "Marque")}</th>
-                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap min-w-[140px]">{t("sellerDashboard.itemName")}</th>
-                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap">{t("sellerDashboard.category", "Catégorie")}</th>
-                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap">{t("sellerDashboard.gender", "Genre")}</th>
-                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap w-20">{t("sellerDashboard.size")}</th>
-                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap w-24">{t("sellerDashboard.itemRef", "Réf.")}</th>
-                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap w-16">{t("sellerDashboard.qty")}</th>
-                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap w-24">{t("sellerDashboard.retailEur", "Prix retail €")}</th>
-                              <th className="text-left px-2 py-2 font-semibold text-muted-foreground whitespace-nowrap min-w-[160px]">{t("sellerDashboard.photoUrl", "Photo (URL)")}</th>
-                              <th className="w-8"></th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {lotItems.map((item, idx) => (
-                              <tr key={idx} className="border-t border-border hover:bg-muted/30">
-                                <td className="px-1 py-1">
-                                  <input value={item.brand} onChange={e => updateItem(idx, "brand", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
-                                </td>
-                                <td className="px-1 py-1">
-                                  <input value={item.name} onChange={e => updateItem(idx, "name", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
-                                </td>
-                                <td className="px-1 py-1">
-                                  <select value={item.category} onChange={e => updateItem(idx, "category", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded">
-                                    <option value=""></option>
-                                    <option value="clothing">{t("sellerDashboard.categories.clothing")}</option>
-                                    <option value="sneakers">{t("sellerDashboard.categories.sneakers")}</option>
-                                    <option value="accessories">{t("sellerDashboard.categories.accessories")}</option>
-                                  </select>
-                                </td>
-                                <td className="px-1 py-1">
-                                  <select value={item.gender} onChange={e => updateItem(idx, "gender", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded">
-                                    <option value=""></option>
-                                    <option value="men">{t("sellerDashboard.men", "Homme")}</option>
-                                    <option value="women">{t("sellerDashboard.women", "Femme")}</option>
-                                    <option value="unisex">{t("sellerDashboard.unisex", "Mixte")}</option>
-                                    <option value="kids">{t("sellerDashboard.kids", "Enfant")}</option>
-                                  </select>
-                                </td>
-                                <td className="px-1 py-1">
-                                  <input value={item.size} onChange={e => updateItem(idx, "size", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
-                                </td>
-                                <td className="px-1 py-1">
-                                  <input value={item.reference} onChange={e => updateItem(idx, "reference", e.target.value)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
-                                </td>
-                                <td className="px-1 py-1">
-                                  <input type="number" min="0" value={item.quantity || ""} onChange={e => updateItem(idx, "quantity", parseInt(e.target.value) || 0)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
-                                </td>
-                                <td className="px-1 py-1">
-                                  <input type="number" min="0" step="0.01" value={item.retail_price || ""} onChange={e => updateItem(idx, "retail_price", parseFloat(e.target.value) || 0)} className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
-                                </td>
-                                <td className="px-1 py-1">
-                                  <input value={item.image_url} onChange={e => updateItem(idx, "image_url", e.target.value)} placeholder="https://..." className="w-full bg-transparent px-1 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded" />
-                                </td>
-                                <td className="px-1 py-1">
-                                  <button
-                                    type="button"
-                                    onClick={() => removeItemRow(idx)}
-                                    disabled={lotItems.length <= 1}
-                                    className="text-destructive hover:text-destructive/80 p-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
-                                    aria-label={t("common.delete", "Supprimer")}
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={addItemRow}
-                        className="w-full px-3 py-2 text-xs font-medium text-primary hover:bg-muted/50 transition-colors border-t border-border"
-                      >
-                        {t("sellerDashboard.addLine")}
-                      </button>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground italic">
-                      {t("sellerDashboard.inlineHint", "Remplissez chaque ligne directement. Les colonnes sont fixes et ordonnées.")}
-                    </p>
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      {t("sellerDashboard.lotContent")} *
+                    </label>
+                    <ExcelInventoryImporter
+                      currentCount={lotItems.filter(it => it.name.trim()).length}
+                      onImported={(items: ImportedLotItem[], summary: ImportSummary) => {
+                        setLotItems(items.map(it => ({
+                          name: it.name,
+                          quantity: it.quantity,
+                          size: it.size,
+                          brand: it.brand,
+                          category: it.category,
+                          gender: it.gender,
+                          reference: it.reference,
+                          retail_price: it.retail_price,
+                          image_url: it.image_url,
+                        })));
+                        if (summary.totalPieces > 0) setUnits(String(summary.totalPieces));
+                        const totalRetail = items.reduce((s, it) => s + it.quantity * it.retail_price, 0);
+                        if (totalRetail > 0) setRetailPrice(String(Math.round(totalRetail)));
+                      }}
+                    />
                   </div>
 
                 </div>
