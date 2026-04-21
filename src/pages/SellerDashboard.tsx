@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import * as XLSX from "xlsx";
 import {
   Plus, Package, DollarSign, MapPin,
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
-  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers, CreditCard, AlertTriangle
+  Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers, CreditCard, AlertTriangle, Upload, Download
 } from "lucide-react";
 import ShippingReachPanel from "@/components/seller/ShippingReachPanel";
 import SellerApprovalBanner from "@/components/seller/SellerApprovalBanner";
@@ -281,6 +282,17 @@ const SellerDashboard = () => {
       toast.error(t("common.loading"));
       return;
     }
+    // Block lot creation if seller has no pickup address on profile.
+    if (!autoLocation || !originCountry) {
+      toast.error(
+        t(
+          "sellerDashboard.addressRequired",
+          "Adresse d'enlèvement manquante sur votre profil. Complétez-la avant de déposer un lot."
+        )
+      );
+      navigate("/profil");
+      return;
+    }
     setCreatingDraft(true);
     try {
       const brandName = profile?.company_name || "—";
@@ -500,6 +512,96 @@ const SellerDashboard = () => {
 
   const removePhoto = (idx: number) => setPhotos(prev => prev.filter((_, i) => i !== idx));
   const removeExistingImage = (idx: number) => setExistingImages(prev => prev.filter((_, i) => i !== idx));
+
+  // Excel import for the inventory table
+  const excelInputRef = useRef<HTMLInputElement>(null);
+
+  const downloadInventoryTemplate = () => {
+    const headers = [
+      ["Marque", "Nom", "Catégorie", "Genre", "Taille", "Référence", "Quantité", "Prix retail (€)", "Photo (URL)"],
+      ["Nike", "T-shirt logo", "clothing", "men", "M", "REF-001", 50, 19.9, ""],
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(headers);
+    ws["!cols"] = [{ wch: 14 }, { wch: 24 }, { wch: 14 }, { wch: 10 }, { wch: 8 }, { wch: 14 }, { wch: 10 }, { wch: 14 }, { wch: 30 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Inventaire");
+    XLSX.writeFile(wb, "vary-inventaire-template.xlsx");
+  };
+
+  const normalizeCategory = (raw: string): string => {
+    const v = (raw || "").toString().trim().toLowerCase();
+    if (["clothing", "vetements", "vêtements", "vetement", "vêtement"].includes(v)) return "clothing";
+    if (["sneakers", "sneaker", "chaussures", "chaussure"].includes(v)) return "sneakers";
+    if (["accessories", "accessoires", "accessoire"].includes(v)) return "accessories";
+    return "";
+  };
+
+  const normalizeGender = (raw: string): string => {
+    const v = (raw || "").toString().trim().toLowerCase();
+    if (["men", "homme", "h", "m"].includes(v)) return "men";
+    if (["women", "femme", "f", "w"].includes(v)) return "women";
+    if (["unisex", "mixte", "u"].includes(v)) return "unisex";
+    if (["kids", "enfant", "kid"].includes(v)) return "kids";
+    return "";
+  };
+
+  const handleExcelImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      if (!sheet) throw new Error("Feuille Excel vide");
+      const rows: any[] = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+      if (rows.length === 0) throw new Error("Aucune ligne trouvée");
+
+      const imported: LotItem[] = rows
+        .map((r: any) => {
+          const get = (...keys: string[]): string => {
+            for (const k of keys) {
+              const found = Object.keys(r).find((rk) => rk.trim().toLowerCase() === k.toLowerCase());
+              if (found && r[found] !== "" && r[found] != null) return String(r[found]).trim();
+            }
+            return "";
+          };
+          const qty = parseInt(get("Quantité", "Quantite", "Quantity", "Qty")) || 0;
+          const retail = parseFloat(get("Prix retail (€)", "Prix retail", "Retail", "Retail price", "Price")) || 0;
+          return {
+            brand: get("Marque", "Brand"),
+            name: get("Nom", "Name", "Désignation", "Designation"),
+            category: normalizeCategory(get("Catégorie", "Categorie", "Category")),
+            gender: normalizeGender(get("Genre", "Gender")),
+            size: get("Taille", "Size"),
+            reference: get("Référence", "Reference", "Ref", "SKU"),
+            quantity: qty,
+            retail_price: retail,
+            image_url: get("Photo (URL)", "Photo", "Image", "Image URL", "URL"),
+          } as LotItem;
+        })
+        .filter((it) => it.name.trim());
+
+      if (imported.length === 0) {
+        toast.error("Aucune ligne valide (colonne 'Nom' requise).");
+        return;
+      }
+
+      setLotItems(imported);
+
+      const totalQty = imported.reduce((s, it) => s + (it.quantity || 0), 0);
+      if (totalQty > 0 && !units) setUnits(String(totalQty));
+
+      const totalRetail = imported.reduce((s, it) => s + (it.retail_price || 0) * (it.quantity || 0), 0);
+      if (totalRetail > 0 && !retailPrice) setRetailPrice(String(Math.round(totalRetail)));
+
+      toast.success(`${imported.length} ligne(s) importée(s) depuis Excel`);
+    } catch (err: any) {
+      console.error("Excel import failed:", err);
+      toast.error(err?.message || "Échec de l'import Excel");
+    } finally {
+      if (excelInputRef.current) excelInputRef.current.value = "";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -1008,15 +1110,40 @@ const SellerDashboard = () => {
 
                   {/* Inline editable inventory table */}
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
                       <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                         {t("sellerDashboard.lotContent")} *
                       </label>
                       <div className="flex items-center gap-2">
-                        <FileSpreadsheet className="h-4 w-4 text-primary" />
-                        <span className="text-xs font-semibold text-foreground">
+                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                          <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
                           {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
                         </span>
+                        <button
+                          type="button"
+                          onClick={downloadInventoryTemplate}
+                          className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
+                          title="Télécharger le modèle Excel"
+                        >
+                          <Download className="h-3 w-3" />
+                          Modèle
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => excelInputRef.current?.click()}
+                          className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                          title="Importer depuis Excel"
+                        >
+                          <Upload className="h-3 w-3" />
+                          Importer Excel
+                        </button>
+                        <input
+                          ref={excelInputRef}
+                          type="file"
+                          accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                          className="hidden"
+                          onChange={handleExcelImport}
+                        />
                       </div>
                     </div>
 

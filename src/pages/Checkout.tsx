@@ -75,6 +75,18 @@ const Checkout = () => {
       return;
     }
 
+    // Block payment if buyer has no shipping country on profile.
+    if (!buyerCountry) {
+      toast.error(
+        t(
+          "checkout.shippingAddressRequired",
+          "Adresse de livraison manquante. Complétez votre profil acheteur avant de payer."
+        )
+      );
+      navigate("/profil");
+      return;
+    }
+
     setLoadingLotId(lotId);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
