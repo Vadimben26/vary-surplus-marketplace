@@ -4,6 +4,7 @@ import BottomNav from "@/components/BottomNav";
 
 const CGV = () => {
   const { t } = useTranslation();
+  const sections = Array.from({ length: 14 }, (_, i) => i + 1);
 
   return (
     <div className="min-h-screen bg-background">
@@ -12,50 +13,12 @@ const CGV = () => {
         <h1 className="font-heading text-2xl font-bold text-foreground">{t("legal.cgv.title")}</h1>
         <p className="text-xs text-muted-foreground mb-8">{t("legal.cgv.lastUpdated")}</p>
 
-        <section>
-          <h2>{t("legal.cgv.s1Title")}</h2>
-          <p>{t("legal.cgv.s1Text")}</p>
-        </section>
-
-        <section>
-          <h2>{t("legal.cgv.s2Title")}</h2>
-          <p>{t("legal.cgv.s2Text")}</p>
-        </section>
-
-        <section>
-          <h2>{t("legal.cgv.s3Title")}</h2>
-          <p>{t("legal.cgv.s3Text")}</p>
-        </section>
-
-        <section>
-          <h2>{t("legal.cgv.s4Title")}</h2>
-          <p>{t("legal.cgv.s4Text")}</p>
-        </section>
-
-        <section>
-          <h2>{t("legal.cgv.s5Title")}</h2>
-          <p>{t("legal.cgv.s5Text")}</p>
-        </section>
-
-        <section>
-          <h2>{t("legal.cgv.s6Title")}</h2>
-          <p>{t("legal.cgv.s6Text")}</p>
-        </section>
-
-        <section>
-          <h2>{t("legal.cgv.s7Title")}</h2>
-          <p>{t("legal.cgv.s7Text")}</p>
-        </section>
-
-        <section>
-          <h2>{t("legal.cgv.s8Title")}</h2>
-          <p>{t("legal.cgv.s8Text")}</p>
-        </section>
-
-        <section>
-          <h2>{t("legal.cgv.s9Title")}</h2>
-          <p>{t("legal.cgv.s9Text")}</p>
-        </section>
+        {sections.map((n) => (
+          <section key={n}>
+            <h2>{t(`legal.cgv.s${n}Title`)}</h2>
+            <p className="whitespace-pre-line">{t(`legal.cgv.s${n}Text`)}</p>
+          </section>
+        ))}
       </main>
       <BottomNav />
     </div>
