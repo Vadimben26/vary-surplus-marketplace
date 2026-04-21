@@ -1110,15 +1110,40 @@ const SellerDashboard = () => {
 
                   {/* Inline editable inventory table */}
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
                       <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                         {t("sellerDashboard.lotContent")} *
                       </label>
                       <div className="flex items-center gap-2">
-                        <FileSpreadsheet className="h-4 w-4 text-primary" />
-                        <span className="text-xs font-semibold text-foreground">
+                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                          <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
                           {lotItems.filter(it => it.name.trim()).length} {t("sellerDashboard.references")}
                         </span>
+                        <button
+                          type="button"
+                          onClick={downloadInventoryTemplate}
+                          className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
+                          title="Télécharger le modèle Excel"
+                        >
+                          <Download className="h-3 w-3" />
+                          Modèle
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => excelInputRef.current?.click()}
+                          className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                          title="Importer depuis Excel"
+                        >
+                          <Upload className="h-3 w-3" />
+                          Importer Excel
+                        </button>
+                        <input
+                          ref={excelInputRef}
+                          type="file"
+                          accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                          className="hidden"
+                          onChange={handleExcelImport}
+                        />
                       </div>
                     </div>
 
