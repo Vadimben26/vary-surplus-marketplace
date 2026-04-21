@@ -135,9 +135,9 @@ const ContactFAQ = () => {
               <label className="text-sm font-semibold text-foreground">{t("contactFaq.message")}</label>
               <Textarea placeholder={t("contactFaq.messagePlaceholder")} className="resize-none" rows={5} value={contactForm.message} onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))} />
             </div>
-            <button onClick={handleSubmit} className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary-dark transition-colors">
-              <Send className="h-4 w-4" />
-              {t("contactFaq.sendMessage")}
+            <button onClick={handleSubmit} disabled={sending} className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-60">
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {sending ? "Envoi…" : t("contactFaq.sendMessage")}
             </button>
           </div>
         </div>
