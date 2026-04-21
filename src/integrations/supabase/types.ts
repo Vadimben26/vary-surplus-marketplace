@@ -336,6 +336,44 @@ export type Database = {
           },
         ]
       }
+      lot_photos: {
+        Row: {
+          id: string
+          is_required: boolean
+          lot_id: string
+          media_type: string
+          photo_number: number
+          uploaded_at: string
+          url: string
+        }
+        Insert: {
+          id?: string
+          is_required?: boolean
+          lot_id: string
+          media_type?: string
+          photo_number: number
+          uploaded_at?: string
+          url: string
+        }
+        Update: {
+          id?: string
+          is_required?: boolean
+          lot_id?: string
+          media_type?: string
+          photo_number?: number
+          uploaded_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lot_photos_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lots: {
         Row: {
           brand: string
@@ -347,6 +385,7 @@ export type Database = {
           images: string[] | null
           location: string | null
           pallets: number
+          photos_validated: boolean
           price: number
           rating: number | null
           seller_id: string
@@ -365,6 +404,7 @@ export type Database = {
           images?: string[] | null
           location?: string | null
           pallets?: number
+          photos_validated?: boolean
           price?: number
           rating?: number | null
           seller_id: string
@@ -383,6 +423,7 @@ export type Database = {
           images?: string[] | null
           location?: string | null
           pallets?: number
+          photos_validated?: boolean
           price?: number
           rating?: number | null
           seller_id?: string
