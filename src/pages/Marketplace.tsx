@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Crown, Lock, X } from "lucide-react";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
+import LegalFooter from "@/components/LegalFooter";
 import TrustBar from "@/components/TrustBar";
 import LotCard from "@/components/LotCard";
 import FilterPanel, { B2BFilters, DEFAULT_FILTERS } from "@/components/marketplace/FilterPanel";
@@ -279,6 +280,7 @@ const Marketplace = () => {
           )}
         </main>
       </div>
+      <LegalFooter />
       <BottomNav />
     </div>
   );
