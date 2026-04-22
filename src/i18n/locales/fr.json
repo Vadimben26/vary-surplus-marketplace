@@ -877,5 +877,208 @@
       "label": "Répartition des états (tableau)",
       "desc": "Document de contrôle qualité ou tri visuel : neuf / légères traces / défaut."
     }
+  },
+  "admin": {
+    "title": "Administration",
+    "loading": "Chargement…",
+    "logout": "Déconnexion",
+    "nav": {
+      "overview": "Vue d'ensemble",
+      "sellers": "Vendeurs",
+      "lots": "Lots",
+      "orders": "Commandes"
+    },
+    "status": {
+      "approved": "Approuvé",
+      "rejected": "Rejeté",
+      "pending": "En attente",
+      "active": "Actif",
+      "draft": "Brouillon",
+      "sold": "Vendu",
+      "disputed": "En litige",
+      "pending_payment": "En attente",
+      "paid": "Payé",
+      "preparing": "Préparation",
+      "shipped": "Expédié",
+      "delivered": "Livré",
+      "confirmed": "Confirmé",
+      "refunded": "Remboursé",
+      "cancelled": "Annulé"
+    },
+    "time": {
+      "today": "aujourd'hui",
+      "yesterday": "hier",
+      "daysAgo": "il y a {{count}} j"
+    },
+    "dashboard": {
+      "title": "Vue d'ensemble",
+      "totalSellers": "Total vendeurs",
+      "activeLots": "Lots actifs",
+      "openDisputes": "Litiges ouverts",
+      "resolvedThisMonth": "Résolus ce mois",
+      "recentSellers": "Vendeurs récents",
+      "noRecentSellers": "Aucun vendeur récent.",
+      "openDisputesTitle": "Litiges ouverts récents",
+      "noOpenDisputes": "Aucun litige ouvert.",
+      "resolve": "Résoudre"
+    },
+    "sellers": {
+      "title": "Vendeurs",
+      "tabs": {
+        "all": "Tous",
+        "pending": "En attente",
+        "approved": "Approuvés",
+        "rejected": "Rejetés"
+      },
+      "table": {
+        "company": "Société",
+        "name": "Nom",
+        "email": "Email",
+        "registration": "Inscription",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "empty": "Aucun vendeur dans cette catégorie.",
+      "viewDocs": "Voir documents",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "approvedToast": "{{name}} approuvé — email envoyé",
+      "approveError": "Erreur lors de l'approbation",
+      "rejectError": "Erreur lors du rejet",
+      "reasonRequired": "Motif requis",
+      "rejected": "Vendeur rejeté",
+      "docsTitle": "Documents du vendeur",
+      "docsCompany": "📄 Document société (Kbis / extrait)",
+      "docsAuth": "📄 Document d'authenticité (autorisation marque)",
+      "docsEmpty": "Aucun document fourni.",
+      "rejectTitle": "Rejeter le vendeur",
+      "rejectDesc": "Précisez le motif du rejet. Il sera enregistré dans le dossier du vendeur.",
+      "rejectPlaceholder": "Motif du rejet…",
+      "cancel": "Annuler",
+      "confirmReject": "Confirmer le rejet"
+    },
+    "lots": {
+      "title": "Lots",
+      "tabs": {
+        "all": "Tous",
+        "active": "Actifs",
+        "draft": "Brouillons",
+        "sold": "Vendus"
+      },
+      "searchPlaceholder": "Rechercher par titre ou marque…",
+      "table": {
+        "title": "Titre",
+        "brand": "Marque",
+        "seller": "Vendeur",
+        "price": "Prix",
+        "units": "Unités",
+        "status": "Statut",
+        "createdAt": "Créé le",
+        "actions": "Actions"
+      },
+      "empty": "Aucun lot.",
+      "view": "Voir",
+      "setDraft": "Mettre en draft",
+      "publish": "Publier",
+      "delete": "Supprimer",
+      "activeOrder": "Commande active",
+      "deleteTitle": "Supprimer ce lot définitivement ?",
+      "deleteDesc": "\"{{title}}\" sera supprimé de manière irréversible.",
+      "cancel": "Annuler",
+      "draftedToast": "Lot mis en brouillon",
+      "publishedToast": "Lot publié",
+      "deletedToast": "Lot supprimé",
+      "deleteError": "Suppression impossible",
+      "genericError": "Erreur"
+    },
+    "orders": {
+      "title": "Commandes",
+      "tabs": { "all": "Toutes" },
+      "table": {
+        "lot": "Lot",
+        "buyer": "Acheteur",
+        "seller": "Vendeur",
+        "amount": "Montant",
+        "commission": "Commission",
+        "status": "Statut",
+        "date": "Date",
+        "actions": "Actions"
+      },
+      "empty": "Aucune commande.",
+      "notify": "Notifier",
+      "resolveDispute": "Résoudre ce litige",
+      "close": "Fermer",
+      "alertSent": "Alerte litige envoyée à l'équipe admin",
+      "copied": "Copié",
+      "details": {
+        "stripePI": "Stripe PaymentIntent:",
+        "trackingNumber": "N° de suivi:",
+        "shippedAt": "Expédié le:",
+        "deliveredAt": "Livré le:",
+        "confirmedAt": "Confirmé le:"
+      }
+    },
+    "dispute": {
+      "loading": "Chargement du litige…",
+      "notFound": "Aucun enregistrement de litige trouvé pour cette commande.",
+      "reason": "Raison",
+      "buyerDetails": "Détails de l'acheteur",
+      "evidence": "Preuves ({{count}})",
+      "sellerResponse": "Réponse du vendeur",
+      "buyer": "Acheteur",
+      "seller": "Vendeur",
+      "timeline": "Chronologie",
+      "events": {
+        "orderCreated": "Commande créée",
+        "paymentConfirmed": "Paiement confirmé",
+        "shipped": "Expédiée",
+        "delivered": "Livrée",
+        "disputeOpened": "Litige ouvert"
+      },
+      "resolved": "Litige résolu",
+      "refundOutcome": "Remboursement",
+      "releaseOutcome": "Fonds libérés",
+      "refundBuyer": "Rembourser l'acheteur",
+      "releaseSeller": "Libérer les fonds au vendeur",
+      "confirmRefundTitle": "Confirmer le remboursement à {{name}} ?",
+      "confirmReleaseTitle": "Confirmer la libération des fonds à {{name}} ?",
+      "buyerFallback": "l'acheteur",
+      "sellerFallback": "le vendeur",
+      "refundDesc": "La commande sera marquée comme remboursée. Le remboursement effectif devra être déclenché manuellement dans Stripe Dashboard.",
+      "releaseDesc": "Les fonds seront libérés au vendeur. La commande sera marquée comme confirmée.",
+      "noteLabel": "Note de résolution (visible par les parties)",
+      "notePlaceholder": "Expliquez la décision (min 10 caractères)…",
+      "noteRequired": "Note de résolution requise (min 10 caractères)",
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "processing": "Traitement…",
+      "refundToast": "Remboursement à traiter manuellement dans Stripe Dashboard — voir commande {{id}}",
+      "releaseToast": "Fonds libérés au vendeur.",
+      "resolutionError": "Erreur lors de la résolution"
+    }
+  },
+  "disputeForm": {
+    "title": "Ouverture d'un litige",
+    "reasonLabel": "Raison du litige",
+    "selectPlaceholder": "— Sélectionner —",
+    "reasons": {
+      "notReceived": "Produits non reçus",
+      "notMatching": "Produits non conformes à la description",
+      "damaged": "Produits endommagés",
+      "wrongQuantity": "Quantité incorrecte",
+      "other": "Autre"
+    },
+    "describeLabel": "Décrivez le problème",
+    "describePlaceholder": "Décrivez précisément le problème (min 50 caractères)…",
+    "minChars": "{{count}} / 50 min",
+    "evidenceLabel": "Ajouter des preuves (photos, PDF — max {{max}} fichiers, 5 Mo chacun)",
+    "chooseFiles": "Choisir des fichiers",
+    "submit": "Soumettre le litige",
+    "submitting": "Envoi…",
+    "cancel": "Annuler",
+    "fileTooLarge": "{{name}} dépasse 5 Mo",
+    "fileUnsupported": "{{name}}: format non supporté",
+    "submittedToast": "Litige ouvert. Notre équipe vous contactera sous 48h.",
+    "submitError": "Erreur lors de l'ouverture du litige"
   }
 }

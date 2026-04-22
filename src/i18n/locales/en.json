@@ -877,5 +877,208 @@
       "label": "Condition breakdown (table)",
       "desc": "QC document or visual sorting: new / light wear / visible defect."
     }
+  },
+  "admin": {
+    "title": "Administration",
+    "loading": "Loading…",
+    "logout": "Sign out",
+    "nav": {
+      "overview": "Overview",
+      "sellers": "Sellers",
+      "lots": "Lots",
+      "orders": "Orders"
+    },
+    "status": {
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "pending": "Pending",
+      "active": "Active",
+      "draft": "Draft",
+      "sold": "Sold",
+      "disputed": "Disputed",
+      "pending_payment": "Pending payment",
+      "paid": "Paid",
+      "preparing": "Preparing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "confirmed": "Confirmed",
+      "refunded": "Refunded",
+      "cancelled": "Cancelled"
+    },
+    "time": {
+      "today": "today",
+      "yesterday": "yesterday",
+      "daysAgo": "{{count}} days ago"
+    },
+    "dashboard": {
+      "title": "Overview",
+      "totalSellers": "Total sellers",
+      "activeLots": "Active lots",
+      "openDisputes": "Open disputes",
+      "resolvedThisMonth": "Resolved this month",
+      "recentSellers": "Recent sellers",
+      "noRecentSellers": "No recent sellers.",
+      "openDisputesTitle": "Recent open disputes",
+      "noOpenDisputes": "No open disputes.",
+      "resolve": "Resolve"
+    },
+    "sellers": {
+      "title": "Sellers",
+      "tabs": {
+        "all": "All",
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "table": {
+        "company": "Company",
+        "name": "Name",
+        "email": "Email",
+        "registration": "Registration",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "empty": "No seller in this category.",
+      "viewDocs": "View documents",
+      "approve": "Approve",
+      "reject": "Reject",
+      "approvedToast": "{{name}} approved — email sent",
+      "approveError": "Approval failed",
+      "rejectError": "Rejection failed",
+      "reasonRequired": "Reason required",
+      "rejected": "Seller rejected",
+      "docsTitle": "Seller documents",
+      "docsCompany": "📄 Company document (registration certificate)",
+      "docsAuth": "📄 Authenticity document (brand authorization)",
+      "docsEmpty": "No document provided.",
+      "rejectTitle": "Reject seller",
+      "rejectDesc": "Provide the rejection reason. It will be saved in the seller's record.",
+      "rejectPlaceholder": "Rejection reason…",
+      "cancel": "Cancel",
+      "confirmReject": "Confirm rejection"
+    },
+    "lots": {
+      "title": "Lots",
+      "tabs": {
+        "all": "All",
+        "active": "Active",
+        "draft": "Drafts",
+        "sold": "Sold"
+      },
+      "searchPlaceholder": "Search by title or brand…",
+      "table": {
+        "title": "Title",
+        "brand": "Brand",
+        "seller": "Seller",
+        "price": "Price",
+        "units": "Units",
+        "status": "Status",
+        "createdAt": "Created at",
+        "actions": "Actions"
+      },
+      "empty": "No lots.",
+      "view": "View",
+      "setDraft": "Set as draft",
+      "publish": "Publish",
+      "delete": "Delete",
+      "activeOrder": "Active order",
+      "deleteTitle": "Permanently delete this lot?",
+      "deleteDesc": "\"{{title}}\" will be permanently deleted.",
+      "cancel": "Cancel",
+      "draftedToast": "Lot set to draft",
+      "publishedToast": "Lot published",
+      "deletedToast": "Lot deleted",
+      "deleteError": "Deletion failed",
+      "genericError": "Error"
+    },
+    "orders": {
+      "title": "Orders",
+      "tabs": { "all": "All" },
+      "table": {
+        "lot": "Lot",
+        "buyer": "Buyer",
+        "seller": "Seller",
+        "amount": "Amount",
+        "commission": "Commission",
+        "status": "Status",
+        "date": "Date",
+        "actions": "Actions"
+      },
+      "empty": "No orders.",
+      "notify": "Notify",
+      "resolveDispute": "Resolve dispute",
+      "close": "Close",
+      "alertSent": "Dispute alert sent to admin team",
+      "copied": "Copied",
+      "details": {
+        "stripePI": "Stripe PaymentIntent:",
+        "trackingNumber": "Tracking number:",
+        "shippedAt": "Shipped on:",
+        "deliveredAt": "Delivered on:",
+        "confirmedAt": "Confirmed on:"
+      }
+    },
+    "dispute": {
+      "loading": "Loading dispute…",
+      "notFound": "No dispute record found for this order.",
+      "reason": "Reason",
+      "buyerDetails": "Buyer's details",
+      "evidence": "Evidence ({{count}})",
+      "sellerResponse": "Seller response",
+      "buyer": "Buyer",
+      "seller": "Seller",
+      "timeline": "Timeline",
+      "events": {
+        "orderCreated": "Order created",
+        "paymentConfirmed": "Payment confirmed",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "disputeOpened": "Dispute opened"
+      },
+      "resolved": "Dispute resolved",
+      "refundOutcome": "Refund",
+      "releaseOutcome": "Funds released",
+      "refundBuyer": "Refund buyer",
+      "releaseSeller": "Release funds to seller",
+      "confirmRefundTitle": "Confirm refund to {{name}}?",
+      "confirmReleaseTitle": "Confirm release of funds to {{name}}?",
+      "buyerFallback": "the buyer",
+      "sellerFallback": "the seller",
+      "refundDesc": "The order will be marked as refunded. The actual refund must be triggered manually in Stripe Dashboard.",
+      "releaseDesc": "Funds will be released to the seller. The order will be marked as confirmed.",
+      "noteLabel": "Resolution note (visible to both parties)",
+      "notePlaceholder": "Explain the decision (min 10 characters)…",
+      "noteRequired": "Resolution note required (min 10 characters)",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "processing": "Processing…",
+      "refundToast": "Refund to be processed manually in Stripe Dashboard — see order {{id}}",
+      "releaseToast": "Funds released to seller.",
+      "resolutionError": "Error during resolution"
+    }
+  },
+  "disputeForm": {
+    "title": "Open a dispute",
+    "reasonLabel": "Dispute reason",
+    "selectPlaceholder": "— Select —",
+    "reasons": {
+      "notReceived": "Products not received",
+      "notMatching": "Products not matching description",
+      "damaged": "Damaged products",
+      "wrongQuantity": "Incorrect quantity",
+      "other": "Other"
+    },
+    "describeLabel": "Describe the issue",
+    "describePlaceholder": "Describe the issue precisely (min 50 characters)…",
+    "minChars": "{{count}} / 50 min",
+    "evidenceLabel": "Add evidence (photos, PDF — max {{max}} files, 5 MB each)",
+    "chooseFiles": "Choose files",
+    "submit": "Submit dispute",
+    "submitting": "Sending…",
+    "cancel": "Cancel",
+    "fileTooLarge": "{{name}} exceeds 5 MB",
+    "fileUnsupported": "{{name}}: unsupported format",
+    "submittedToast": "Dispute opened. Our team will contact you within 48h.",
+    "submitError": "Error opening the dispute"
   }
 }
