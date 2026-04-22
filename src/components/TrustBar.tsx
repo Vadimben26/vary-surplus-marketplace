@@ -15,7 +15,7 @@ const TrustBar = ({ variant = "compact", className = "" }: TrustBarProps) => {
   const { t } = useTranslation();
 
   const items = [
-    { icon: ShieldCheck, label: t("trust.escrow", "Paiement sous séquestre") },
+    { icon: ShieldCheck, label: t("trust.escrow", "Paiement en escrow") },
     { icon: BadgeCheck, label: t("trust.verifiedSellers", "Vendeurs vérifiés") },
     { icon: Truck, label: t("trust.shipping", "Transport intégré") },
     { icon: Scale, label: t("trust.disputes", "Litiges gérés") },
