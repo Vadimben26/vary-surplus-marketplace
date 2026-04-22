@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
+import LegalFooter from "@/components/LegalFooter";
 import LotCard from "@/components/LotCard";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -75,6 +76,7 @@ const Favorites = () => {
           </div>
         )}
       </main>
+      <LegalFooter />
       <BottomNav />
     </div>
   );

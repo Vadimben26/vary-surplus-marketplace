@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import varyLogo from "@/assets/vary-logo.png";
 import BottomNav from "@/components/BottomNav";
+import LegalFooter from "@/components/LegalFooter";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import DevPanel from "@/components/DevPanel";
@@ -477,6 +478,7 @@ const Profile = () => {
           </motion.div>
         )}
       </main>
+      <LegalFooter />
       <BottomNav />
     </div>
   );

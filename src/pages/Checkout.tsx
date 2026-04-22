@@ -5,6 +5,7 @@ import { ShoppingCart, CreditCard, Shield, Loader2, Truck, Sparkles, Info } from
 import { useTranslation } from "react-i18next";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
+import LegalFooter from "@/components/LegalFooter";
 import BuyerPrefsGate from "@/components/BuyerPrefsGate";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -263,6 +264,7 @@ const Checkout = () => {
           </div>
         )}
       </main>
+      <LegalFooter />
       <BottomNav />
       <BuyerPrefsGate
         open={showGate}
