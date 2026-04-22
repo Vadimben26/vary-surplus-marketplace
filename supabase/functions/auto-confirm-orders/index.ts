@@ -16,7 +16,8 @@ serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const supabaseAdmin = createClient(supabaseUrl, serviceKey);
 
-    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    // Auto-release escrow 48h after delivery if buyer hasn't confirmed or opened a dispute
+    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
 
     const { data: orders } = await supabaseAdmin
       .from("orders")
