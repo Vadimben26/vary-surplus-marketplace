@@ -160,9 +160,40 @@ export default function AdminDashboard() {
       } else {
         setOpenDisputes([]);
       }
+
+      // 30-day analytics
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const [{ data: recentProfiles }, { data: recentOrders }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("created_at")
+          .in("user_type", ["seller", "both"])
+          .gte("created_at", thirtyDaysAgo)
+          .order("created_at"),
+        supabase
+          .from("orders")
+          .select("created_at")
+          .gte("created_at", thirtyDaysAgo)
+          .order("created_at"),
+      ]);
+
+      const groupByDay = (rows: { created_at: string }[] | null) => {
+        const byDay: Record<string, number> = {};
+        (rows || []).forEach((p) => {
+          const d = new Date(p.created_at).toLocaleDateString(dateLocale, {
+            day: "2-digit",
+            month: "2-digit",
+          });
+          byDay[d] = (byDay[d] || 0) + 1;
+        });
+        return Object.entries(byDay).map(([date, count]) => ({ date, count }));
+      };
+
+      setRegistrationData(groupByDay(recentProfiles as any));
+      setOrdersData(groupByDay(recentOrders as any));
     };
     load();
-  }, []);
+  }, [dateLocale]);
 
   return (
     <AdminLayout>
