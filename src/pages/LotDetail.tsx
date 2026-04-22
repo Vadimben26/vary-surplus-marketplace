@@ -51,7 +51,15 @@ const LotDetail = () => {
     enabled: !!id,
   });
 
-  // Phase 5: fetch the seller's visibility settings to know whether buyers
+  usePageMeta({
+    title: lot ? `${lot.brand} — ${lot.title}` : "Lot",
+    description: lot
+      ? `${lot.units} pièces · ${lot.price} € · Expédié depuis ${lot.location}`
+      : undefined,
+    image: lot?.images?.[0] ?? undefined,
+  });
+
+
   // must complete the questionnaire before contacting / adding to cart.
   const sellerUserId = (lot?.profiles as any)?.user_id ?? null;
   const { data: sellerPrefs } = useQuery({
