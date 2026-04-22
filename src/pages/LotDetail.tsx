@@ -30,10 +30,11 @@ const LotDetail = () => {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isInCart, addToCart } = useCart();
   const { profile, user } = useAuth();
-  const { hasBuyerPrefs, loading: prefsLoading } = useBuyerPrefs();
+  const { hasBuyerPrefs, isVerifiedPro, loading: prefsLoading } = useBuyerPrefs();
   const [activeImage, setActiveImage] = useState(0);
   const [selectedProductImage, setSelectedProductImage] = useState<string | null>(null);
   const [showGate, setShowGate] = useState(false);
+  const [gateMode, setGateMode] = useState<"questionnaire" | "verifyPro">("questionnaire");
   const [showGuestGate, setShowGuestGate] = useState(false);
 
   const { data: lot, isLoading } = useQuery({
@@ -77,7 +78,9 @@ const LotDetail = () => {
     staleTime: 60_000,
   });
   const isFilteredLot = sellerPrefs?.visibility_mode === "filtered";
+  // For filtered lots: buyer must (a) have completed questionnaire AND (b) be a verified pro (Level 2).
   const requiresPrefs = isFilteredLot && !!user && !prefsLoading && !hasBuyerPrefs;
+  const requiresVerifiedPro = isFilteredLot && !!user && !prefsLoading && hasBuyerPrefs && !isVerifiedPro;
 
   // Phase 6: shipping reachability check (lot.price >= 11 × real shipping cost)
   const { country: buyerCountry } = useBuyerShippingCountry();
@@ -178,6 +181,12 @@ const LotDetail = () => {
       return;
     }
     if (requiresPrefs) {
+      setGateMode("questionnaire");
+      setShowGate(true);
+      return;
+    }
+    if (requiresVerifiedPro) {
+      setGateMode("verifyPro");
       setShowGate(true);
       return;
     }
@@ -191,6 +200,12 @@ const LotDetail = () => {
       return;
     }
     if (requiresPrefs) {
+      setGateMode("questionnaire");
+      setShowGate(true);
+      return;
+    }
+    if (requiresVerifiedPro) {
+      setGateMode("verifyPro");
       setShowGate(true);
       return;
     }
@@ -440,7 +455,9 @@ const LotDetail = () => {
 
                 {isFilteredLot && (
                   <p className="text-[10px] text-muted-foreground italic text-center mt-2">
-                    {t("lotDetail.filteredHint", "Lot privé : profil acheteur requis pour commander ou contacter le vendeur.")}
+                    {requiresVerifiedPro
+                      ? t("lotDetail.filteredHintVerified", "Lot privé : réservé aux acheteurs vérifiés. Vérifiez votre activité dans votre profil pour y accéder.")
+                      : t("lotDetail.filteredHint", "Lot privé : profil acheteur requis pour commander ou contacter le vendeur.")}
                   </p>
                 )}
               </div>
@@ -525,11 +542,7 @@ const LotDetail = () => {
       <BuyerPrefsGate
         open={showGate}
         onClose={() => setShowGate(false)}
-        title={t("buyerGate.privateTitle", "Lot privé — profil acheteur requis")}
-        description={t(
-          "buyerGate.privateDescription",
-          "Ce vendeur réserve l'accès aux acheteurs vérifiés. Complétez votre profil acheteur en quelques minutes pour commander ou échanger avec lui."
-        )}
+        mode={gateMode}
         returnTo={typeof window !== "undefined" ? window.location.pathname : undefined}
       />
 

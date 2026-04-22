@@ -31,6 +31,14 @@ export type Database = {
           genders: string[] | null
           id: string
           info_certified: boolean | null
+          kyb_documents: string[] | null
+          kyb_extracted_data: Json | null
+          kyb_rejection_reason: string | null
+          kyb_status: string
+          kyb_storefront_url: string | null
+          kyb_submitted_at: string | null
+          kyb_trust_score: number | null
+          kyb_vat_number: string | null
           marketing_consent: boolean | null
           perfect_lot: string | null
           pieces_per_lot: string | null
@@ -72,6 +80,14 @@ export type Database = {
           genders?: string[] | null
           id?: string
           info_certified?: boolean | null
+          kyb_documents?: string[] | null
+          kyb_extracted_data?: Json | null
+          kyb_rejection_reason?: string | null
+          kyb_status?: string
+          kyb_storefront_url?: string | null
+          kyb_submitted_at?: string | null
+          kyb_trust_score?: number | null
+          kyb_vat_number?: string | null
           marketing_consent?: boolean | null
           perfect_lot?: string | null
           pieces_per_lot?: string | null
@@ -113,6 +129,14 @@ export type Database = {
           genders?: string[] | null
           id?: string
           info_certified?: boolean | null
+          kyb_documents?: string[] | null
+          kyb_extracted_data?: Json | null
+          kyb_rejection_reason?: string | null
+          kyb_status?: string
+          kyb_storefront_url?: string | null
+          kyb_submitted_at?: string | null
+          kyb_trust_score?: number | null
+          kyb_vat_number?: string | null
           marketing_consent?: boolean | null
           perfect_lot?: string | null
           pieces_per_lot?: string | null
@@ -572,6 +596,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          buyer_access_level: number
           company_description: string | null
           company_name: string | null
           created_at: string
@@ -586,6 +611,7 @@ export type Database = {
           user_type: Database["public"]["Enums"]["user_type"]
         }
         Insert: {
+          buyer_access_level?: number
           company_description?: string | null
           company_name?: string | null
           created_at?: string
@@ -600,6 +626,7 @@ export type Database = {
           user_type?: Database["public"]["Enums"]["user_type"]
         }
         Update: {
+          buyer_access_level?: number
           company_description?: string | null
           company_name?: string | null
           created_at?: string
@@ -986,6 +1013,7 @@ export type Database = {
       get_my_full_profile: {
         Args: never
         Returns: {
+          buyer_access_level: number
           company_description: string | null
           company_name: string | null
           created_at: string
