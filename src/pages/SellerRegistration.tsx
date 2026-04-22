@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import LegalFooter from "@/components/LegalFooter";
 
 const STORAGE_KEY = "vary_seller_reg_draft";
-const EU_COUNTRIES = ["France","Belgique","Allemagne","Espagne","Italie","Pays-Bas","Portugal","Royaume-Uni","Pologne","Roumanie","Suède","Autriche","Grèce","Tchéquie","Danemark","Irlande","Hongrie","Croatie","Bulgarie","Finlande","Slovaquie","Lituanie","Lettonie","Slovénie","Estonie","Chypre","Luxembourg","Malte"];
+const EU_COUNTRIES = ["Allemagne","Autriche","Belgique","Bulgarie","Croatie","Danemark","Espagne","Estonie","Finlande","France","Grèce","Hongrie","Italie","Lettonie","Lituanie","Luxembourg","Pays-Bas","Pologne","Portugal","République tchèque","Roumanie","Slovaquie","Slovénie","Suède"];
 const CATEGORIES = ["Vêtements", "Sneakers", "Accessoires"];
 const BUSINESS_TYPES = ["brand","wholesaler","distributor","liquidator","marketplace_seller","other"];
 

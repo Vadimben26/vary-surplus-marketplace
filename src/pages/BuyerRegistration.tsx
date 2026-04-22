@@ -18,11 +18,10 @@ import LegalFooter from "@/components/LegalFooter";
 const STORAGE_KEY = "vary_buyer_reg_draft";
 
 const EU_COUNTRIES = [
-  "France", "Allemagne", "Espagne", "Italie", "Belgique", "Pays-Bas",
-  "Portugal", "Autriche", "Pologne", "Suède", "Danemark", "Irlande",
-  "Grèce", "Roumanie", "Hongrie", "Croatie", "Bulgarie", "Slovaquie",
-  "Slovénie", "Finlande", "Lituanie", "Lettonie", "Estonie", "Luxembourg",
-  "Malte", "Chypre", "République tchèque", "Royaume-Uni", "Suisse",
+  "Allemagne", "Autriche", "Belgique", "Bulgarie", "Croatie", "Danemark",
+  "Espagne", "Estonie", "Finlande", "France", "Grèce", "Hongrie",
+  "Italie", "Lettonie", "Lituanie", "Luxembourg", "Pays-Bas", "Pologne",
+  "Portugal", "République tchèque", "Roumanie", "Slovaquie", "Slovénie", "Suède",
 ];
 
 const CATEGORY_KEYS = ["clothing", "sneakers", "accessories"] as const;
