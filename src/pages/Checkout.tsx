@@ -91,6 +91,14 @@ const Checkout = () => {
     }
 
     if (!prefsLoading && !hasBuyerPrefs) {
+      setGateMode("questionnaire");
+      setShowGate(true);
+      return;
+    }
+
+    // Filtered lots require Level 2 verified pro.
+    if (!prefsLoading && isFilteredLot && !isVerifiedPro) {
+      setGateMode("verifyPro");
       setShowGate(true);
       return;
     }
