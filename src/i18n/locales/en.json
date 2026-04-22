@@ -502,6 +502,7 @@
   "sellerDashboard": {
     "title": "Seller dashboard",
     "subtitle": "Manage your lots and track your performance",
+    "newOrderToast": "🎉 New order received!",
     "addLot": "Add a lot",
     "activeLots": "Active lots",
     "totalFavorites": "Favorites",
@@ -926,7 +927,9 @@
       "noRecentSellers": "No recent sellers.",
       "openDisputesTitle": "Recent open disputes",
       "noOpenDisputes": "No open disputes.",
-      "resolve": "Resolve"
+      "resolve": "Resolve",
+      "registrationsChart": "Seller registrations — 30 days",
+      "ordersChart": "Orders — 30 days"
     },
     "sellers": {
       "title": "Sellers",

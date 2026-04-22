@@ -125,6 +125,31 @@ const SellerDashboard = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Realtime: notify seller of new orders on their lots
+  useEffect(() => {
+    if (!profile?.id) return;
+    const channel = supabase
+      .channel("seller-new-orders")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "orders",
+          filter: `seller_id=eq.${profile.id}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["seller-lots"] });
+          toast.success(t("sellerDashboard.newOrderToast"), { duration: 6000 });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id, queryClient, t]);
+
   // Form state
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");

@@ -502,6 +502,7 @@
   "sellerDashboard": {
     "title": "Espace vendeur",
     "subtitle": "Gérez vos lots et suivez vos performances",
+    "newOrderToast": "🎉 Nouvelle commande reçue !",
     "addLot": "Ajouter un lot",
     "activeLots": "Lots actifs",
     "totalFavorites": "Favoris",
@@ -926,7 +927,9 @@
       "noRecentSellers": "Aucun vendeur récent.",
       "openDisputesTitle": "Litiges ouverts récents",
       "noOpenDisputes": "Aucun litige ouvert.",
-      "resolve": "Résoudre"
+      "resolve": "Résoudre",
+      "registrationsChart": "Inscriptions vendeurs — 30 j",
+      "ordersChart": "Commandes — 30 j"
     },
     "sellers": {
       "title": "Vendeurs",

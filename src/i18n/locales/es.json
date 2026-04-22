@@ -502,6 +502,7 @@
   "sellerDashboard": {
     "title": "Panel del vendedor",
     "subtitle": "Gestiona tus lotes y sigue tu rendimiento",
+    "newOrderToast": "🎉 ¡Nuevo pedido recibido!",
     "addLot": "Añadir un lote",
     "activeLots": "Lotes activos",
     "totalFavorites": "Favoritos",
@@ -926,7 +927,9 @@
       "noRecentSellers": "No hay vendedores recientes.",
       "openDisputesTitle": "Disputas abiertas recientes",
       "noOpenDisputes": "No hay disputas abiertas.",
-      "resolve": "Resolver"
+      "resolve": "Resolver",
+      "registrationsChart": "Registros de vendedores — 30 días",
+      "ordersChart": "Pedidos — 30 días"
     },
     "sellers": {
       "title": "Vendedores",
