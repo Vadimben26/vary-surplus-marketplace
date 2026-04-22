@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, User, Package, Clock, CheckCircle, Edit2, Save, X, Building2, Truck, AlertTriangle, MessageCircle, Settings2, Bell } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import KybUpgradeCard from "@/components/buyer/KybUpgradeCard";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,6 +31,8 @@ const Profile = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const verifyParam = searchParams.get("verify") === "1";
   const { user, profile, canAccessSeller, canAccessBuyer, updateProfile } = useAuth();
   const isSeller = canAccessSeller();
   const isBuyer = canAccessBuyer();
@@ -279,6 +282,10 @@ const Profile = () => {
                 </>
               )}
             </div>
+
+            {isBuyer && buyerPrefs && (
+              <KybUpgradeCard defaultOpen={verifyParam} />
+            )}
 
             {isBuyer && buyerPrefs && (
               <div className="bg-card rounded-2xl border border-border p-6">
