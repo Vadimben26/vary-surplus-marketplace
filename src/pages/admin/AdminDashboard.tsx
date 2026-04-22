@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, Package, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 import AdminLayout from "./AdminLayout";
 
 interface Metrics {
@@ -44,6 +45,8 @@ export default function AdminDashboard() {
   });
   const [recentSellers, setRecentSellers] = useState<RecentSeller[]>([]);
   const [openDisputes, setOpenDisputes] = useState<OpenDispute[]>([]);
+  const [registrationData, setRegistrationData] = useState<{ date: string; count: number }[]>([]);
+  const [ordersData, setOrdersData] = useState<{ date: string; count: number }[]>([]);
 
   const localeMap: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES" };
   const dateLocale = localeMap[i18n.language] || "fr-FR";
@@ -157,9 +160,40 @@ export default function AdminDashboard() {
       } else {
         setOpenDisputes([]);
       }
+
+      // 30-day analytics
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const [{ data: recentProfiles }, { data: recentOrders }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("created_at")
+          .in("user_type", ["seller", "both"])
+          .gte("created_at", thirtyDaysAgo)
+          .order("created_at"),
+        supabase
+          .from("orders")
+          .select("created_at")
+          .gte("created_at", thirtyDaysAgo)
+          .order("created_at"),
+      ]);
+
+      const groupByDay = (rows: { created_at: string }[] | null) => {
+        const byDay: Record<string, number> = {};
+        (rows || []).forEach((p) => {
+          const d = new Date(p.created_at).toLocaleDateString(dateLocale, {
+            day: "2-digit",
+            month: "2-digit",
+          });
+          byDay[d] = (byDay[d] || 0) + 1;
+        });
+        return Object.entries(byDay).map(([date, count]) => ({ date, count }));
+      };
+
+      setRegistrationData(groupByDay(recentProfiles as any));
+      setOrdersData(groupByDay(recentOrders as any));
     };
     load();
-  }, []);
+  }, [dateLocale]);
 
   return (
     <AdminLayout>
@@ -272,6 +306,52 @@ export default function AdminDashboard() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold">
+              {t("admin.dashboard.registrationsChart")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={registrationData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                <Tooltip />
+                <Area
+                  type="monotone"
+                  dataKey="count"
+                  stroke="hsl(var(--primary))"
+                  fill="hsl(var(--primary) / 0.15)"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold">
+              {t("admin.dashboard.ordersChart")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={ordersData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                <Tooltip />
+                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
