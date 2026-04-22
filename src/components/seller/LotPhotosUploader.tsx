@@ -66,20 +66,20 @@ export default function LotPhotosUploader({ lotId, sellerProfileId, state, onCha
     const isVideo = file.type.startsWith("video/");
 
     if (isVideo && !meta.allowVideo) {
-      toast.error("Cet emplacement n'accepte que des photos.");
+      toast.error(t("lotPhotos.errorPhotoOnly"));
       return;
     }
     if (isVideo && !VIDEO_MIME.includes(file.type)) {
-      toast.error("Format vidéo non accepté (mp4, mov).");
+      toast.error(t("lotPhotos.errorVideoFormat"));
       return;
     }
     if (!isVideo && !PHOTO_MIME.includes(file.type)) {
-      toast.error("Format photo non accepté (jpg, png, webp).");
+      toast.error(t("lotPhotos.errorPhotoFormat"));
       return;
     }
     const limit = isVideo ? MAX_VIDEO_BYTES : MAX_PHOTO_BYTES;
     if (file.size > limit) {
-      toast.error(isVideo ? "Vidéo trop lourde (max 100MB)." : "Photo trop lourde (max 10MB).");
+      toast.error(isVideo ? t("lotPhotos.errorVideoSize") : t("lotPhotos.errorPhotoSize"));
       return;
     }
 
@@ -186,6 +186,7 @@ function SlotCard({
   onFile: (file: File) => void;
   onRemove: () => void;
 }) {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const meta = SLOT_META[slotNumber];
 
@@ -200,8 +201,8 @@ function SlotCard({
   };
 
   const isMissing = meta.isRequired && !value;
-  const label = SLOT_LABELS[slotNumber];
-  const desc = SLOT_DESCS[slotNumber];
+  const label = t(`lotPhotos.slot${slotNumber}.label`);
+  const desc = t(`lotPhotos.slot${slotNumber}.desc`);
 
   return (
     <div
