@@ -196,7 +196,9 @@
     },
     "errorFileTooLarge": "Fichier trop volumineux (max 10 Mo)",
     "errorUpload": "Erreur lors du téléversement",
-    "errorRegistration": "Erreur lors de l'inscription"
+    "errorRegistration": "Erreur lors de l'inscription",
+    "editTitle": "Mettre à jour mes préférences",
+    "editSubtitle": "Modifiez vos informations et préférences acheteur."
   },
   "sellerReg": {
     "title": "Détails du profil vendeur",
@@ -494,7 +496,8 @@
     "prefTargetCountries": "Pays ciblés",
     "prefVisibility": "Visibilité",
     "prefSaveSuccess": "Préférences mises à jour",
-    "prefSaveError": "Erreur lors de la sauvegarde des préférences"
+    "prefSaveError": "Erreur lors de la sauvegarde des préférences",
+    "editPreferences": "Modifier mes préférences"
   },
   "sellerDashboard": {
     "title": "Espace vendeur",
@@ -1090,5 +1093,10 @@
     "reviewCount": "{{count}} avis",
     "reviewsTitle": "Avis acheteurs ({{count}})",
     "noReviews": "Aucun avis pour le moment."
+  },
+  "checkout": {
+    "multiLotNotice": "Votre panier contient {{count}} lots. Chaque lot est payé séparément — les vendeurs sont différents. Vous serez redirigé pour chaque paiement.",
+    "payLot": "Payer le lot 1 / {{total}}",
+    "pay": "Payer"
   }
 }
