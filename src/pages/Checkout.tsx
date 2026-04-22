@@ -23,11 +23,12 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems } = useCart();
   const { user, profile } = useAuth();
-  const { hasBuyerPrefs, loading: prefsLoading } = useBuyerPrefs();
+  const { hasBuyerPrefs, isVerifiedPro, loading: prefsLoading } = useBuyerPrefs();
   const { country: buyerCountry } = useBuyerShippingCountry();
   const { data: shippingMatrix } = useShippingMatrix();
   const [loadingLotId, setLoadingLotId] = useState<string | null>(null);
   const [showGate, setShowGate] = useState(false);
+  const [gateMode, setGateMode] = useState<"questionnaire" | "verifyPro">("questionnaire");
 
   const { data: cartLots = [] } = useQuery({
     queryKey: ["checkout-lots", cartItems],
