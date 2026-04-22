@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBuyerPrefs } from "@/hooks/useBuyerPrefs";

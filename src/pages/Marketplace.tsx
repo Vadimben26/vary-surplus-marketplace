@@ -16,10 +16,17 @@ import { useBuyerShippingCountry } from "@/hooks/useBuyerShippingCountry";
 import { useBuyerMatching } from "@/hooks/useBuyerMatching";
 import { sortLotsByMatch } from "@/lib/buyerMatching";
 import { computeShippingCost, FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE } from "@/lib/shipping";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const Marketplace = () => {
   const { t } = useTranslation();
   const { profile } = useAuth();
+
+  usePageMeta({
+    title: "Marketplace — Lots de déstock vérifiés",
+    description:
+      "Achetez des surplus neufs en lots : vêtements, sneakers, accessoires. Vendeurs vérifiés, paiement en escrow, transport intégré.",
+  });
   const [filters, setFilters] = useState<B2BFilters>(DEFAULT_FILTERS);
 
   // Fetch lots WITH lot_items to compute retail value / discount
