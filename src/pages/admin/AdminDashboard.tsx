@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, Package, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 import AdminLayout from "./AdminLayout";
 
 interface Metrics {
@@ -44,6 +45,8 @@ export default function AdminDashboard() {
   });
   const [recentSellers, setRecentSellers] = useState<RecentSeller[]>([]);
   const [openDisputes, setOpenDisputes] = useState<OpenDispute[]>([]);
+  const [registrationData, setRegistrationData] = useState<{ date: string; count: number }[]>([]);
+  const [ordersData, setOrdersData] = useState<{ date: string; count: number }[]>([]);
 
   const localeMap: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES" };
   const dateLocale = localeMap[i18n.language] || "fr-FR";
