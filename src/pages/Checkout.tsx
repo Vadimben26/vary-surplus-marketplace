@@ -36,7 +36,7 @@ const Checkout = () => {
       if (cartItems.length === 0) return [];
       const { data } = await supabase
         .from("lots")
-        .select("*")
+        .select("*, profiles!lots_seller_id_fkey(user_id)")
         .in("id", cartItems)
         .eq("status", "active");
       return data || [];
@@ -46,6 +46,24 @@ const Checkout = () => {
   // Single-lot checkout: we pay one lot at a time. Keep the first lot as
   // "selected" for the right-hand summary panel.
   const selectedLot = cartLots[0];
+
+  // Check if the selected lot's seller uses filtered visibility (Level 2 required).
+  const selectedSellerUserId = (selectedLot?.profiles as any)?.user_id ?? null;
+  const { data: selectedSellerPrefs } = useQuery({
+    queryKey: ["checkout-seller-visibility", selectedSellerUserId],
+    queryFn: async () => {
+      if (!selectedSellerUserId) return null;
+      const { data } = await supabase
+        .from("seller_preferences")
+        .select("visibility_mode")
+        .eq("user_id", selectedSellerUserId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!selectedSellerUserId,
+    staleTime: 60_000,
+  });
+  const isFilteredLot = selectedSellerPrefs?.visibility_mode === "filtered";
 
   const shippingCost = (() => {
     if (!selectedLot || !shippingMatrix || !buyerCountry) return 0;
