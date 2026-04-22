@@ -13,7 +13,6 @@ import BottomNav from "@/components/BottomNav";
 import BuyerPrefsGate from "@/components/BuyerPrefsGate";
 import { Link } from "react-router-dom";
 import MessageTemplates from "@/components/messages/MessageTemplates";
-import { useTranslation } from "react-i18next";
 
 interface Message {
   id: string;
