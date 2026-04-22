@@ -196,7 +196,9 @@
     },
     "errorFileTooLarge": "File too large (max 10 MB)",
     "errorUpload": "Upload error",
-    "errorRegistration": "Registration error"
+    "errorRegistration": "Registration error",
+    "editTitle": "Update my preferences",
+    "editSubtitle": "Edit your buyer information and preferences."
   },
   "sellerReg": {
     "title": "Seller profile details",
@@ -494,7 +496,8 @@
     "prefTargetCountries": "Target countries",
     "prefVisibility": "Visibility",
     "prefSaveSuccess": "Preferences updated",
-    "prefSaveError": "Error saving preferences"
+    "prefSaveError": "Error saving preferences",
+    "editPreferences": "Edit my preferences"
   },
   "sellerDashboard": {
     "title": "Seller dashboard",
@@ -1090,5 +1093,10 @@
     "reviewCount": "{{count}} review(s)",
     "reviewsTitle": "Buyer reviews ({{count}})",
     "noReviews": "No reviews yet."
+  },
+  "checkout": {
+    "multiLotNotice": "Your cart has {{count}} lots. Each lot is paid separately as sellers differ. You'll be redirected for each payment.",
+    "payLot": "Pay lot 1 / {{total}}",
+    "pay": "Pay"
   }
 }

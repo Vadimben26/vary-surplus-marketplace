@@ -196,7 +196,9 @@
     },
     "errorFileTooLarge": "Archivo demasiado grande (máx 10 MB)",
     "errorUpload": "Error de carga",
-    "errorRegistration": "Error de registro"
+    "errorRegistration": "Error de registro",
+    "editTitle": "Actualizar mis preferencias",
+    "editSubtitle": "Edita tu información y preferencias de comprador."
   },
   "sellerReg": {
     "title": "Detalles del perfil vendedor",
@@ -494,7 +496,8 @@
     "prefTargetCountries": "Países objetivo",
     "prefVisibility": "Visibilidad",
     "prefSaveSuccess": "Preferencias actualizadas",
-    "prefSaveError": "Error al guardar las preferencias"
+    "prefSaveError": "Error al guardar las preferencias",
+    "editPreferences": "Editar mis preferencias"
   },
   "sellerDashboard": {
     "title": "Panel del vendedor",
@@ -1090,5 +1093,10 @@
     "reviewCount": "{{count}} valoración(es)",
     "reviewsTitle": "Valoraciones de compradores ({{count}})",
     "noReviews": "Aún no hay valoraciones."
+  },
+  "checkout": {
+    "multiLotNotice": "Tu carrito tiene {{count}} lotes. Cada lote se paga por separado. Serás redirigido para cada pago.",
+    "payLot": "Pagar lote 1 / {{total}}",
+    "pay": "Pagar"
   }
 }

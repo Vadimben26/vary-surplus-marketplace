@@ -327,10 +327,19 @@ const Profile = () => {
                 {/* Buyer preferences */}
                 {buyerPrefs && (
                   <div className="bg-card rounded-2xl border border-border p-6">
-                    <h3 className="font-heading font-semibold text-foreground mb-4 flex items-center gap-2">
-                      <Package className="h-4 w-4 text-primary" />
-                      {t("profile.buyerType")}
-                    </h3>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-heading font-semibold text-foreground flex items-center gap-2">
+                        <Package className="h-4 w-4 text-primary" />
+                        {t("profile.buyerType")}
+                      </h3>
+                      <Link
+                        to="/inscription/acheteur?edit=true"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                        {t("profile.editPreferences")}
+                      </Link>
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <PrefField label={t("profile.prefCategories")} value={buyerPrefs.categories} />
                       <PrefField label={t("profile.prefBudget")} value={buyerPrefs.budget} />
@@ -355,10 +364,19 @@ const Profile = () => {
                 {/* Seller preferences */}
                 {sellerPrefs && (
                   <div className="bg-card rounded-2xl border border-border p-6">
-                    <h3 className="font-heading font-semibold text-foreground mb-4 flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-primary" />
-                      {t("profile.sellerType")}
-                    </h3>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-heading font-semibold text-foreground flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-primary" />
+                        {t("profile.sellerType")}
+                      </h3>
+                      <Link
+                        to="/inscription/vendeur?edit=true"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                        {t("profile.editPreferences")}
+                      </Link>
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <PrefField label={t("profile.prefCategories")} value={sellerPrefs.categories} />
                       <PrefField label={t("profile.prefBusinessType")} value={sellerPrefs.business_type} />

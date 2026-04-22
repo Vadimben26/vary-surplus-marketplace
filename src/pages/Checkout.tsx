@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShoppingCart, CreditCard, Shield, Loader2, Truck, Sparkles } from "lucide-react";
+import { ShoppingCart, CreditCard, Shield, Loader2, Truck, Sparkles, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
@@ -165,6 +165,14 @@ const Checkout = () => {
             </div>
 
             <div className="bg-card rounded-2xl border border-border p-6 h-fit md:sticky md:top-20 space-y-4">
+              {cartLots.length > 1 && (
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm text-foreground">
+                  <Info className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>
+                    {t("checkout.multiLotNotice", { count: cartLots.length })}
+                  </span>
+                </div>
+              )}
               <h3 className="font-heading font-semibold text-foreground">
                 {t("cart.summary")}
               </h3>
@@ -238,7 +246,9 @@ const Checkout = () => {
                     ) : (
                       <CreditCard className="h-4 w-4" />
                     )}
-                    {t("checkout.payNow")} — {fmt(preview.buyerTotal)} €
+                    {cartLots.length > 1
+                      ? t("checkout.payLot", { total: cartLots.length })
+                      : t("checkout.payNow")} — {fmt(preview.buyerTotal)} €
                   </button>
 
                   <div className="flex items-start gap-2 p-3 bg-muted/40 rounded-xl">

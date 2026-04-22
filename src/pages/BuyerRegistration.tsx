@@ -69,6 +69,7 @@ const BuyerRegistration = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("return") || "/marketplace";
+  const isEditMode = searchParams.get("edit") === "true";
   const { signUp, user, profile, updateProfile } = useAuth();
   const queryClient = useQueryClient();
 
@@ -84,8 +85,9 @@ const BuyerRegistration = () => {
   const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load draft
+  // Load draft (skip in edit mode — DB data takes precedence)
   useEffect(() => {
+    if (isEditMode) return;
     try {
       const draft = localStorage.getItem(STORAGE_KEY);
       if (draft) {
@@ -93,7 +95,47 @@ const BuyerRegistration = () => {
         setForm(prev => ({ ...prev, ...parsed }));
       }
     } catch { /* ignore */ }
-  }, []);
+  }, [isEditMode]);
+
+  // Edit mode: prefill from DB buyer_preferences
+  useEffect(() => {
+    if (!isEditMode || !user?.id) return;
+    (async () => {
+      const { data } = await supabase
+        .from("buyer_preferences")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!data) return;
+      const nameParts = (profile?.full_name || "").split(" ");
+      setForm(prev => ({
+        ...prev,
+        firstName: nameParts[0] || prev.firstName,
+        lastName: nameParts.slice(1).join(" ") || prev.lastName,
+        email: user.email || prev.email,
+        phone: profile?.phone || prev.phone,
+        billingAddress1: data.address || "",
+        billingAddress2: data.billing_address_line2 || "",
+        billingCity: data.city || "",
+        billingPostalCode: data.postal_code || "",
+        billingCountry: data.country || "France",
+        sameShipping: data.same_shipping_address ?? true,
+        shippingAddress1: data.shipping_address_line1 || "",
+        shippingAddress2: data.shipping_address_line2 || "",
+        shippingCity: data.shipping_city || "",
+        shippingPostalCode: data.shipping_postal_code || "",
+        shippingCountry: data.shipping_country || "France",
+        categories: data.categories || [],
+        deliveryCountries: data.delivery_countries || [],
+        annualRevenue: data.annual_revenue || "none",
+        termsAccepted: data.terms_accepted ?? false,
+        infoCertified: data.info_certified ?? false,
+        alertsConsent: data.alerts_consent ?? false,
+      }));
+      if (data.revenue_document_url) setDocUrl(data.revenue_document_url);
+    })();
+  }, [isEditMode, user?.id, profile?.full_name, profile?.phone]);
+
 
   // Prefill from auth
   useEffect(() => {
@@ -433,8 +475,8 @@ const BuyerRegistration = () => {
             >
               {/* Title */}
               <div>
-                <h1 className="text-2xl font-bold text-foreground">{t("buyerReg.title")}</h1>
-                <p className="text-muted-foreground mt-1">{t("buyerReg.subtitle")}</p>
+                <h1 className="text-2xl font-bold text-foreground">{isEditMode ? t("buyerReg.editTitle") : t("buyerReg.title")}</h1>
+                <p className="text-muted-foreground mt-1">{isEditMode ? t("buyerReg.editSubtitle") : t("buyerReg.subtitle")}</p>
               </div>
 
               {/* Personal info */}
