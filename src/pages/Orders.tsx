@@ -404,13 +404,13 @@ const Orders = () => {
                           <AlertTriangle className="h-4 w-4 text-amber-700 flex-shrink-0 mt-0.5" />
                           <div className="min-w-0">
                             <p className="text-xs font-bold text-amber-800">
-                              Le transporteur a livré votre commande — vérifiez l'état du lot
+                              {t("buyerTracking.deliveredBanner")}
                             </p>
                             <p className="text-[11px] text-amber-700 mt-0.5">
                               {order.delivered_at ? (
                                 <DisputeCountdown deliveredAt={order.delivered_at} />
                               ) : (
-                                "Vous avez 48h pour ouvrir un litige. Sans action, les fonds sont libérés au vendeur."
+                                t("buyerTracking.deliveredHint")
                               )}
                             </p>
                           </div>
@@ -424,14 +424,14 @@ const Orders = () => {
                           className="flex-1 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                           {confirmingId === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                          Valider le bon état — libérer les fonds
+                          {t("buyerTracking.confirmGood")}
                         </button>
                         <button
                           onClick={() => setDisputingId(order.id)}
                           className="flex-1 py-2.5 border border-destructive/40 text-destructive text-sm font-semibold rounded-xl hover:bg-destructive/5 transition-colors flex items-center justify-center gap-2"
                         >
                           <AlertTriangle className="h-4 w-4" />
-                          Ouvrir un litige
+                          {t("buyerTracking.openDispute")}
                         </button>
                       </div>
                     </div>
@@ -468,11 +468,11 @@ const Orders = () => {
                           <AlertTriangle className="h-4 w-4 text-amber-700 flex-shrink-0 mt-0.5" />
                           <div className="min-w-0">
                             <p className="text-xs font-bold text-amber-800">
-                              Litige en cours d'examen{dispute?.reason ? ` — ${dispute.reason}` : ""}
+                              {t("buyerTracking.disputeInReview")}{dispute?.reason ? ` — ${dispute.reason}` : ""}
                             </p>
                             <p className="text-[11px] text-amber-700 mt-0.5">
-                              Les fonds sont retenus en escrow jusqu'à la résolution.
-                              {dispute?.opened_at && ` Ouvert le ${new Date(dispute.opened_at).toLocaleString("fr-FR")}.`}
+                              {t("buyerTracking.disputeFundsHeld")}
+                              {dispute?.opened_at && ` ${t("buyerTracking.disputeOpenedOn", { date: new Date(dispute.opened_at).toLocaleString() })}`}
                             </p>
                           </div>
                         </div>
@@ -483,15 +483,15 @@ const Orders = () => {
                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
                       >
                         <MessageCircle className="h-3 w-3" />
-                        Contacter le vendeur
+                        {t("buyerTracking.contactSeller")}
                       </button>
                     </div>
                   )}
 
                   {activeTab === "disputes" && order.status === "refunded" && (
                     <div className="mt-3 rounded-xl bg-muted/50 border border-border p-3">
-                      <p className="text-xs font-semibold text-foreground">Commande remboursée</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">Les fonds vous ont été restitués.</p>
+                      <p className="text-xs font-semibold text-foreground">{t("buyerTracking.refundedTitle")}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{t("buyerTracking.refundedDesc")}</p>
                     </div>
                   )}
                 </motion.div>
