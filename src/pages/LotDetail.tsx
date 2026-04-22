@@ -455,7 +455,9 @@ const LotDetail = () => {
 
                 {isFilteredLot && (
                   <p className="text-[10px] text-muted-foreground italic text-center mt-2">
-                    {t("lotDetail.filteredHint", "Lot privé : profil acheteur requis pour commander ou contacter le vendeur.")}
+                    {requiresVerifiedPro
+                      ? t("lotDetail.filteredHintVerified", "Lot privé : réservé aux acheteurs vérifiés. Vérifiez votre activité dans votre profil pour y accéder.")
+                      : t("lotDetail.filteredHint", "Lot privé : profil acheteur requis pour commander ou contacter le vendeur.")}
                   </p>
                 )}
               </div>
