@@ -228,8 +228,57 @@ const Messages = () => {
     });
   }, [conversationMessages, profile?.id]);
 
+  // When the buyer chats with a seller using filtered visibility, require Level 2.
+  // We only gate when the current user acts as a buyer (not when the seller replies).
+  const { data: recipientSellerInfo } = useQuery({
+    queryKey: ["recipient-seller-visibility", selectedConversation],
+    queryFn: async () => {
+      if (!selectedConversation) return null;
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("user_id, user_type")
+        .eq("id", selectedConversation)
+        .maybeSingle();
+      if (!prof?.user_id) return null;
+      const isSellerProfile =
+        prof.user_type === "seller" || prof.user_type === "both";
+      if (!isSellerProfile) return { visibility_mode: null, isSeller: false };
+      const { data: prefs } = await supabase
+        .from("seller_preferences")
+        .select("visibility_mode")
+        .eq("user_id", prof.user_id)
+        .maybeSingle();
+      return {
+        visibility_mode: prefs?.visibility_mode ?? null,
+        isSeller: true,
+      };
+    },
+    enabled: !!selectedConversation,
+    staleTime: 60_000,
+  });
+
+  const recipientIsFilteredSeller =
+    !!recipientSellerInfo?.isSeller &&
+    recipientSellerInfo.visibility_mode === "filtered";
+
   const handleSend = async () => {
     if (!newMessage.trim() || !selectedConversation || !profile?.id || sending) return;
+
+    // Only gate the buyer side. If the current user is acting as a seller in
+    // this thread, never block them from replying.
+    if (!actingAsSeller && recipientIsFilteredSeller && !prefsLoading) {
+      if (!hasBuyerPrefs) {
+        setGateMode("questionnaire");
+        setShowGate(true);
+        return;
+      }
+      if (!isVerifiedPro) {
+        setGateMode("verifyPro");
+        setShowGate(true);
+        return;
+      }
+    }
+
     setSending(true);
     try {
       const { error } = await supabase.from("messages").insert({
