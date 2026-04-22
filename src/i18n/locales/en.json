@@ -193,7 +193,10 @@
       "category": "Select at least one category",
       "terms": "You must accept the terms",
       "certified": "You must certify your information"
-    }
+    },
+    "errorFileTooLarge": "File too large (max 10 MB)",
+    "errorUpload": "Upload error",
+    "errorRegistration": "Registration error"
   },
   "sellerReg": {
     "title": "Seller profile details",
@@ -993,7 +996,9 @@
     },
     "orders": {
       "title": "Orders",
-      "tabs": { "all": "All" },
+      "tabs": {
+        "all": "All"
+      },
       "table": {
         "lot": "Lot",
         "buyer": "Buyer",
@@ -1080,5 +1085,10 @@
     "fileUnsupported": "{{name}}: unsupported format",
     "submittedToast": "Dispute opened. Our team will contact you within 48h.",
     "submitError": "Error opening the dispute"
+  },
+  "sellerProfile": {
+    "reviewCount": "{{count}} review(s)",
+    "reviewsTitle": "Buyer reviews ({{count}})",
+    "noReviews": "No reviews yet."
   }
 }

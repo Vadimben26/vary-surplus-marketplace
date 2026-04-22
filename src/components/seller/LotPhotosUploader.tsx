@@ -46,29 +46,6 @@ export function countRequiredFilled(state: LotPhotosState): number {
   return REQUIRED_SLOTS.filter((n) => state[n] !== null).length;
 }
 
-const SLOT_LABELS: Record<number, string> = {
-  1: "Palette de face",
-  2: "Vue du dessus",
-  3: "Étiquette palette",
-  4: "Carton ouvert",
-  5: "10 pièces à plat",
-  6: "Étiquettes / tags",
-  7: "Pièce star",
-  8: "Vidéo 30s",
-  9: "Répartition états",
-};
-
-const SLOT_DESCS: Record<number, string> = {
-  1: "Photo complète, palette posée au sol, fond neutre.",
-  2: "Depuis une hauteur, densité d'emballage visible.",
-  3: "Référence fournisseur, poids, nombre de colis.",
-  4: "1 carton ouvert, pièces en vrac. Représentatif du lot.",
-  5: "10 pièces au hasard sur fond neutre.",
-  6: "Photo nette des étiquettes sur 3-4 pièces.",
-  7: "Meilleure pièce du lot, sur cintre ou à plat.",
-  8: "mp4/mov, max 100MB.",
-  9: "Document de contrôle qualité ou tri visuel.",
-};
 
 interface Props {
   lotId: string;

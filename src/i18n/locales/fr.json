@@ -193,7 +193,10 @@
       "category": "Sélectionnez au moins une catégorie",
       "terms": "Vous devez accepter les conditions",
       "certified": "Vous devez certifier vos informations"
-    }
+    },
+    "errorFileTooLarge": "Fichier trop volumineux (max 10 Mo)",
+    "errorUpload": "Erreur lors du téléversement",
+    "errorRegistration": "Erreur lors de l'inscription"
   },
   "sellerReg": {
     "title": "Détails du profil vendeur",
@@ -993,7 +996,9 @@
     },
     "orders": {
       "title": "Commandes",
-      "tabs": { "all": "Toutes" },
+      "tabs": {
+        "all": "Toutes"
+      },
       "table": {
         "lot": "Lot",
         "buyer": "Acheteur",
@@ -1080,5 +1085,10 @@
     "fileUnsupported": "{{name}}: format non supporté",
     "submittedToast": "Litige ouvert. Notre équipe vous contactera sous 48h.",
     "submitError": "Erreur lors de l'ouverture du litige"
+  },
+  "sellerProfile": {
+    "reviewCount": "{{count}} avis",
+    "reviewsTitle": "Avis acheteurs ({{count}})",
+    "noReviews": "Aucun avis pour le moment."
   }
 }
