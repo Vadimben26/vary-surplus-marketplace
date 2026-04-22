@@ -502,6 +502,12 @@ const Messages = () => {
         </div>
       </div>
       <BottomNav />
+      <BuyerPrefsGate
+        open={showGate}
+        onClose={() => setShowGate(false)}
+        mode={gateMode}
+        returnTo={`/messages?with=${selectedConversation ?? ""}`}
+      />
     </div>
   );
 };
