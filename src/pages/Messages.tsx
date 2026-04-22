@@ -42,8 +42,11 @@ const Messages = () => {
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [translatedMessages, setTranslatedMessages] = useState<Record<string, string>>({});
+  const [showGate, setShowGate] = useState(false);
+  const [gateMode, setGateMode] = useState<"questionnaire" | "verifyPro">("questionnaire");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { translateMessage } = useTranslateMessage();
+  const { hasBuyerPrefs, isVerifiedPro, loading: prefsLoading } = useBuyerPrefs();
 
   const lotId = searchParams.get("lot") || null;
 
