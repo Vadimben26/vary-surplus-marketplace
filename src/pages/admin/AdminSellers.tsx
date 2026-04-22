@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -29,20 +30,14 @@ interface SellerRow {
   auth_document_url: string | null;
 }
 
-const statusBadge = (status: string) => {
-  if (status === "approved") return <Badge className="bg-green-600 hover:bg-green-700">Approuvé</Badge>;
-  if (status === "rejected") return <Badge variant="destructive">Rejeté</Badge>;
-  return <Badge className="bg-amber-500 hover:bg-amber-600">En attente</Badge>;
-};
-
 const getSignedUrl = async (bucket: string, path: string): Promise<string | null> => {
-  // path may already be a full URL
   if (path.startsWith("http")) return path;
   const { data } = await supabase.storage.from(bucket).createSignedUrl(path, 3600);
   return data?.signedUrl ?? null;
 };
 
 export default function AdminSellers() {
+  const { t, i18n } = useTranslation();
   const { profile } = useAuth();
   const [tab, setTab] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [sellers, setSellers] = useState<SellerRow[]>([]);
@@ -52,6 +47,17 @@ export default function AdminSellers() {
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectTarget, setRejectTarget] = useState<SellerRow | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+
+  const localeMap: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES" };
+  const dateLocale = localeMap[i18n.language] || "fr-FR";
+
+  const statusBadge = (status: string) => {
+    if (status === "approved")
+      return <Badge className="bg-green-600 hover:bg-green-700">{t("admin.status.approved")}</Badge>;
+    if (status === "rejected")
+      return <Badge variant="destructive">{t("admin.status.rejected")}</Badge>;
+    return <Badge className="bg-amber-500 hover:bg-amber-600">{t("admin.status.pending")}</Badge>;
+  };
 
   const load = async () => {
     setLoading(true);
@@ -108,10 +114,10 @@ export default function AdminSellers() {
       body: { sellerUserId: s.user_id },
     });
     if (error || (data as any)?.error) {
-      toast.error("Erreur lors de l'approbation");
+      toast.error(t("admin.sellers.approveError"));
       return;
     }
-    toast.success(`${s.company_name || s.full_name} approuvé — email envoyé`);
+    toast.success(t("admin.sellers.approvedToast", { name: s.company_name || s.full_name || "" }));
     load();
   };
 
@@ -124,7 +130,7 @@ export default function AdminSellers() {
   const confirmReject = async () => {
     if (!rejectTarget) return;
     if (!rejectReason.trim()) {
-      toast.error("Motif requis");
+      toast.error(t("admin.sellers.reasonRequired"));
       return;
     }
     const { error } = await (supabase.from("seller_preferences") as any)
@@ -138,10 +144,10 @@ export default function AdminSellers() {
       })
       .eq("user_id", rejectTarget.user_id);
     if (error) {
-      toast.error("Erreur lors du rejet");
+      toast.error(t("admin.sellers.rejectError"));
       return;
     }
-    toast.success("Vendeur rejeté");
+    toast.success(t("admin.sellers.rejected"));
     setRejectOpen(false);
     setRejectTarget(null);
     load();
@@ -149,14 +155,14 @@ export default function AdminSellers() {
 
   return (
     <AdminLayout>
-      <h1 className="text-3xl font-bold mb-6">Vendeurs</h1>
+      <h1 className="text-3xl font-bold mb-6">{t("admin.sellers.title")}</h1>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="mb-4">
         <TabsList>
-          <TabsTrigger value="all">Tous</TabsTrigger>
-          <TabsTrigger value="pending">En attente</TabsTrigger>
-          <TabsTrigger value="approved">Approuvés</TabsTrigger>
-          <TabsTrigger value="rejected">Rejetés</TabsTrigger>
+          <TabsTrigger value="all">{t("admin.sellers.tabs.all")}</TabsTrigger>
+          <TabsTrigger value="pending">{t("admin.sellers.tabs.pending")}</TabsTrigger>
+          <TabsTrigger value="approved">{t("admin.sellers.tabs.approved")}</TabsTrigger>
+          <TabsTrigger value="rejected">{t("admin.sellers.tabs.rejected")}</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -164,25 +170,25 @@ export default function AdminSellers() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Société</TableHead>
-              <TableHead>Nom</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Inscription</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t("admin.sellers.table.company")}</TableHead>
+              <TableHead>{t("admin.sellers.table.name")}</TableHead>
+              <TableHead>{t("admin.sellers.table.email")}</TableHead>
+              <TableHead>{t("admin.sellers.table.registration")}</TableHead>
+              <TableHead>{t("admin.sellers.table.status")}</TableHead>
+              <TableHead className="text-right">{t("admin.sellers.table.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  Chargement…
+                  {t("admin.loading")}
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  Aucun vendeur dans cette catégorie.
+                  {t("admin.sellers.empty")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -191,20 +197,20 @@ export default function AdminSellers() {
                   <TableCell className="font-medium">{s.company_name || "—"}</TableCell>
                   <TableCell>{s.full_name || "—"}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{s.email || "—"}</TableCell>
-                  <TableCell>{new Date(s.created_at).toLocaleDateString("fr-FR")}</TableCell>
+                  <TableCell>{new Date(s.created_at).toLocaleDateString(dateLocale)}</TableCell>
                   <TableCell>{statusBadge(s.validation_status)}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button size="sm" variant="outline" onClick={() => viewDocs(s)}>
-                      Voir documents
+                      {t("admin.sellers.viewDocs")}
                     </Button>
                     {s.validation_status !== "approved" && (
                       <Button size="sm" onClick={() => approve(s)}>
-                        Approuver
+                        {t("admin.sellers.approve")}
                       </Button>
                     )}
                     {s.validation_status !== "rejected" && (
                       <Button size="sm" variant="destructive" onClick={() => openReject(s)}>
-                        Rejeter
+                        {t("admin.sellers.reject")}
                       </Button>
                     )}
                   </TableCell>
@@ -218,7 +224,7 @@ export default function AdminSellers() {
       <Dialog open={docsOpen} onOpenChange={setDocsOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Documents du vendeur</DialogTitle>
+            <DialogTitle>{t("admin.sellers.docsTitle")}</DialogTitle>
           </DialogHeader>
           {docsUrls?.company || docsUrls?.auth ? (
             <div className="space-y-3">
@@ -229,7 +235,7 @@ export default function AdminSellers() {
                   rel="noreferrer"
                   className="block p-3 border rounded-md hover:bg-accent"
                 >
-                  📄 Document société (Kbis / extrait)
+                  {t("admin.sellers.docsCompany")}
                 </a>
               )}
               {docsUrls?.auth && (
@@ -239,12 +245,12 @@ export default function AdminSellers() {
                   rel="noreferrer"
                   className="block p-3 border rounded-md hover:bg-accent"
                 >
-                  📄 Document d'authenticité (autorisation marque)
+                  {t("admin.sellers.docsAuth")}
                 </a>
               )}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Aucun document fourni.</p>
+            <p className="text-sm text-muted-foreground">{t("admin.sellers.docsEmpty")}</p>
           )}
         </DialogContent>
       </Dialog>
@@ -252,23 +258,21 @@ export default function AdminSellers() {
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rejeter le vendeur</DialogTitle>
-            <DialogDescription>
-              Précisez le motif du rejet. Il sera enregistré dans le dossier du vendeur.
-            </DialogDescription>
+            <DialogTitle>{t("admin.sellers.rejectTitle")}</DialogTitle>
+            <DialogDescription>{t("admin.sellers.rejectDesc")}</DialogDescription>
           </DialogHeader>
           <Textarea
-            placeholder="Motif du rejet…"
+            placeholder={t("admin.sellers.rejectPlaceholder")}
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
             rows={4}
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setRejectOpen(false)}>
-              Annuler
+              {t("admin.sellers.cancel")}
             </Button>
             <Button variant="destructive" onClick={confirmReject}>
-              Confirmer le rejet
+              {t("admin.sellers.confirmReject")}
             </Button>
           </DialogFooter>
         </DialogContent>
