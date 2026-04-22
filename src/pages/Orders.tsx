@@ -5,6 +5,7 @@ import { Package, Truck, CheckCircle2, Clock, AlertTriangle, Loader2, Star } fro
 import { useTranslation } from "react-i18next";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
+import LegalFooter from "@/components/LegalFooter";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -408,6 +409,7 @@ const Orders = () => {
           </div>
         )}
       </main>
+      <LegalFooter />
       <BottomNav />
     </div>
   );
