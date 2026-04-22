@@ -645,6 +645,26 @@
     "refunded": "Remboursé",
     "contactBuyer": "Contacter l'acheteur"
   },
+  "buyerTracking": {
+    "title": "Suivi de mes commandes",
+    "empty": "Aucune commande en cours",
+    "tabActive": "En cours",
+    "tabDisputes": "Mes litiges",
+    "disputesEmpty": "Aucun litige en cours",
+    "disputesEmptyDesc": "Vous n'avez ouvert aucun litige. Si une commande livrée présente un problème, vous pourrez en ouvrir un dans les 48h après la livraison.",
+    "deliveredBanner": "Le transporteur a livré votre commande — vérifiez l'état du lot",
+    "deliveredHint": "Vous avez 48h pour ouvrir un litige. Sans action, les fonds sont libérés au vendeur.",
+    "deliveredCountdown": "Il vous reste {{hours}}h {{minutes}}min pour signaler un problème",
+    "deadlinePassed": "Délai écoulé — confirmation automatique en cours",
+    "confirmGood": "Valider le bon état — libérer les fonds",
+    "openDispute": "Ouvrir un litige",
+    "disputeInReview": "Litige en cours d'examen",
+    "disputeFundsHeld": "Les fonds sont retenus en escrow jusqu'à la résolution.",
+    "disputeOpenedOn": "Ouvert le {{date}}.",
+    "contactSeller": "Contacter le vendeur",
+    "refundedTitle": "Commande remboursée",
+    "refundedDesc": "Les fonds vous ont été restitués."
+  },
   "notFound": {
     "title": "404",
     "subtitle": "Oups ! Page introuvable",
