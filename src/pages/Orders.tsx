@@ -298,7 +298,7 @@ const Orders = () => {
       <TopNav />
       <main className="px-4 md:px-8 py-6 pb-24 max-w-[1400px] mx-auto">
         <h1 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-4">
-          {t("sellerTracking.title")}
+          {t("buyerTracking.title")}
         </h1>
 
         {/* Internal tabs */}
@@ -307,13 +307,13 @@ const Orders = () => {
             onClick={() => setActiveTab("active")}
             className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${activeTab === "active" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
           >
-            {t("sellerTracking.tabActive")}
+            {t("buyerTracking.tabActive")}
           </button>
           <button
             onClick={() => setActiveTab("disputes")}
             className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors relative ${activeTab === "disputes" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
           >
-            {t("sellerTracking.tabDisputes")}
+            {t("buyerTracking.tabDisputes")}
             {disputes.length > 0 && (
               <span className="ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold">
                 {disputes.length}
@@ -329,13 +329,13 @@ const Orders = () => {
             {activeTab === "active" ? (
               <>
                 <Truck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">{t("sellerTracking.empty")}</p>
+                <p className="text-muted-foreground">{t("buyerTracking.empty")}</p>
               </>
             ) : (
               <>
                 <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground font-medium">{t("sellerDisputes.empty")}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t("sellerDisputes.emptyDesc")}</p>
+                <p className="text-muted-foreground font-medium">{t("buyerTracking.disputesEmpty")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("buyerTracking.disputesEmptyDesc")}</p>
               </>
             )}
           </div>
