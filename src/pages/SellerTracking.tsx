@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import TopNav from "@/components/TopNav";
@@ -16,6 +16,7 @@ const SellerTracking = () => {
   const { t } = useTranslation();
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"active" | "disputes">("active");
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -39,7 +40,7 @@ const SellerTracking = () => {
         body: { orderId },
       });
       toast.success("Expédition enregistrée — acheteur notifié");
-      window.location.reload();
+      queryClient.invalidateQueries({ queryKey: ["seller-tracking"] });
     } catch {
       toast.error("Erreur lors de l'enregistrement");
     } finally {

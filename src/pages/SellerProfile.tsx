@@ -1,6 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, MapPin, Calendar, BadgeCheck } from "lucide-react";
 import LotCard from "@/components/LotCard";
@@ -41,6 +42,7 @@ const relTime = (iso: string) => {
 };
 
 const SellerProfile = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -224,7 +226,7 @@ const SellerProfile = () => {
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              {reviewCount} avis
+              {t("sellerProfile.reviewCount", { count: reviewCount })}
             </p>
           </div>
           {prefs?.years_in_business && (
@@ -307,10 +309,10 @@ const SellerProfile = () => {
         {/* Reviews */}
         <section>
           <h2 className="font-heading text-lg font-bold text-foreground mb-4">
-            Avis acheteurs ({reviewCount})
+            {t("sellerProfile.reviewsTitle", { count: reviewCount })}
           </h2>
           {reviews.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun avis pour le moment.</p>
+            <p className="text-sm text-muted-foreground">{t("sellerProfile.noReviews")}</p>
           ) : (
             <ul className="space-y-4">
               {reviews.map((r: any) => {
