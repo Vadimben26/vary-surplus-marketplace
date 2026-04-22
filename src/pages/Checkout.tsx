@@ -296,11 +296,23 @@ const Checkout = () => {
       <BuyerPrefsGate
         open={showGate}
         onClose={() => setShowGate(false)}
-        title={t("buyerGate.checkoutTitle", "Finalisez votre profil acheteur")}
-        description={t(
-          "buyerGate.checkoutDescription",
-          "Avant votre premier paiement, nous avons besoin de quelques informations sur votre activité. Cela ne prend que 2 minutes."
-        )}
+        mode={gateMode}
+        title={
+          gateMode === "verifyPro"
+            ? t("buyerGate.checkoutVerifyTitle", "Lot réservé aux acheteurs vérifiés")
+            : t("buyerGate.checkoutTitle", "Finalisez votre profil acheteur")
+        }
+        description={
+          gateMode === "verifyPro"
+            ? t(
+                "buyerGate.checkoutVerifyDescription",
+                "Ce vendeur réserve ses lots aux acheteurs professionnels vérifiés. Vérifiez votre activité depuis votre profil pour finaliser le paiement — c'est gratuit et instantané."
+              )
+            : t(
+                "buyerGate.checkoutDescription",
+                "Avant votre premier paiement, nous avons besoin de quelques informations sur votre activité. Cela ne prend que 2 minutes."
+              )
+        }
         returnTo="/checkout"
       />
     </div>
