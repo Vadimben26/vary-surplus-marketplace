@@ -645,6 +645,26 @@
     "refunded": "Reembolsado",
     "contactBuyer": "Contactar comprador"
   },
+  "buyerTracking": {
+    "title": "Seguimiento de mis pedidos",
+    "empty": "No hay pedidos en curso",
+    "tabActive": "En curso",
+    "tabDisputes": "Mis disputas",
+    "disputesEmpty": "No hay disputas abiertas",
+    "disputesEmptyDesc": "No has abierto ninguna disputa. Si un pedido entregado tiene un problema, puedes abrir una en las 48h posteriores a la entrega.",
+    "deliveredBanner": "El transportista ha entregado tu pedido — verifica el estado del lote",
+    "deliveredHint": "Tienes 48h para abrir una disputa. Sin acción, los fondos se liberan al vendedor.",
+    "deliveredCountdown": "Te quedan {{hours}}h {{minutes}}min para reportar un problema",
+    "deadlinePassed": "Plazo vencido — confirmación automática en curso",
+    "confirmGood": "Confirmar buen estado — liberar los fondos",
+    "openDispute": "Abrir una disputa",
+    "disputeInReview": "Disputa en revisión",
+    "disputeFundsHeld": "Los fondos están retenidos en custodia hasta la resolución.",
+    "disputeOpenedOn": "Abierta el {{date}}.",
+    "contactSeller": "Contactar al vendedor",
+    "refundedTitle": "Pedido reembolsado",
+    "refundedDesc": "Los fondos te han sido devueltos."
+  },
   "notFound": {
     "title": "404",
     "subtitle": "¡Ups! Página no encontrada",

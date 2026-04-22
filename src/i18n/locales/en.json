@@ -645,6 +645,26 @@
     "refunded": "Refunded",
     "contactBuyer": "Contact buyer"
   },
+  "buyerTracking": {
+    "title": "My order tracking",
+    "empty": "No orders in progress",
+    "tabActive": "In progress",
+    "tabDisputes": "My disputes",
+    "disputesEmpty": "No open disputes",
+    "disputesEmptyDesc": "You haven't opened any dispute. If a delivered order has an issue, you can open one within 48h after delivery.",
+    "deliveredBanner": "The carrier has delivered your order — please check the lot",
+    "deliveredHint": "You have 48h to open a dispute. Without action, funds are released to the seller.",
+    "deliveredCountdown": "You have {{hours}}h {{minutes}}min left to report a problem",
+    "deadlinePassed": "Deadline passed — automatic confirmation in progress",
+    "confirmGood": "Confirm good condition — release funds",
+    "openDispute": "Open a dispute",
+    "disputeInReview": "Dispute under review",
+    "disputeFundsHeld": "Funds are held in escrow until resolution.",
+    "disputeOpenedOn": "Opened on {{date}}.",
+    "contactSeller": "Contact seller",
+    "refundedTitle": "Order refunded",
+    "refundedDesc": "Funds have been returned to you."
+  },
   "notFound": {
     "title": "404",
     "subtitle": "Oops! Page not found",
