@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useShippingMatrix } from "@/hooks/useShippingMatrix";
 import { useBuyerShippingCountry } from "@/hooks/useBuyerShippingCountry";
 import { useBuyerMatching } from "@/hooks/useBuyerMatching";
+import { useBuyerPrefs } from "@/hooks/useBuyerPrefs";
 import { sortLotsByMatch } from "@/lib/buyerMatching";
 import { computeShippingCost, FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE } from "@/lib/shipping";
 import { usePageMeta } from "@/hooks/usePageMeta";
