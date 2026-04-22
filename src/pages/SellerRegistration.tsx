@@ -604,7 +604,7 @@ const SellerRegistration = () => {
                       <div>
                         <p className="font-semibold text-foreground">{t("sellerReg.previewSecure", "Vary sécurise chaque transaction")}</p>
                         <p className="text-muted-foreground text-xs mt-0.5">
-                          {t("sellerReg.previewSecureDesc", "Paiement séquestre, transport intégré, gestion des litiges incluse.")}
+                          {t("sellerReg.previewSecureDesc", "Paiement en escrow, transport intégré, gestion des litiges incluse.")}
                         </p>
                       </div>
                     </div>

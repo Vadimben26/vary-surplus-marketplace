@@ -26,7 +26,7 @@
     "returnHome": "Retour à l'accueil"
   },
   "trust": {
-    "escrow": "Paiement sous séquestre",
+    "escrow": "Paiement en escrow",
     "verifiedSellers": "Vendeurs vérifiés",
     "shipping": "Transport intégré",
     "disputes": "Litiges gérés"
@@ -72,7 +72,7 @@
     "stat2Value": "100%",
     "stat2Label": "vendeurs vérifiés",
     "stat3Value": "Paiement",
-    "stat3Label": "sous séquestre",
+    "stat3Label": "en escrow",
     "buyerCta": "Découvrir les lots",
     "sellerCta": "Vendre mes surplus",
     "splitTitle": "Quel est votre objectif aujourd'hui ?",
@@ -81,7 +81,7 @@
     "buyerPitch": "Stocks neufs en lots, marques connues, prix grossiste. Filtrage par catégorie, pays et budget.",
     "buyerProof1": "−40 à −70 % vs prix retail",
     "buyerProof2": "Vendeurs et marques vérifiés",
-    "buyerProof3": "Paiement sous séquestre",
+    "buyerProof3": "Paiement en escrow",
     "sellerKicker": "Vendeurs",
     "sellerHeadline": "Je vends mes surplus",
     "sellerPitch": "Écoulez vos surplus neufs en lots auprès d'acheteurs vérifiés. Vous gardez le contrôle de votre visibilité.",
@@ -101,8 +101,8 @@
     "guestCta": "Explorer la marketplace",
     "valueProp": "Accédez à des milliers de lots de surplus neufs (vêtements, sneakers, accessoires) à prix grossiste, auprès de marques et distributeurs vérifiés en Europe.",
     "benefit1": "Stocks neufs −40 à −70% vs retail",
-    "benefit2": "Paiement sécurisé sous séquestre",
-    "benefit3": "Transport intégré jusqu'à votre entrepôt"
+    "benefit2": "Paiement sécurisé en escrow",
+    "benefit3": "Transport intégré jusqu'à votre adresse"
   },
   "registration": {
     "joinVary": "Rejoignez Vary",
@@ -293,7 +293,7 @@
     "previewMatchAll": "intéressés par toutes vos catégories",
     "previewMatchCats": "intéressés par : {{list}}",
     "previewSecure": "Vary sécurise chaque transaction",
-    "previewSecureDesc": "Paiement séquestre, transport intégré, gestion des litiges incluse.",
+    "previewSecureDesc": "Paiement en escrow, transport intégré, gestion des litiges incluse.",
     "previewValidation": "Notre équipe valide votre profil sous 24h. Vos brouillons de lots seront publiés automatiquement après validation.",
     "validation": {
       "firstLastName": "Prénom et nom requis",

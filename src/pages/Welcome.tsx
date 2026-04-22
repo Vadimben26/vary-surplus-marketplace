@@ -17,7 +17,7 @@ const Welcome = () => {
   const buyerProofs = [
     { icon: TrendingDown, label: t("welcome.buyerProof1", "−40 à −70 % vs prix retail") },
     { icon: BadgeCheck, label: t("welcome.buyerProof2", "Vendeurs et marques vérifiés") },
-    { icon: ShieldCheck, label: t("welcome.buyerProof3", "Paiement sous séquestre") },
+    { icon: ShieldCheck, label: t("welcome.buyerProof3", "Paiement en escrow") },
   ];
 
   const sellerProofs = [
