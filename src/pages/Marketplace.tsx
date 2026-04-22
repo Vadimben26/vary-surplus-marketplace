@@ -37,7 +37,7 @@ const Marketplace = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("lots")
-        .select("*, lot_items(quantity, retail_price), profiles!lots_seller_id_fkey(company_name, company_description)")
+        .select("*, lot_items(quantity, retail_price), profiles!lots_seller_id_fkey(user_id, company_name, company_description)")
         .eq("status", "active")
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -49,6 +49,35 @@ const Marketplace = () => {
         return { ...lot, retailValue, discount };
       });
     },
+  });
+
+  // Map seller user_id -> visibility_mode for the listed lots, so we can mark
+  // "filtered" lots as restricted on the card for buyers below Level 2.
+  const sellerUserIds = useMemo(() => {
+    const ids = new Set<string>();
+    dbLots.forEach((lot: any) => {
+      const uid = (lot.profiles as any)?.user_id;
+      if (uid) ids.add(uid);
+    });
+    return Array.from(ids);
+  }, [dbLots]);
+
+  const { data: visibilityMap = {} } = useQuery({
+    queryKey: ["marketplace-seller-visibility", sellerUserIds],
+    queryFn: async () => {
+      if (sellerUserIds.length === 0) return {} as Record<string, string>;
+      const { data } = await supabase
+        .from("seller_preferences")
+        .select("user_id, visibility_mode")
+        .in("user_id", sellerUserIds);
+      const map: Record<string, string> = {};
+      (data || []).forEach((row: any) => {
+        if (row.user_id) map[row.user_id] = row.visibility_mode || "all";
+      });
+      return map;
+    },
+    enabled: sellerUserIds.length > 0,
+    staleTime: 60_000,
   });
 
   const availableBrands = useMemo(() => {
