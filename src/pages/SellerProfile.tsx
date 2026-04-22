@@ -67,7 +67,7 @@ const SellerProfile = () => {
     description: seller?.company_description ?? undefined,
   });
 
-
+  const { data: prefs } = useQuery({
     queryKey: ["seller-profile-prefs", seller?.id],
     queryFn: async () => {
       if (!seller?.id) return null;
