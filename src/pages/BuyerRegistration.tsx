@@ -195,7 +195,7 @@ const BuyerRegistration = () => {
 
   const handleFileChange = async (file: File) => {
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("Fichier trop volumineux (max 10 Mo)");
+      toast.error(t("buyerReg.errorFileTooLarge"));
       return;
     }
     setDocFile(file);
@@ -208,7 +208,7 @@ const BuyerRegistration = () => {
       const { data: urlData } = supabase.storage.from("buyer-documents").getPublicUrl(path);
       setDocUrl(urlData.publicUrl);
     } catch (err: any) {
-      toast.error("Erreur upload: " + err.message);
+      toast.error(t("buyerReg.errorUpload"));
       setDocFile(null);
     } finally {
       setDocUploading(false);
@@ -292,7 +292,7 @@ const BuyerRegistration = () => {
       await queryClient.invalidateQueries({ queryKey: ["buyer-prefs-check"] });
       setDone(true);
     } catch (err: any) {
-      toast.error(err.message || "Erreur lors de l'inscription");
+      toast.error(err.message || t("buyerReg.errorRegistration"));
     } finally {
       setLoading(false);
     }

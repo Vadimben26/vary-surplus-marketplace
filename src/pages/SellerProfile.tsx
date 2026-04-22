@@ -224,7 +224,7 @@ const SellerProfile = () => {
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              {reviewCount} avis
+              {t("sellerProfile.reviewCount", { count: reviewCount })}
             </p>
           </div>
           {prefs?.years_in_business && (
@@ -307,10 +307,10 @@ const SellerProfile = () => {
         {/* Reviews */}
         <section>
           <h2 className="font-heading text-lg font-bold text-foreground mb-4">
-            Avis acheteurs ({reviewCount})
+            {t("sellerProfile.reviewsTitle", { count: reviewCount })}
           </h2>
           {reviews.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun avis pour le moment.</p>
+            <p className="text-sm text-muted-foreground">{t("sellerProfile.noReviews")}</p>
           ) : (
             <ul className="space-y-4">
               {reviews.map((r: any) => {
