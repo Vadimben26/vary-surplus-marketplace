@@ -192,6 +192,11 @@ const Marketplace = () => {
   const renderLotCard = (lot: any, keyPrefix = "") => {
     const totalTTC = Math.round(lot.price * 1.19);
     const ppu = lot.units > 0 ? (lot.price * 1.19 / lot.units).toFixed(2) : null;
+    const sellerUserId = (lot.profiles as any)?.user_id;
+    const sellerVisibility = sellerUserId ? visibilityMap[sellerUserId] : null;
+    // Mark as restricted only when the lot belongs to a "filtered" seller
+    // AND the current viewer is not yet a verified Level 2 buyer.
+    const restricted = sellerVisibility === "filtered" && !isVerifiedPro;
     return (
       <LotCard
         key={`${keyPrefix}${lot.id}`}
@@ -207,6 +212,7 @@ const Marketplace = () => {
         discount={lot.discount > 0 ? lot.discount : undefined}
         sellerId={lot.seller_id}
         sellerCompanyName={(lot.profiles as any)?.company_name}
+        restricted={restricted}
       />
     );
   };
