@@ -7,10 +7,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslateMessage } from "@/hooks/useTranslateMessage";
+import { useBuyerPrefs } from "@/hooks/useBuyerPrefs";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
+import BuyerPrefsGate from "@/components/BuyerPrefsGate";
 import { Link } from "react-router-dom";
 import MessageTemplates from "@/components/messages/MessageTemplates";
+import { useTranslation } from "react-i18next";
 
 interface Message {
   id: string;
