@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBuyerPrefs } from "@/hooks/useBuyerPrefs";
@@ -50,7 +51,15 @@ const LotDetail = () => {
     enabled: !!id,
   });
 
-  // Phase 5: fetch the seller's visibility settings to know whether buyers
+  usePageMeta({
+    title: lot ? `${lot.brand} — ${lot.title}` : "Lot",
+    description: lot
+      ? `${lot.units} pièces · ${lot.price} € · Expédié depuis ${lot.location}`
+      : undefined,
+    image: lot?.images?.[0] ?? undefined,
+  });
+
+
   // must complete the questionnaire before contacting / adding to cart.
   const sellerUserId = (lot?.profiles as any)?.user_id ?? null;
   const { data: sellerPrefs } = useQuery({

@@ -7,6 +7,7 @@ import { ArrowLeft, MapPin, Calendar, BadgeCheck } from "lucide-react";
 import LotCard from "@/components/LotCard";
 import varyLogo from "@/assets/vary-logo.png";
 import LegalFooter from "@/components/LegalFooter";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const initialsOf = (name?: string | null) => {
   if (!name) return "V";
@@ -59,6 +60,11 @@ const SellerProfile = () => {
       return data;
     },
     enabled: !!id,
+  });
+
+  usePageMeta({
+    title: seller ? `${seller.company_name ?? seller.full_name ?? "Vendeur"}` : "Vendeur",
+    description: seller?.company_description ?? undefined,
   });
 
   const { data: prefs } = useQuery({
