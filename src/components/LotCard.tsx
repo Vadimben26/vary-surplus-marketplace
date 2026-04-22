@@ -1,6 +1,7 @@
-import { Heart, MapPin, Package, TrendingDown } from "lucide-react";
+import { Heart, MapPin, Package, TrendingDown, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useFavorites } from "@/contexts/FavoritesContext";
 
 interface LotCardProps {
@@ -17,13 +18,21 @@ interface LotCardProps {
   discount?: number;
   sellerId?: string;
   sellerCompanyName?: string;
+  /**
+   * When true, the lot belongs to a seller using filtered visibility and the
+   * current buyer hasn't reached verified Level 2 yet. We surface a small
+   * lock badge so the buyer understands they will need to verify their
+   * activity before checking out / contacting the seller.
+   */
+  restricted?: boolean;
 }
 
 const LotCard = ({
   id, image, title, brand, price, pricePerUnit, units, location, isNew, discount,
-  sellerId, sellerCompanyName,
+  sellerId, sellerCompanyName, restricted,
 }: LotCardProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { isFavorite, toggleFavorite } = useFavorites();
   const liked = isFavorite(id);
 
@@ -44,15 +53,22 @@ const LotCard = ({
         >
           <Heart className={`h-4 w-4 transition-colors ${liked ? "fill-destructive text-destructive" : "text-foreground"}`} />
         </button>
-        {isNew && (
+        {restricted ? (
+          <span
+            className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-foreground/85 text-background backdrop-blur-sm"
+            title={t("lotCard.restrictedHint", "Réservé aux acheteurs vérifiés")}
+          >
+            <Lock className="h-3 w-3" />
+            {t("lotCard.restricted", "Lot privé")}
+          </span>
+        ) : isNew ? (
           <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md text-xs font-semibold bg-primary text-primary-foreground">Nouveau</span>
-        )}
-        {discount != null && discount > 0 && (
+        ) : discount != null && discount > 0 ? (
           <span className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold bg-green-600 text-white">
             <TrendingDown className="h-3 w-3" />
             -{discount}%
           </span>
-        )}
+        ) : null}
         {location && (
           <span className="absolute bottom-3 left-3 flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold bg-card/90 backdrop-blur-sm text-foreground">
             <MapPin className="h-3 w-3" />
@@ -89,7 +105,7 @@ const LotCard = ({
           onClick={(e) => { e.stopPropagation(); navigate(`/lot/${id}`); }}
           className="w-full mt-2 py-1.5 text-xs font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
         >
-          Voir lot
+          {t("lotCard.viewLot", "Voir lot")}
         </button>
       </div>
     </motion.div>
