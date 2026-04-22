@@ -155,7 +155,7 @@ const BottomNav = () => {
     { icon: null, label: t("nav.home"), path: "/marketplace", isLogo: true },
     { icon: Heart, label: t("nav.favorites"), path: "/favoris", isLogo: false },
     { icon: ShoppingCart, label: t("nav.cart"), path: "/panier", isLogo: false },
-    { icon: Package, label: t("nav.orders"), path: "/commandes", isLogo: false },
+    { icon: Package, label: t("nav.tracking"), path: "/commandes", isLogo: false },
     { icon: MessageCircle, label: t("nav.messages"), path: "/messages", isLogo: false },
   ];
 
