@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useShippingMatrix } from "@/hooks/useShippingMatrix";
 import { useBuyerShippingCountry } from "@/hooks/useBuyerShippingCountry";
 import { useBuyerMatching } from "@/hooks/useBuyerMatching";
+import { useBuyerPrefs } from "@/hooks/useBuyerPrefs";
 import { sortLotsByMatch } from "@/lib/buyerMatching";
 import { computeShippingCost, FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE } from "@/lib/shipping";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -22,6 +23,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 const Marketplace = () => {
   const { t } = useTranslation();
   const { profile } = useAuth();
+  const { isVerifiedPro } = useBuyerPrefs();
 
   usePageMeta({
     title: "Marketplace — Lots de déstock vérifiés",
@@ -36,7 +38,7 @@ const Marketplace = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("lots")
-        .select("*, lot_items(quantity, retail_price), profiles!lots_seller_id_fkey(company_name, company_description)")
+        .select("*, lot_items(quantity, retail_price), profiles!lots_seller_id_fkey(user_id, company_name, company_description)")
         .eq("status", "active")
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -48,6 +50,35 @@ const Marketplace = () => {
         return { ...lot, retailValue, discount };
       });
     },
+  });
+
+  // Map seller user_id -> visibility_mode for the listed lots, so we can mark
+  // "filtered" lots as restricted on the card for buyers below Level 2.
+  const sellerUserIds = useMemo(() => {
+    const ids = new Set<string>();
+    dbLots.forEach((lot: any) => {
+      const uid = (lot.profiles as any)?.user_id;
+      if (uid) ids.add(uid);
+    });
+    return Array.from(ids);
+  }, [dbLots]);
+
+  const { data: visibilityMap = {} } = useQuery({
+    queryKey: ["marketplace-seller-visibility", sellerUserIds],
+    queryFn: async () => {
+      if (sellerUserIds.length === 0) return {} as Record<string, string>;
+      const { data } = await supabase
+        .from("seller_preferences")
+        .select("user_id, visibility_mode")
+        .in("user_id", sellerUserIds);
+      const map: Record<string, string> = {};
+      (data || []).forEach((row: any) => {
+        if (row.user_id) map[row.user_id] = row.visibility_mode || "all";
+      });
+      return map;
+    },
+    enabled: sellerUserIds.length > 0,
+    staleTime: 60_000,
   });
 
   const availableBrands = useMemo(() => {
@@ -161,6 +192,11 @@ const Marketplace = () => {
   const renderLotCard = (lot: any, keyPrefix = "") => {
     const totalTTC = Math.round(lot.price * 1.19);
     const ppu = lot.units > 0 ? (lot.price * 1.19 / lot.units).toFixed(2) : null;
+    const sellerUserId = (lot.profiles as any)?.user_id;
+    const sellerVisibility = sellerUserId ? visibilityMap[sellerUserId] : null;
+    // Mark as restricted only when the lot belongs to a "filtered" seller
+    // AND the current viewer is not yet a verified Level 2 buyer.
+    const restricted = sellerVisibility === "filtered" && !isVerifiedPro;
     return (
       <LotCard
         key={`${keyPrefix}${lot.id}`}
@@ -176,6 +212,7 @@ const Marketplace = () => {
         discount={lot.discount > 0 ? lot.discount : undefined}
         sellerId={lot.seller_id}
         sellerCompanyName={(lot.profiles as any)?.company_name}
+        restricted={restricted}
       />
     );
   };

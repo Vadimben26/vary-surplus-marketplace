@@ -23,11 +23,12 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems } = useCart();
   const { user, profile } = useAuth();
-  const { hasBuyerPrefs, loading: prefsLoading } = useBuyerPrefs();
+  const { hasBuyerPrefs, isVerifiedPro, loading: prefsLoading } = useBuyerPrefs();
   const { country: buyerCountry } = useBuyerShippingCountry();
   const { data: shippingMatrix } = useShippingMatrix();
   const [loadingLotId, setLoadingLotId] = useState<string | null>(null);
   const [showGate, setShowGate] = useState(false);
+  const [gateMode, setGateMode] = useState<"questionnaire" | "verifyPro">("questionnaire");
 
   const { data: cartLots = [] } = useQuery({
     queryKey: ["checkout-lots", cartItems],
@@ -35,7 +36,7 @@ const Checkout = () => {
       if (cartItems.length === 0) return [];
       const { data } = await supabase
         .from("lots")
-        .select("*")
+        .select("*, profiles!lots_seller_id_fkey(user_id)")
         .in("id", cartItems)
         .eq("status", "active");
       return data || [];
@@ -45,6 +46,24 @@ const Checkout = () => {
   // Single-lot checkout: we pay one lot at a time. Keep the first lot as
   // "selected" for the right-hand summary panel.
   const selectedLot = cartLots[0];
+
+  // Check if the selected lot's seller uses filtered visibility (Level 2 required).
+  const selectedSellerUserId = (selectedLot?.profiles as any)?.user_id ?? null;
+  const { data: selectedSellerPrefs } = useQuery({
+    queryKey: ["checkout-seller-visibility", selectedSellerUserId],
+    queryFn: async () => {
+      if (!selectedSellerUserId) return null;
+      const { data } = await supabase
+        .from("seller_preferences")
+        .select("visibility_mode")
+        .eq("user_id", selectedSellerUserId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!selectedSellerUserId,
+    staleTime: 60_000,
+  });
+  const isFilteredLot = selectedSellerPrefs?.visibility_mode === "filtered";
 
   const shippingCost = (() => {
     if (!selectedLot || !shippingMatrix || !buyerCountry) return 0;
@@ -72,6 +91,14 @@ const Checkout = () => {
     }
 
     if (!prefsLoading && !hasBuyerPrefs) {
+      setGateMode("questionnaire");
+      setShowGate(true);
+      return;
+    }
+
+    // Filtered lots require Level 2 verified pro.
+    if (!prefsLoading && isFilteredLot && !isVerifiedPro) {
+      setGateMode("verifyPro");
       setShowGate(true);
       return;
     }
@@ -269,11 +296,23 @@ const Checkout = () => {
       <BuyerPrefsGate
         open={showGate}
         onClose={() => setShowGate(false)}
-        title={t("buyerGate.checkoutTitle", "Finalisez votre profil acheteur")}
-        description={t(
-          "buyerGate.checkoutDescription",
-          "Avant votre premier paiement, nous avons besoin de quelques informations sur votre activité. Cela ne prend que 2 minutes."
-        )}
+        mode={gateMode}
+        title={
+          gateMode === "verifyPro"
+            ? t("buyerGate.checkoutVerifyTitle", "Lot réservé aux acheteurs vérifiés")
+            : t("buyerGate.checkoutTitle", "Finalisez votre profil acheteur")
+        }
+        description={
+          gateMode === "verifyPro"
+            ? t(
+                "buyerGate.checkoutVerifyDescription",
+                "Ce vendeur réserve ses lots aux acheteurs professionnels vérifiés. Vérifiez votre activité depuis votre profil pour finaliser le paiement — c'est gratuit et instantané."
+              )
+            : t(
+                "buyerGate.checkoutDescription",
+                "Avant votre premier paiement, nous avons besoin de quelques informations sur votre activité. Cela ne prend que 2 minutes."
+              )
+        }
         returnTo="/checkout"
       />
     </div>
