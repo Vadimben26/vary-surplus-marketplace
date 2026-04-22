@@ -23,6 +23,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 const Marketplace = () => {
   const { t } = useTranslation();
   const { profile } = useAuth();
+  const { isVerifiedPro } = useBuyerPrefs();
 
   usePageMeta({
     title: "Marketplace — Lots de déstock vérifiés",
