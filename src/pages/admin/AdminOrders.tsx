@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -40,39 +41,31 @@ const STATUSES = [
   "cancelled",
 ];
 
-const statusBadge = (status: string) => {
-  const map: Record<string, string> = {
-    pending_payment: "bg-gray-500 hover:bg-gray-600",
-    paid: "bg-blue-500 hover:bg-blue-600",
-    preparing: "bg-blue-500 hover:bg-blue-600",
-    shipped: "bg-amber-500 hover:bg-amber-600",
-    delivered: "bg-amber-500 hover:bg-amber-600",
-    confirmed: "bg-green-600 hover:bg-green-700",
-    disputed: "bg-red-600 hover:bg-red-700",
-    refunded: "bg-gray-500 hover:bg-gray-600",
-    cancelled: "bg-gray-500 hover:bg-gray-600",
-  };
-  return <Badge className={map[status] || ""}>{status}</Badge>;
-};
-
-const statusLabel: Record<string, string> = {
-  disputed: "En litige",
-  pending_payment: "En attente",
-  paid: "Payé",
-  preparing: "Préparation",
-  shipped: "Expédié",
-  delivered: "Livré",
-  confirmed: "Confirmé",
-  refunded: "Remboursé",
-  cancelled: "Annulé",
-};
-
 export default function AdminOrders() {
+  const { t, i18n } = useTranslation();
   const [tab, setTab] = useState<string>("disputed");
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+
+  const localeMap: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES" };
+  const dateLocale = localeMap[i18n.language] || "fr-FR";
+
+  const statusBadge = (status: string) => {
+    const map: Record<string, string> = {
+      pending_payment: "bg-gray-500 hover:bg-gray-600",
+      paid: "bg-blue-500 hover:bg-blue-600",
+      preparing: "bg-blue-500 hover:bg-blue-600",
+      shipped: "bg-amber-500 hover:bg-amber-600",
+      delivered: "bg-amber-500 hover:bg-amber-600",
+      confirmed: "bg-green-600 hover:bg-green-700",
+      disputed: "bg-red-600 hover:bg-red-700",
+      refunded: "bg-gray-500 hover:bg-gray-600",
+      cancelled: "bg-gray-500 hover:bg-gray-600",
+    };
+    return <Badge className={map[status] || ""}>{t(`admin.status.${status}`, status)}</Badge>;
+  };
 
   const load = async () => {
     setLoading(true);
@@ -135,24 +128,24 @@ export default function AdminOrders() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success("Copié");
+    toast.success(t("admin.orders.copied"));
   };
 
   const triggerDisputeAlert = async (orderId: string) => {
     await supabase.functions.invoke("send-dispute-alert", { body: { orderId } });
-    toast.success("Alerte litige envoyée à l'équipe admin");
+    toast.success(t("admin.orders.alertSent"));
   };
 
   return (
     <AdminLayout>
-      <h1 className="text-3xl font-bold mb-6">Commandes</h1>
+      <h1 className="text-3xl font-bold mb-6">{t("admin.orders.title")}</h1>
 
       <Tabs value={tab} onValueChange={setTab} className="mb-4">
         <TabsList className="flex-wrap h-auto">
-          <TabsTrigger value="all">Toutes</TabsTrigger>
+          <TabsTrigger value="all">{t("admin.orders.tabs.all")}</TabsTrigger>
           {STATUSES.map((s) => (
             <TabsTrigger key={s} value={s}>
-              {statusLabel[s]}
+              {t(`admin.status.${s}`, s)}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -163,27 +156,27 @@ export default function AdminOrders() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-8"></TableHead>
-              <TableHead>Lot</TableHead>
-              <TableHead>Acheteur</TableHead>
-              <TableHead>Vendeur</TableHead>
-              <TableHead className="text-right">Montant</TableHead>
-              <TableHead className="text-right">Commission</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t("admin.orders.table.lot")}</TableHead>
+              <TableHead>{t("admin.orders.table.buyer")}</TableHead>
+              <TableHead>{t("admin.orders.table.seller")}</TableHead>
+              <TableHead className="text-right">{t("admin.orders.table.amount")}</TableHead>
+              <TableHead className="text-right">{t("admin.orders.table.commission")}</TableHead>
+              <TableHead>{t("admin.orders.table.status")}</TableHead>
+              <TableHead>{t("admin.orders.table.date")}</TableHead>
+              <TableHead className="text-right">{t("admin.orders.table.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={9} className="text-center text-muted-foreground">
-                  Chargement…
+                  {t("admin.loading")}
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} className="text-center text-muted-foreground">
-                  Aucune commande.
+                  {t("admin.orders.empty")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -201,17 +194,17 @@ export default function AdminOrders() {
                     <TableCell className="font-medium max-w-xs truncate">{o.lot_title}</TableCell>
                     <TableCell className="text-sm">{o.buyer_name}</TableCell>
                     <TableCell className="text-sm">{o.seller_name}</TableCell>
-                    <TableCell className="text-right">{Number(o.amount).toLocaleString("fr-FR")} €</TableCell>
+                    <TableCell className="text-right">{Number(o.amount).toLocaleString(dateLocale)} €</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">
-                      {Number(o.commission).toLocaleString("fr-FR")} €
+                      {Number(o.commission).toLocaleString(dateLocale)} €
                     </TableCell>
                     <TableCell>{statusBadge(o.status)}</TableCell>
-                    <TableCell className="text-sm">{new Date(o.created_at).toLocaleDateString("fr-FR")}</TableCell>
+                    <TableCell className="text-sm">{new Date(o.created_at).toLocaleDateString(dateLocale)}</TableCell>
                     <TableCell className="text-right space-x-2 whitespace-nowrap">
                       {o.status === "disputed" && (
                         <>
                           <Button size="sm" variant="ghost" onClick={() => triggerDisputeAlert(o.id)}>
-                            Notifier
+                            {t("admin.orders.notify")}
                           </Button>
                           <Button
                             size="sm"
@@ -220,7 +213,7 @@ export default function AdminOrders() {
                               setExpanded(o.id);
                             }}
                           >
-                            {resolvingId === o.id ? "Fermer" : "Résoudre ce litige"}
+                            {resolvingId === o.id ? t("admin.orders.close") : t("admin.orders.resolveDispute")}
                           </Button>
                         </>
                       )}
@@ -240,7 +233,7 @@ export default function AdminOrders() {
                         ) : (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-2 text-sm">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium">Stripe PaymentIntent:</span>
+                              <span className="font-medium">{t("admin.orders.details.stripePI")}</span>
                               <code className="text-xs">{o.stripe_payment_intent_id || "—"}</code>
                               {o.stripe_payment_intent_id && (
                                 <button
@@ -252,20 +245,20 @@ export default function AdminOrders() {
                               )}
                             </div>
                             <div>
-                              <span className="font-medium">N° de suivi: </span>
+                              <span className="font-medium">{t("admin.orders.details.trackingNumber")} </span>
                               {o.tracking_number || "—"}
                             </div>
                             <div>
-                              <span className="font-medium">Expédié le: </span>
-                              {o.shipped_at ? new Date(o.shipped_at).toLocaleString("fr-FR") : "—"}
+                              <span className="font-medium">{t("admin.orders.details.shippedAt")} </span>
+                              {o.shipped_at ? new Date(o.shipped_at).toLocaleString(dateLocale) : "—"}
                             </div>
                             <div>
-                              <span className="font-medium">Livré le: </span>
-                              {o.delivered_at ? new Date(o.delivered_at).toLocaleString("fr-FR") : "—"}
+                              <span className="font-medium">{t("admin.orders.details.deliveredAt")} </span>
+                              {o.delivered_at ? new Date(o.delivered_at).toLocaleString(dateLocale) : "—"}
                             </div>
                             <div>
-                              <span className="font-medium">Confirmé le: </span>
-                              {o.confirmed_at ? new Date(o.confirmed_at).toLocaleString("fr-FR") : "—"}
+                              <span className="font-medium">{t("admin.orders.details.confirmedAt")} </span>
+                              {o.confirmed_at ? new Date(o.confirmed_at).toLocaleString(dateLocale) : "—"}
                             </div>
                           </div>
                         )}

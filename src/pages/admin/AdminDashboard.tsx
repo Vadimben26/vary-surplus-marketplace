@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,23 +32,9 @@ interface OpenDispute {
   seller_company: string;
 }
 
-const statusBadge = (status: string) => {
-  if (status === "approved") return <Badge className="bg-green-600 hover:bg-green-700">Approuvé</Badge>;
-  if (status === "rejected") return <Badge variant="destructive">Rejeté</Badge>;
-  return <Badge className="bg-amber-500 hover:bg-amber-600">En attente</Badge>;
-};
-
-const relativeDate = (iso: string) => {
-  const diff = Date.now() - new Date(iso).getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days === 0) return "aujourd'hui";
-  if (days === 1) return "hier";
-  if (days < 30) return `il y a ${days} j`;
-  return new Date(iso).toLocaleDateString("fr-FR");
-};
-
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [metrics, setMetrics] = useState<Metrics>({
     totalSellers: 0,
     pendingValidations: 0,
@@ -57,6 +44,26 @@ export default function AdminDashboard() {
   });
   const [recentSellers, setRecentSellers] = useState<RecentSeller[]>([]);
   const [openDisputes, setOpenDisputes] = useState<OpenDispute[]>([]);
+
+  const localeMap: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES" };
+  const dateLocale = localeMap[i18n.language] || "fr-FR";
+
+  const statusBadge = (status: string) => {
+    if (status === "approved")
+      return <Badge className="bg-green-600 hover:bg-green-700">{t("admin.status.approved")}</Badge>;
+    if (status === "rejected")
+      return <Badge variant="destructive">{t("admin.status.rejected")}</Badge>;
+    return <Badge className="bg-amber-500 hover:bg-amber-600">{t("admin.status.pending")}</Badge>;
+  };
+
+  const relativeDate = (iso: string) => {
+    const diff = Date.now() - new Date(iso).getTime();
+    const days = Math.floor(diff / 86400000);
+    if (days === 0) return t("admin.time.today");
+    if (days === 1) return t("admin.time.yesterday");
+    if (days < 30) return t("admin.time.daysAgo", { count: days });
+    return new Date(iso).toLocaleDateString(dateLocale);
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -88,7 +95,6 @@ export default function AdminDashboard() {
         resolvedThisMonth: resolvedCount ?? 0,
       });
 
-      // Recent sellers
       const { data: sellers } = await supabase
         .from("profiles")
         .select("id, full_name, company_name, created_at, user_id")
@@ -113,7 +119,6 @@ export default function AdminDashboard() {
         );
       }
 
-      // Recent open disputes
       const { data: disputes } = await (supabase as any)
         .from("disputes")
         .select("id, reason, opened_at, order_id, buyer_id, seller_id")
@@ -158,12 +163,12 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
-      <h1 className="text-3xl font-bold mb-8">Vue d'ensemble</h1>
+      <h1 className="text-3xl font-bold mb-8">{t("admin.dashboard.title")}</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total vendeurs</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("admin.dashboard.totalSellers")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -173,7 +178,7 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Lots actifs</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("admin.dashboard.activeLots")}</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -183,7 +188,7 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Litiges ouverts</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("admin.dashboard.openDisputes")}</CardTitle>
             <AlertTriangle className={`h-4 w-4 ${metrics.openDisputes > 0 ? "text-destructive" : "text-green-600"}`} />
           </CardHeader>
           <CardContent>
@@ -195,7 +200,7 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Résolus ce mois</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("admin.dashboard.resolvedThisMonth")}</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -207,11 +212,11 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Vendeurs récents</CardTitle>
+            <CardTitle>{t("admin.dashboard.recentSellers")}</CardTitle>
           </CardHeader>
           <CardContent>
             {recentSellers.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aucun vendeur récent.</p>
+              <p className="text-sm text-muted-foreground">{t("admin.dashboard.noRecentSellers")}</p>
             ) : (
               <div className="space-y-2">
                 {recentSellers.map((s) => (
@@ -223,7 +228,7 @@ export default function AdminDashboard() {
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate">{s.company_name || s.full_name || "—"}</p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(s.created_at).toLocaleDateString("fr-FR")}
+                        {new Date(s.created_at).toLocaleDateString(dateLocale)}
                       </p>
                     </div>
                     {statusBadge(s.validation_status)}
@@ -236,11 +241,11 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Litiges ouverts récents</CardTitle>
+            <CardTitle>{t("admin.dashboard.openDisputesTitle")}</CardTitle>
           </CardHeader>
           <CardContent>
             {openDisputes.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aucun litige ouvert.</p>
+              <p className="text-sm text-muted-foreground">{t("admin.dashboard.noOpenDisputes")}</p>
             ) : (
               <div className="space-y-2">
                 {openDisputes.map((d) => (
@@ -255,13 +260,13 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                     <p className="text-sm font-semibold whitespace-nowrap">
-                      {d.amount.toLocaleString("fr-FR")} €
+                      {d.amount.toLocaleString(dateLocale)} €
                     </p>
                     <button
                       onClick={() => navigate("/admin/commandes")}
                       className="text-xs font-medium text-primary hover:underline whitespace-nowrap"
                     >
-                      Résoudre →
+                      {t("admin.dashboard.resolve")} →
                     </button>
                   </div>
                 ))}

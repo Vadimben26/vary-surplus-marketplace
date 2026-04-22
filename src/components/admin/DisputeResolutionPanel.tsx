@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
@@ -14,14 +15,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { Package, Truck, CheckCircle2, AlertTriangle, FileText, Image as ImageIcon } from "lucide-react";
+import { Package, Truck, CheckCircle2, AlertTriangle, FileText } from "lucide-react";
 
 interface Props {
-  order: any; // includes id, lot_id, buyer_id, seller_id, amount, created_at, shipped_at, delivered_at
+  order: any;
   onResolved: () => void;
 }
 
 export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
+  const { t, i18n } = useTranslation();
   const { profile } = useAuth();
   const [dispute, setDispute] = useState<any>(null);
   const [evidence, setEvidence] = useState<{ url: string; isImage: boolean; name: string }[]>([]);
@@ -31,6 +33,9 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
   const [confirm, setConfirm] = useState<"refund" | "release" | null>(null);
   const [note, setNote] = useState("");
   const [working, setWorking] = useState(false);
+
+  const localeMap: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES" };
+  const dateLocale = localeMap[i18n.language] || "fr-FR";
 
   useEffect(() => {
     let cancelled = false;
@@ -51,7 +56,6 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
       if (cancelled) return;
       setParties({ buyer, seller });
 
-      // Seller responses (messages from seller about this lot, after dispute opened)
       if (d?.opened_at) {
         const { data: msgs } = await supabase
           .from("messages")
@@ -63,7 +67,6 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
         if (!cancelled) setSellerResponses(msgs || []);
       }
 
-      // Signed URLs for evidence
       if (d?.evidence_urls?.length) {
         const items: { url: string; isImage: boolean; name: string }[] = [];
         for (const path of d.evidence_urls) {
@@ -90,7 +93,7 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
   const handleResolve = async () => {
     if (!confirm || !profile?.id || !dispute) return;
     if (note.trim().length < 10) {
-      toast.error("Note de résolution requise (min 10 caractères)");
+      toast.error(t("admin.dispute.noteRequired"));
       return;
     }
     setWorking(true);
@@ -119,7 +122,6 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
         supabase.functions.invoke("release-funds", { body: { orderId: order.id } });
       }
 
-      // Notify both parties (fire-and-forget)
       const outcome = isRefund ? "refund" : "release";
       supabase.functions.invoke("send-dispute-resolved-buyer", {
         body: { orderId: order.id, outcome, resolutionNote: note.trim() },
@@ -129,54 +131,52 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
       });
 
       if (isRefund) {
-        toast.success(`Remboursement à traiter manuellement dans Stripe Dashboard — voir commande ${order.id.slice(0, 8)}`);
+        toast.success(t("admin.dispute.refundToast", { id: order.id.slice(0, 8) }));
       } else {
-        toast.success("Fonds libérés au vendeur.");
+        toast.success(t("admin.dispute.releaseToast"));
       }
 
       setConfirm(null);
       setNote("");
       onResolved();
     } catch (e: any) {
-      toast.error(e?.message || "Erreur lors de la résolution");
+      toast.error(e?.message || t("admin.dispute.resolutionError"));
     } finally {
       setWorking(false);
     }
   };
 
-  if (loading) return <div className="p-4 text-sm text-muted-foreground">Chargement du litige…</div>;
+  if (loading) return <div className="p-4 text-sm text-muted-foreground">{t("admin.dispute.loading")}</div>;
 
   if (!dispute) {
-    return (
-      <div className="p-4 text-sm text-muted-foreground">
-        Aucun enregistrement de litige trouvé pour cette commande.
-      </div>
-    );
+    return <div className="p-4 text-sm text-muted-foreground">{t("admin.dispute.notFound")}</div>;
   }
 
   const timeline = [
-    { label: "Commande créée", date: order.created_at, icon: Package },
-    { label: "Paiement confirmé", date: order.created_at, icon: CheckCircle2 },
-    { label: "Expédiée", date: order.shipped_at, icon: Truck },
-    { label: "Livrée", date: order.delivered_at, icon: CheckCircle2 },
-    { label: "Litige ouvert", date: dispute.opened_at, icon: AlertTriangle },
+    { label: t("admin.dispute.events.orderCreated"), date: order.created_at, icon: Package },
+    { label: t("admin.dispute.events.paymentConfirmed"), date: order.created_at, icon: CheckCircle2 },
+    { label: t("admin.dispute.events.shipped"), date: order.shipped_at, icon: Truck },
+    { label: t("admin.dispute.events.delivered"), date: order.delivered_at, icon: CheckCircle2 },
+    { label: t("admin.dispute.events.disputeOpened"), date: dispute.opened_at, icon: AlertTriangle },
   ].filter((s) => s.date);
 
   const isResolved = dispute.status?.startsWith("resolved");
 
+  const buyerName = parties?.buyer?.company_name || parties?.buyer?.full_name || t("admin.dispute.buyerFallback");
+  const sellerName = parties?.seller?.company_name || parties?.seller?.full_name || t("admin.dispute.sellerFallback");
+
   return (
     <div className="p-4 space-y-4 bg-muted/40 rounded-md border border-border">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Left column: dispute info */}
         <div className="space-y-4">
           <div>
-            <p className="text-xs font-bold uppercase text-muted-foreground tracking-wide mb-1">Raison</p>
+            <p className="text-xs font-bold uppercase text-muted-foreground tracking-wide mb-1">{t("admin.dispute.reason")}</p>
             <p className="text-sm font-semibold text-foreground">{dispute.reason}</p>
           </div>
 
           {dispute.details && (
             <div>
-              <p className="text-xs font-bold uppercase text-muted-foreground tracking-wide mb-1">Détails de l'acheteur</p>
+              <p className="text-xs font-bold uppercase text-muted-foreground tracking-wide mb-1">{t("admin.dispute.buyerDetails")}</p>
               <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed bg-background p-3 rounded-md border border-border">
                 {dispute.details}
               </p>
@@ -186,7 +186,7 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
           {evidence.length > 0 && (
             <div>
               <p className="text-xs font-bold uppercase text-muted-foreground tracking-wide mb-2">
-                Preuves ({evidence.length})
+                {t("admin.dispute.evidence", { count: evidence.length })}
               </p>
               <div className="grid grid-cols-3 gap-2">
                 {evidence.map((e, i) => (
@@ -214,12 +214,12 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
           {sellerResponses.length > 0 && (
             <div>
               <p className="text-xs font-bold uppercase text-muted-foreground tracking-wide mb-2">
-                Réponse du vendeur
+                {t("admin.dispute.sellerResponse")}
               </p>
               <div className="space-y-2">
                 {sellerResponses.map((m, i) => (
                   <div key={i} className="text-xs bg-background p-3 rounded-md border border-border">
-                    <p className="text-muted-foreground mb-1">{new Date(m.created_at).toLocaleString("fr-FR")}</p>
+                    <p className="text-muted-foreground mb-1">{new Date(m.created_at).toLocaleString(dateLocale)}</p>
                     <p className="text-foreground whitespace-pre-wrap">{m.content}</p>
                   </div>
                 ))}
@@ -228,23 +228,22 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
           )}
         </div>
 
-        {/* Right column: parties + timeline */}
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="bg-background p-3 rounded-md border border-border">
-              <p className="font-bold uppercase text-muted-foreground tracking-wide mb-1">Acheteur</p>
+              <p className="font-bold uppercase text-muted-foreground tracking-wide mb-1">{t("admin.dispute.buyer")}</p>
               <p className="font-semibold text-foreground">{parties?.buyer?.company_name || parties?.buyer?.full_name}</p>
               <p className="text-muted-foreground truncate">{parties?.buyer?.email}</p>
             </div>
             <div className="bg-background p-3 rounded-md border border-border">
-              <p className="font-bold uppercase text-muted-foreground tracking-wide mb-1">Vendeur</p>
+              <p className="font-bold uppercase text-muted-foreground tracking-wide mb-1">{t("admin.dispute.seller")}</p>
               <p className="font-semibold text-foreground">{parties?.seller?.company_name || parties?.seller?.full_name}</p>
               <p className="text-muted-foreground truncate">{parties?.seller?.email}</p>
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-bold uppercase text-muted-foreground tracking-wide mb-2">Chronologie</p>
+            <p className="text-xs font-bold uppercase text-muted-foreground tracking-wide mb-2">{t("admin.dispute.timeline")}</p>
             <ol className="space-y-1.5">
               {timeline.map((s, i) => {
                 const Icon = s.icon;
@@ -253,7 +252,7 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
                     <Icon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                     <span className="font-medium text-foreground">{s.label}</span>
                     <span className="text-muted-foreground ml-auto">
-                      {new Date(s.date).toLocaleString("fr-FR")}
+                      {new Date(s.date).toLocaleString(dateLocale)}
                     </span>
                   </li>
                 );
@@ -264,7 +263,7 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
           {isResolved && (
             <div className="rounded-md border border-green-300 bg-green-50 p-3">
               <p className="text-xs font-bold text-green-800">
-                Litige résolu — {dispute.status === "resolved_refund" ? "Remboursement" : "Fonds libérés"}
+                {t("admin.dispute.resolved")} — {dispute.status === "resolved_refund" ? t("admin.dispute.refundOutcome") : t("admin.dispute.releaseOutcome")}
               </p>
               {dispute.resolution_note && (
                 <p className="text-xs text-green-900 mt-1 whitespace-pre-wrap">{dispute.resolution_note}</p>
@@ -281,13 +280,13 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
             className="flex-1"
             onClick={() => { setConfirm("refund"); setNote(""); }}
           >
-            Rembourser l'acheteur
+            {t("admin.dispute.refundBuyer")}
           </Button>
           <Button
             className="flex-1 bg-green-600 hover:bg-green-700 text-white"
             onClick={() => { setConfirm("release"); setNote(""); }}
           >
-            Libérer les fonds au vendeur
+            {t("admin.dispute.releaseSeller")}
           </Button>
         </div>
       )}
@@ -297,28 +296,26 @@ export const DisputeResolutionPanel = ({ order, onResolved }: Props) => {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {confirm === "refund"
-                ? `Confirmer le remboursement à ${parties?.buyer?.company_name || parties?.buyer?.full_name || "l'acheteur"} ?`
-                : `Confirmer la libération des fonds à ${parties?.seller?.company_name || parties?.seller?.full_name || "le vendeur"} ?`}
+                ? t("admin.dispute.confirmRefundTitle", { name: buyerName })
+                : t("admin.dispute.confirmReleaseTitle", { name: sellerName })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {confirm === "refund"
-                ? "La commande sera marquée comme remboursée. Le remboursement effectif devra être déclenché manuellement dans Stripe Dashboard."
-                : "Les fonds seront libérés au vendeur. La commande sera marquée comme confirmée."}
+              {confirm === "refund" ? t("admin.dispute.refundDesc") : t("admin.dispute.releaseDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-foreground">Note de résolution (visible par les parties)</label>
+            <label className="text-xs font-semibold text-foreground">{t("admin.dispute.noteLabel")}</label>
             <Textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={3}
-              placeholder="Expliquez la décision (min 10 caractères)…"
+              placeholder={t("admin.dispute.notePlaceholder")}
             />
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={working}>Annuler</AlertDialogCancel>
+            <AlertDialogCancel disabled={working}>{t("admin.dispute.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleResolve} disabled={working || note.trim().length < 10}>
-              {working ? "Traitement…" : "Confirmer"}
+              {working ? t("admin.dispute.processing") : t("admin.dispute.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

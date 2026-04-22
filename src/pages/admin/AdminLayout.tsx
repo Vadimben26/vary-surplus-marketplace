@@ -1,20 +1,23 @@
 import { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { LayoutDashboard, Users, Package, ShoppingCart, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { to: "/admin", label: "Vue d'ensemble", icon: LayoutDashboard, end: true },
-  { to: "/admin/vendeurs", label: "Vendeurs", icon: Users },
-  { to: "/admin/lots", label: "Lots", icon: Package },
-  { to: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
-];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { to: "/admin", label: t("admin.nav.overview"), icon: LayoutDashboard, end: true },
+    { to: "/admin/vendeurs", label: t("admin.nav.sellers"), icon: Users },
+    { to: "/admin/lots", label: t("admin.nav.lots"), icon: Package },
+    { to: "/admin/commandes", label: t("admin.nav.orders"), icon: ShoppingCart },
+  ];
 
   const handleLogout = async () => {
     await signOut();
@@ -24,9 +27,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex w-full bg-muted/30">
       <aside className="w-64 bg-background border-r flex flex-col">
-        <div className="p-6 border-b">
-          <h1 className="text-2xl font-bold tracking-tight">Vary</h1>
-          <p className="text-xs text-muted-foreground mt-1">Administration</p>
+        <div className="p-6 border-b flex items-start justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Vary</h1>
+            <p className="text-xs text-muted-foreground mt-1">{t("admin.title")}</p>
+          </div>
+          <LanguageSwitcher />
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
@@ -60,7 +66,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </div>
           <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>
             <LogOut className="h-4 w-4 mr-2" />
-            Déconnexion
+            {t("admin.logout")}
           </Button>
         </div>
       </aside>

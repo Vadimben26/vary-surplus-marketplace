@@ -877,5 +877,208 @@
       "label": "Reparto de estados (tabla)",
       "desc": "Documento de control de calidad o clasificación visual."
     }
+  },
+  "admin": {
+    "title": "Administración",
+    "loading": "Cargando…",
+    "logout": "Cerrar sesión",
+    "nav": {
+      "overview": "Resumen",
+      "sellers": "Vendedores",
+      "lots": "Lotes",
+      "orders": "Pedidos"
+    },
+    "status": {
+      "approved": "Aprobado",
+      "rejected": "Rechazado",
+      "pending": "Pendiente",
+      "active": "Activo",
+      "draft": "Borrador",
+      "sold": "Vendido",
+      "disputed": "En disputa",
+      "pending_payment": "Pago pendiente",
+      "paid": "Pagado",
+      "preparing": "Preparación",
+      "shipped": "Enviado",
+      "delivered": "Entregado",
+      "confirmed": "Confirmado",
+      "refunded": "Reembolsado",
+      "cancelled": "Cancelado"
+    },
+    "time": {
+      "today": "hoy",
+      "yesterday": "ayer",
+      "daysAgo": "hace {{count}} d"
+    },
+    "dashboard": {
+      "title": "Resumen",
+      "totalSellers": "Total vendedores",
+      "activeLots": "Lotes activos",
+      "openDisputes": "Disputas abiertas",
+      "resolvedThisMonth": "Resueltas este mes",
+      "recentSellers": "Vendedores recientes",
+      "noRecentSellers": "No hay vendedores recientes.",
+      "openDisputesTitle": "Disputas abiertas recientes",
+      "noOpenDisputes": "No hay disputas abiertas.",
+      "resolve": "Resolver"
+    },
+    "sellers": {
+      "title": "Vendedores",
+      "tabs": {
+        "all": "Todos",
+        "pending": "Pendientes",
+        "approved": "Aprobados",
+        "rejected": "Rechazados"
+      },
+      "table": {
+        "company": "Empresa",
+        "name": "Nombre",
+        "email": "Email",
+        "registration": "Registro",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "empty": "Ningún vendedor en esta categoría.",
+      "viewDocs": "Ver documentos",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "approvedToast": "{{name}} aprobado — email enviado",
+      "approveError": "Error al aprobar",
+      "rejectError": "Error al rechazar",
+      "reasonRequired": "Motivo requerido",
+      "rejected": "Vendedor rechazado",
+      "docsTitle": "Documentos del vendedor",
+      "docsCompany": "📄 Documento de empresa (registro mercantil)",
+      "docsAuth": "📄 Documento de autenticidad (autorización de marca)",
+      "docsEmpty": "Ningún documento aportado.",
+      "rejectTitle": "Rechazar vendedor",
+      "rejectDesc": "Indica el motivo del rechazo. Se guardará en el expediente del vendedor.",
+      "rejectPlaceholder": "Motivo del rechazo…",
+      "cancel": "Cancelar",
+      "confirmReject": "Confirmar rechazo"
+    },
+    "lots": {
+      "title": "Lotes",
+      "tabs": {
+        "all": "Todos",
+        "active": "Activos",
+        "draft": "Borradores",
+        "sold": "Vendidos"
+      },
+      "searchPlaceholder": "Buscar por título o marca…",
+      "table": {
+        "title": "Título",
+        "brand": "Marca",
+        "seller": "Vendedor",
+        "price": "Precio",
+        "units": "Unidades",
+        "status": "Estado",
+        "createdAt": "Creado el",
+        "actions": "Acciones"
+      },
+      "empty": "Ningún lote.",
+      "view": "Ver",
+      "setDraft": "Pasar a borrador",
+      "publish": "Publicar",
+      "delete": "Eliminar",
+      "activeOrder": "Pedido activo",
+      "deleteTitle": "¿Eliminar este lote definitivamente?",
+      "deleteDesc": "\"{{title}}\" será eliminado de forma irreversible.",
+      "cancel": "Cancelar",
+      "draftedToast": "Lote pasado a borrador",
+      "publishedToast": "Lote publicado",
+      "deletedToast": "Lote eliminado",
+      "deleteError": "No se puede eliminar",
+      "genericError": "Error"
+    },
+    "orders": {
+      "title": "Pedidos",
+      "tabs": { "all": "Todos" },
+      "table": {
+        "lot": "Lote",
+        "buyer": "Comprador",
+        "seller": "Vendedor",
+        "amount": "Importe",
+        "commission": "Comisión",
+        "status": "Estado",
+        "date": "Fecha",
+        "actions": "Acciones"
+      },
+      "empty": "Ningún pedido.",
+      "notify": "Notificar",
+      "resolveDispute": "Resolver disputa",
+      "close": "Cerrar",
+      "alertSent": "Alerta de disputa enviada al equipo admin",
+      "copied": "Copiado",
+      "details": {
+        "stripePI": "Stripe PaymentIntent:",
+        "trackingNumber": "N.º de seguimiento:",
+        "shippedAt": "Enviado el:",
+        "deliveredAt": "Entregado el:",
+        "confirmedAt": "Confirmado el:"
+      }
+    },
+    "dispute": {
+      "loading": "Cargando disputa…",
+      "notFound": "No se encontró registro de disputa para este pedido.",
+      "reason": "Motivo",
+      "buyerDetails": "Detalles del comprador",
+      "evidence": "Pruebas ({{count}})",
+      "sellerResponse": "Respuesta del vendedor",
+      "buyer": "Comprador",
+      "seller": "Vendedor",
+      "timeline": "Cronología",
+      "events": {
+        "orderCreated": "Pedido creado",
+        "paymentConfirmed": "Pago confirmado",
+        "shipped": "Enviado",
+        "delivered": "Entregado",
+        "disputeOpened": "Disputa abierta"
+      },
+      "resolved": "Disputa resuelta",
+      "refundOutcome": "Reembolso",
+      "releaseOutcome": "Fondos liberados",
+      "refundBuyer": "Reembolsar al comprador",
+      "releaseSeller": "Liberar fondos al vendedor",
+      "confirmRefundTitle": "¿Confirmar reembolso a {{name}}?",
+      "confirmReleaseTitle": "¿Confirmar liberación de fondos a {{name}}?",
+      "buyerFallback": "el comprador",
+      "sellerFallback": "el vendedor",
+      "refundDesc": "El pedido será marcado como reembolsado. El reembolso efectivo deberá realizarse manualmente en Stripe Dashboard.",
+      "releaseDesc": "Los fondos se liberarán al vendedor. El pedido será marcado como confirmado.",
+      "noteLabel": "Nota de resolución (visible para ambas partes)",
+      "notePlaceholder": "Explica la decisión (mín 10 caracteres)…",
+      "noteRequired": "Nota de resolución requerida (mín 10 caracteres)",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "processing": "Procesando…",
+      "refundToast": "Reembolso a procesar manualmente en Stripe Dashboard — ver pedido {{id}}",
+      "releaseToast": "Fondos liberados al vendedor.",
+      "resolutionError": "Error durante la resolución"
+    }
+  },
+  "disputeForm": {
+    "title": "Abrir una disputa",
+    "reasonLabel": "Motivo de la disputa",
+    "selectPlaceholder": "— Seleccionar —",
+    "reasons": {
+      "notReceived": "Productos no recibidos",
+      "notMatching": "Productos no conformes a la descripción",
+      "damaged": "Productos dañados",
+      "wrongQuantity": "Cantidad incorrecta",
+      "other": "Otro"
+    },
+    "describeLabel": "Describe el problema",
+    "describePlaceholder": "Describe el problema con precisión (mín 50 caracteres)…",
+    "minChars": "{{count}} / 50 mín",
+    "evidenceLabel": "Añadir pruebas (fotos, PDF — máx {{max}} archivos, 5 MB cada uno)",
+    "chooseFiles": "Elegir archivos",
+    "submit": "Enviar disputa",
+    "submitting": "Enviando…",
+    "cancel": "Cancelar",
+    "fileTooLarge": "{{name}} supera 5 MB",
+    "fileUnsupported": "{{name}}: formato no soportado",
+    "submittedToast": "Disputa abierta. Nuestro equipo te contactará en 48h.",
+    "submitError": "Error al abrir la disputa"
   }
 }
