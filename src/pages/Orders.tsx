@@ -175,8 +175,9 @@ const DisputeCountdown = ({ deliveredAt }: { deliveredAt: string }) => {
   const remaining = Math.max(0, deadline - now);
   const hours = Math.floor(remaining / 3600_000);
   const minutes = Math.floor((remaining % 3600_000) / 60_000);
-  if (remaining === 0) return <span>Délai écoulé — confirmation automatique en cours</span>;
-  return <span>Il vous reste <strong>{hours}h {minutes}min</strong> pour signaler un problème</span>;
+  const { t } = useTranslation();
+  if (remaining === 0) return <span>{t("buyerTracking.deadlinePassed")}</span>;
+  return <span dangerouslySetInnerHTML={{ __html: t("buyerTracking.deliveredCountdown", { hours, minutes }).replace(/(\d+h \d+min)/, "<strong>$1</strong>") }} />;
 };
 
 const Orders = () => {
