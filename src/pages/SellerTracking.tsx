@@ -272,8 +272,8 @@ const SellerTracking = () => {
                     </>
                   )}
 
-                  {/* Dispute alert + details for disputed orders */}
-                  {activeTab === "disputes" && order.status === "disputed" && (() => {
+                  {/* Dispute alert + details — disputed orders live in "En cours" */}
+                  {order.status === "disputed" && (() => {
                     const dispute = (disputeRecords as any)[order.id];
                     return (
                       <div className="mt-3 space-y-2">
@@ -356,7 +356,7 @@ const SellerTracking = () => {
                     );
                   })()}
 
-                  {activeTab === "disputes" && order.status === "refunded" && (
+                  {activeTab === "completed" && order.status === "refunded" && (
                     <button
                       onClick={() => navigate(`/messages?with=${buyer?.id}&lot=${order.lot_id}`)}
                       className="mt-3 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
