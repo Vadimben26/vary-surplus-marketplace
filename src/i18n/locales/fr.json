@@ -1152,5 +1152,85 @@
     "multiLotNotice": "Votre panier contient {{count}} lots. Chaque lot est payé séparément — les vendeurs sont différents. Vous serez redirigé pour chaque paiement.",
     "payLot": "Payer le lot 1 / {{total}}",
     "pay": "Payer"
+  },
+  "appeal": {
+    "title": "Faire appel d'un litige",
+    "intro": "Votre compte est temporairement suspendu suite à un litige majeur (taux de défauts > 12%). Vous avez 7 jours pour soumettre un appel ; Vary rendra sa décision sous 48h.",
+    "disputeRate": "Taux de défauts",
+    "disputeRefund": "Remboursement réclamé",
+    "messageLabel": "Votre argumentaire (min 50 caractères)",
+    "messagePlaceholder": "Expliquez pourquoi vous contestez ce litige…",
+    "evidenceLabel": "Pièces justificatives (max {{max}} fichiers)",
+    "chooseFiles": "Choisir des fichiers",
+    "submit": "Soumettre l'appel",
+    "submitting": "Envoi…",
+    "submittedToast": "Appel envoyé. Vary répondra sous 48h.",
+    "submitError": "Erreur lors de l'envoi de l'appel",
+    "fileTooLarge": "{{name}} dépasse 5 Mo",
+    "fileUnsupported": "{{name}}: format non supporté",
+    "pendingTitle": "Appel en cours d'examen",
+    "pendingDesc": "Votre appel a été reçu. L'équipe Vary rendra sa décision sous 48h.",
+    "decisionLabel": "Décision Vary"
+  },
+  "disputeZones": {
+    "green": "Zone verte (≤ 2%)",
+    "orange": "Zone orange (2 – 12%)",
+    "red": "Zone rouge (> 12%)",
+    "greenDesc": "Litige mineur — résolution à l'amiable encouragée.",
+    "orangeDesc": "Litige modéré — l'admin Vary statue sous 48h.",
+    "redDesc": "Litige majeur — suspension automatique du vendeur, possibilité d'appel sous 7 jours."
+  },
+  "transportClaim": {
+    "title": "Réclamation transport",
+    "intro": "Signalez un incident de transport (colis endommagé, perdu, retardé) — distinct d'un litige produit.",
+    "descriptionLabel": "Description de l'incident (min 30 caractères)",
+    "descriptionPlaceholder": "Ex : palette éventrée à la livraison, 3 cartons écrasés…",
+    "amountLabel": "Montant réclamé (€, optionnel)",
+    "evidenceLabel": "Photos / documents (obligatoires, max {{max}} fichiers)",
+    "submit": "Envoyer la réclamation",
+    "submitting": "Envoi…",
+    "submittedToast": "Réclamation transport envoyée. L'équipe Vary la traitera sous 5 jours ouvrés.",
+    "submitError": "Erreur lors de l'envoi de la réclamation",
+    "minDescription": "Description trop courte (min 30 caractères)",
+    "evidenceRequired": "Au moins une pièce justificative est requise",
+    "openButton": "Signaler un incident transport"
+  },
+  "ratingPrompt": {
+    "title": "Notez votre vendeur",
+    "subtitle": "Votre commande est livrée et confirmée. Notez votre expérience pour aider la communauté Vary.",
+    "stars": "{{count}} étoile(s)",
+    "submit": "Envoyer ma note",
+    "submitted": "Merci pour votre avis !",
+    "expiresIn": "Vous pouvez encore noter pendant {{days}} jour(s).",
+    "commentLabel": "Commentaire (optionnel)",
+    "commentPlaceholder": "Partagez votre expérience…"
+  },
+  "adminPanel": {
+    "appeals": {
+      "title": "Appels vendeurs",
+      "empty": "Aucun appel en attente.",
+      "pending": "En attente",
+      "approved": "Approuvé",
+      "rejected": "Rejeté",
+      "decisionLabel": "Décision (visible par le vendeur, min 10 caractères)",
+      "approve": "Approuver l'appel (lever la suspension)",
+      "reject": "Rejeter l'appel",
+      "processing": "Traitement…",
+      "approvedToast": "Appel approuvé — suspension levée.",
+      "rejectedToast": "Appel rejeté.",
+      "messageLabel": "Argumentaire vendeur",
+      "evidenceLabel": "Pièces fournies"
+    },
+    "transportClaims": {
+      "title": "Réclamations transport",
+      "empty": "Aucune réclamation transport.",
+      "open": "Ouverte",
+      "resolved": "Résolue",
+      "amount": "Montant réclamé",
+      "resolveLabel": "Note de résolution (visible par les parties, min 10 caractères)",
+      "resolve": "Marquer comme résolue",
+      "processing": "Traitement…",
+      "resolvedToast": "Réclamation transport résolue."
+    }
   }
 }

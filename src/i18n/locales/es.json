@@ -1152,5 +1152,85 @@
     "multiLotNotice": "Tu carrito tiene {{count}} lotes. Cada lote se paga por separado. Serás redirigido para cada pago.",
     "payLot": "Pagar lote 1 / {{total}}",
     "pay": "Pagar"
+  },
+  "appeal": {
+    "title": "Apelar una disputa",
+    "intro": "Tu cuenta está suspendida temporalmente debido a una disputa mayor (tasa de defectos > 12%). Tienes 7 días para enviar una apelación; Vary responderá en 48h.",
+    "disputeRate": "Tasa de defectos",
+    "disputeRefund": "Reembolso reclamado",
+    "messageLabel": "Tu argumento (mín 50 caracteres)",
+    "messagePlaceholder": "Explica por qué impugnas esta disputa…",
+    "evidenceLabel": "Documentos justificativos (máx {{max}} archivos)",
+    "chooseFiles": "Elegir archivos",
+    "submit": "Enviar apelación",
+    "submitting": "Enviando…",
+    "submittedToast": "Apelación enviada. Vary responderá en 48h.",
+    "submitError": "Error al enviar la apelación",
+    "fileTooLarge": "{{name}} supera 5 MB",
+    "fileUnsupported": "{{name}}: formato no soportado",
+    "pendingTitle": "Apelación en revisión",
+    "pendingDesc": "Tu apelación ha sido recibida. El equipo de Vary emitirá su decisión en 48h.",
+    "decisionLabel": "Decisión Vary"
+  },
+  "disputeZones": {
+    "green": "Zona verde (≤ 2%)",
+    "orange": "Zona naranja (2 – 12%)",
+    "red": "Zona roja (> 12%)",
+    "greenDesc": "Disputa menor — se fomenta resolución amistosa.",
+    "orangeDesc": "Disputa moderada — el admin Vary decide en 48h.",
+    "redDesc": "Disputa mayor — suspensión automática del vendedor, apelación posible en 7 días."
+  },
+  "transportClaim": {
+    "title": "Reclamación de transporte",
+    "intro": "Reporta un incidente de transporte (paquete dañado, perdido, retrasado) — distinto de una disputa de producto.",
+    "descriptionLabel": "Descripción del incidente (mín 30 caracteres)",
+    "descriptionPlaceholder": "Ej.: palet roto en la entrega, 3 cajas aplastadas…",
+    "amountLabel": "Importe reclamado (€, opcional)",
+    "evidenceLabel": "Fotos / documentos (obligatorios, máx {{max}} archivos)",
+    "submit": "Enviar reclamación",
+    "submitting": "Enviando…",
+    "submittedToast": "Reclamación de transporte enviada. El equipo Vary la procesará en 5 días hábiles.",
+    "submitError": "Error al enviar la reclamación",
+    "minDescription": "Descripción demasiado corta (mín 30 caracteres)",
+    "evidenceRequired": "Se requiere al menos una prueba justificativa",
+    "openButton": "Reportar un incidente de transporte"
+  },
+  "ratingPrompt": {
+    "title": "Valora a tu vendedor",
+    "subtitle": "Tu pedido ha sido entregado y confirmado. Valora tu experiencia para ayudar a la comunidad Vary.",
+    "stars": "{{count}} estrella(s)",
+    "submit": "Enviar valoración",
+    "submitted": "¡Gracias por tu reseña!",
+    "expiresIn": "Aún puedes valorar durante {{days}} día(s).",
+    "commentLabel": "Comentario (opcional)",
+    "commentPlaceholder": "Comparte tu experiencia…"
+  },
+  "adminPanel": {
+    "appeals": {
+      "title": "Apelaciones de vendedores",
+      "empty": "Ninguna apelación pendiente.",
+      "pending": "Pendiente",
+      "approved": "Aprobada",
+      "rejected": "Rechazada",
+      "decisionLabel": "Decisión (visible para el vendedor, mín 10 caracteres)",
+      "approve": "Aprobar apelación (levantar suspensión)",
+      "reject": "Rechazar apelación",
+      "processing": "Procesando…",
+      "approvedToast": "Apelación aprobada — suspensión levantada.",
+      "rejectedToast": "Apelación rechazada.",
+      "messageLabel": "Argumento del vendedor",
+      "evidenceLabel": "Documentos aportados"
+    },
+    "transportClaims": {
+      "title": "Reclamaciones de transporte",
+      "empty": "Ninguna reclamación de transporte.",
+      "open": "Abierta",
+      "resolved": "Resuelta",
+      "amount": "Importe reclamado",
+      "resolveLabel": "Nota de resolución (visible para las partes, mín 10 caracteres)",
+      "resolve": "Marcar como resuelta",
+      "processing": "Procesando…",
+      "resolvedToast": "Reclamación de transporte resuelta."
+    }
   }
 }

@@ -1152,5 +1152,85 @@
     "multiLotNotice": "Your cart has {{count}} lots. Each lot is paid separately as sellers differ. You'll be redirected for each payment.",
     "payLot": "Pay lot 1 / {{total}}",
     "pay": "Pay"
+  },
+  "appeal": {
+    "title": "Appeal a dispute",
+    "intro": "Your account is temporarily suspended due to a major dispute (defect rate > 12%). You have 7 days to submit an appeal; Vary will respond within 48h.",
+    "disputeRate": "Defect rate",
+    "disputeRefund": "Refund claimed",
+    "messageLabel": "Your argument (min 50 characters)",
+    "messagePlaceholder": "Explain why you contest this dispute…",
+    "evidenceLabel": "Supporting documents (max {{max}} files)",
+    "chooseFiles": "Choose files",
+    "submit": "Submit appeal",
+    "submitting": "Sending…",
+    "submittedToast": "Appeal sent. Vary will respond within 48h.",
+    "submitError": "Error sending the appeal",
+    "fileTooLarge": "{{name}} exceeds 5 MB",
+    "fileUnsupported": "{{name}}: unsupported format",
+    "pendingTitle": "Appeal under review",
+    "pendingDesc": "Your appeal has been received. The Vary team will issue its decision within 48h.",
+    "decisionLabel": "Vary decision"
+  },
+  "disputeZones": {
+    "green": "Green zone (≤ 2%)",
+    "orange": "Orange zone (2 – 12%)",
+    "red": "Red zone (> 12%)",
+    "greenDesc": "Minor dispute — amicable resolution encouraged.",
+    "orangeDesc": "Moderate dispute — Vary admin decides within 48h.",
+    "redDesc": "Major dispute — automatic seller suspension, appeal possible within 7 days."
+  },
+  "transportClaim": {
+    "title": "Transport claim",
+    "intro": "Report a transport incident (damaged, lost, delayed package) — distinct from a product dispute.",
+    "descriptionLabel": "Incident description (min 30 characters)",
+    "descriptionPlaceholder": "E.g.: pallet torn open at delivery, 3 boxes crushed…",
+    "amountLabel": "Amount claimed (€, optional)",
+    "evidenceLabel": "Photos / documents (required, max {{max}} files)",
+    "submit": "Send claim",
+    "submitting": "Sending…",
+    "submittedToast": "Transport claim sent. The Vary team will process it within 5 business days.",
+    "submitError": "Error sending the claim",
+    "minDescription": "Description too short (min 30 characters)",
+    "evidenceRequired": "At least one piece of evidence is required",
+    "openButton": "Report a transport incident"
+  },
+  "ratingPrompt": {
+    "title": "Rate your seller",
+    "subtitle": "Your order has been delivered and confirmed. Rate your experience to help the Vary community.",
+    "stars": "{{count}} star(s)",
+    "submit": "Submit rating",
+    "submitted": "Thanks for your review!",
+    "expiresIn": "You can still rate for {{days}} more day(s).",
+    "commentLabel": "Comment (optional)",
+    "commentPlaceholder": "Share your experience…"
+  },
+  "adminPanel": {
+    "appeals": {
+      "title": "Seller appeals",
+      "empty": "No pending appeals.",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "decisionLabel": "Decision (visible to the seller, min 10 characters)",
+      "approve": "Approve appeal (lift suspension)",
+      "reject": "Reject appeal",
+      "processing": "Processing…",
+      "approvedToast": "Appeal approved — suspension lifted.",
+      "rejectedToast": "Appeal rejected.",
+      "messageLabel": "Seller argument",
+      "evidenceLabel": "Submitted documents"
+    },
+    "transportClaims": {
+      "title": "Transport claims",
+      "empty": "No transport claims.",
+      "open": "Open",
+      "resolved": "Resolved",
+      "amount": "Amount claimed",
+      "resolveLabel": "Resolution note (visible to parties, min 10 characters)",
+      "resolve": "Mark as resolved",
+      "processing": "Processing…",
+      "resolvedToast": "Transport claim resolved."
+    }
   }
 }
