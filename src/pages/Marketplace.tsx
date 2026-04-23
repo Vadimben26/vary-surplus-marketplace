@@ -12,12 +12,9 @@ import FilterChips from "@/components/marketplace/FilterChips";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { useShippingMatrix } from "@/hooks/useShippingMatrix";
-import { useBuyerShippingCountry } from "@/hooks/useBuyerShippingCountry";
 import { useBuyerMatching } from "@/hooks/useBuyerMatching";
 import { useBuyerPrefs } from "@/hooks/useBuyerPrefs";
 import { sortLotsByMatch } from "@/lib/buyerMatching";
-import { computeShippingCost, FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE } from "@/lib/shipping";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const Marketplace = () => {
@@ -117,32 +114,15 @@ const Marketplace = () => {
     return { countries, categories, brands, total: dbLots.length };
   }, [dbLots]);
 
-  const { country: buyerCountry } = useBuyerShippingCountry();
-  const { data: shippingMatrix } = useShippingMatrix();
   const { profile: matchingProfile } = useBuyerMatching();
 
   const filteredLots = useMemo(() => {
     /**
-     * Phase 6 visibility rule:
-     * - For buyers with a profile (buyerCountry set), hide lots whose
-     *   `price < max(FLOOR_PRICE, 11 × shipping cost)` from origin → buyer.
-     * - For guests / no profile, no filter is applied.
-     *
-     * Phase 7: results are then sorted by buyer ↔ lot match score
-     * (categories, delivery countries, budget, revenue tier, recency)
-     * so the most relevant lots surface first. Guests keep the default
-     * recency order.
+     * Sellers reach all 24 supported EU countries — no shipping-cost gate.
+     * Results are sorted by buyer ↔ lot match score (categories, delivery
+     * countries, budget, revenue tier, recency) so the most relevant lots
+     * surface first. Guests keep the default recency order.
      */
-    const isReachable = (lot: any): boolean => {
-      if (!buyerCountry || !shippingMatrix) return true;
-      const origin = lot.location || (lot.profiles as any)?.country;
-      if (!origin) return true;
-      const r = computeShippingCost(origin, buyerCountry, lot.pallets || 1, shippingMatrix);
-      if (!r) return false;
-      const minPrice = Math.max(FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE * r.cost);
-      return lot.price >= minPrice;
-    };
-
     const filtered = dbLots.filter((lot: any) => {
       if (filters.search) {
         const q = filters.search.toLowerCase();
@@ -162,13 +142,12 @@ const Marketplace = () => {
       }
       if (filters.brandsInclude.length > 0 && !filters.brandsInclude.includes(lot.brand)) return false;
       if (filters.brandsExclude.length > 0 && filters.brandsExclude.includes(lot.brand)) return false;
-      if (!isReachable(lot)) return false;
       return true;
     });
 
     // Personalized sort for buyers with a completed questionnaire.
     return matchingProfile ? sortLotsByMatch(filtered, matchingProfile) : filtered;
-  }, [filters, dbLots, buyerCountry, shippingMatrix, matchingProfile]);
+  }, [filters, dbLots, matchingProfile]);
 
   const firstName = profile?.full_name?.split(" ")[0];
   const vipLots = dbLots.slice(0, 5);

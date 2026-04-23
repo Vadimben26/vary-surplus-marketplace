@@ -10,9 +10,6 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBuyerPrefs } from "@/hooks/useBuyerPrefs";
-import { useBuyerShippingCountry } from "@/hooks/useBuyerShippingCountry";
-import { useShippingMatrix } from "@/hooks/useShippingMatrix";
-import { computeShippingCost, FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE, fmtEur } from "@/lib/shipping";
 import LotCard from "@/components/LotCard";
 import BuyerPrefsGate from "@/components/BuyerPrefsGate";
 import GuestGate from "@/components/GuestGate";
@@ -82,19 +79,9 @@ const LotDetail = () => {
   const requiresPrefs = isFilteredLot && !!user && !prefsLoading && !hasBuyerPrefs;
   const requiresVerifiedPro = isFilteredLot && !!user && !prefsLoading && hasBuyerPrefs && !isVerifiedPro;
 
-  // Phase 6: shipping reachability check (lot.price >= 11 × real shipping cost)
-  const { country: buyerCountry } = useBuyerShippingCountry();
-  const { data: shippingMatrix } = useShippingMatrix();
-  const shippingReach = useMemo(() => {
-    if (!lot || !buyerCountry || !shippingMatrix) return null;
-    const origin = lot.location || (lot.profiles as any)?.country;
-    if (!origin) return null;
-    const r = computeShippingCost(origin, buyerCountry, lot.pallets || 1, shippingMatrix);
-    if (!r) return { reachable: false, minPrice: null, shippingCost: 0 };
-    const minPrice = Math.max(FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE * r.cost);
-    return { reachable: lot.price >= minPrice, minPrice, shippingCost: r.cost };
-  }, [lot, buyerCountry, shippingMatrix]);
-  const isUnreachable = !!shippingReach && !shippingReach.reachable;
+  // Reachability is no longer gated by shipping cost — flat 500 € minimum
+  // applies to every published lot, and sellers reach all 24 EU countries.
+  const isUnreachable = false;
 
   const { data: similarLots = [] } = useQuery({
     queryKey: ["similar-lots", lot?.category, lot?.brand, id],
