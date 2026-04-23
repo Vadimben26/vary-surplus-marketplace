@@ -7,7 +7,7 @@ import {
   Edit, Trash2, BarChart3, Clock, CheckCircle2, X, Crown, ImagePlus,
   Heart, ShoppingCart, MessageCircle, User, Lock, FileSpreadsheet, Layers, CreditCard, AlertTriangle, Upload, Download
 } from "lucide-react";
-import ShippingReachPanel from "@/components/seller/ShippingReachPanel";
+import SellerSuspensionBanner from "@/components/seller/SellerSuspensionBanner";
 import SellerApprovalBanner from "@/components/seller/SellerApprovalBanner";
 import { useSellerApproval } from "@/hooks/useSellerApproval";
 import { useTranslation } from "react-i18next";
@@ -1032,11 +1032,18 @@ const SellerDashboard = () => {
                 </h2>
                 <button
                   onClick={() => saveMutation.mutate()}
-                  disabled={saveMutation.isPending || countRequiredFilled(slotPhotos) < 6}
+                  disabled={
+                    saveMutation.isPending ||
+                    countRequiredFilled(slotPhotos) < 6 ||
+                    !price ||
+                    parseFloat(price) < 500
+                  }
                   title={
                     countRequiredFilled(slotPhotos) < 6
                       ? t("lotPhotos.blockedPublish", "Les 6 photos obligatoires doivent être téléversées avant publication.")
-                      : undefined
+                      : !price || parseFloat(price) < 500
+                        ? t("sellerDashboard.minPriceError", "Le prix minimum d'un lot publié est de 500 €.")
+                        : undefined
                   }
                   className="px-4 py-1.5 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
@@ -1181,9 +1188,11 @@ const SellerDashboard = () => {
                         </label>
                         <Input type="number" min="1" value={pallets} onChange={e => setPallets(e.target.value)} placeholder="1" className="bg-muted/50 border-none" />
                         <p className="text-[10px] text-muted-foreground italic">
-                          {t("sellerDashboard.palletsHint", "Détermine le coût de transport et donc les pays accessibles.")}
+                          {t("sellerDashboard.palletsHint", "Détermine le coût de transport facturé à l'acheteur.")}
                         </p>
                       </div>
+
+                      {/* Lot price (HT) — minimum 500 € */}
 
                       {/* Retail price */}
                       <div className="space-y-1.5">
@@ -1191,10 +1200,31 @@ const SellerDashboard = () => {
                         <Input type="number" value={retailPrice} onChange={e => setRetailPrice(e.target.value)} placeholder="12000" className="bg-muted/50 border-none" />
                       </div>
 
-                      {/* Lot price */}
+                      {/* Lot price (HT) */}
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{t("sellerDashboard.lotPrice")} * (HT)</label>
-                        <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="5000" className="bg-muted/50 border-none font-heading font-bold text-lg" />
+                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                          {t("sellerDashboard.lotPrice")} * (HT){" "}
+                          <span className="text-muted-foreground/70 normal-case">
+                            — {t("sellerDashboard.minPriceLabel", "min. 500 €")}
+                          </span>
+                        </label>
+                        <Input
+                          type="number"
+                          min="500"
+                          value={price}
+                          onChange={e => setPrice(e.target.value)}
+                          placeholder="5000"
+                          className={`bg-muted/50 border-none font-heading font-bold text-lg ${
+                            price && parseFloat(price) > 0 && parseFloat(price) < 500
+                              ? "ring-2 ring-destructive/50"
+                              : ""
+                          }`}
+                        />
+                        {price && parseFloat(price) > 0 && parseFloat(price) < 500 && (
+                          <p className="text-[10px] font-semibold text-destructive">
+                            {t("sellerDashboard.minPriceError", "Le prix minimum d'un lot publié est de 500 €.")}
+                          </p>
+                        )}
                       </div>
 
                       {/* Auto-computed preview — seller sees HT price only */}
@@ -1234,13 +1264,6 @@ const SellerDashboard = () => {
                       )}
                     </div>
 
-                    {/* Live shipping reach preview */}
-                    <ShippingReachPanel
-                      originCountry={originCountry}
-                      lotPrice={parseFloat(price) || 0}
-                      pallets={Math.max(1, parseInt(pallets) || 1)}
-                    />
-
                     {/* Action buttons */}
                     <div className="flex gap-2">
                       <button
@@ -1251,11 +1274,18 @@ const SellerDashboard = () => {
                       </button>
                       <button
                         onClick={() => saveMutation.mutate()}
-                        disabled={saveMutation.isPending || countRequiredFilled(slotPhotos) < 6}
+                        disabled={
+                          saveMutation.isPending ||
+                          countRequiredFilled(slotPhotos) < 6 ||
+                          !price ||
+                          parseFloat(price) < 500
+                        }
                         title={
                           countRequiredFilled(slotPhotos) < 6
                             ? t("lotPhotos.blockedPublish", "Les 6 photos obligatoires doivent être téléversées avant publication.")
-                            : undefined
+                            : !price || parseFloat(price) < 500
+                              ? t("sellerDashboard.minPriceError", "Le prix minimum d'un lot publié est de 500 €.")
+                              : undefined
                         }
                         className="flex-1 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                       >
