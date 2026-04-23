@@ -81,7 +81,6 @@ const LotDetail = () => {
 
   // Reachability is no longer gated by shipping cost — flat 500 € minimum
   // applies to every published lot, and sellers reach all 24 EU countries.
-  const isUnreachable = false;
 
   const { data: similarLots = [] } = useQuery({
     queryKey: ["similar-lots", lot?.category, lot?.brand, id],
@@ -161,10 +160,6 @@ const LotDetail = () => {
   const handleAddToCart = () => {
     if (!user) {
       setShowGuestGate(true);
-      return;
-    }
-    if (isUnreachable) {
-      toast.error(t("shipping.unreachableToast", "Ce lot ne peut pas être livré dans votre pays."));
       return;
     }
     if (requiresPrefs) {
