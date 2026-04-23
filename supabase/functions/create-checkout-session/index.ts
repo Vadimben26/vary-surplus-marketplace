@@ -62,18 +62,20 @@ serve(async (req) => {
     }
 
     const body = await req.json().catch(() => ({}));
-    const lotId = body?.lotId;
-    // Shipping cost is computed client-side from the shipping matrix and the
-    // buyer's delivery address. The server trusts a non-negative number ≤ a
-    // sane cap (avoids tampering inflating Stripe charges).
+    // Backward-compatible: accept either `lotId` (single) or `lotIds` (multi from same seller)
+    const lotIdsRaw: string[] = Array.isArray(body?.lotIds)
+      ? body.lotIds
+      : body?.lotId
+        ? [body.lotId]
+        : [];
     const shippingCostRaw = Number(body?.shippingCost ?? 0);
     const shippingCost =
       Number.isFinite(shippingCostRaw) && shippingCostRaw >= 0 && shippingCostRaw <= 50000
         ? Math.round(shippingCostRaw * 100) / 100
         : 0;
 
-    if (!lotId) {
-      return new Response(JSON.stringify({ error: "Missing lotId" }), {
+    if (!lotIdsRaw.length) {
+      return new Response(JSON.stringify({ error: "Missing lotId(s)" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -95,22 +97,29 @@ serve(async (req) => {
       });
     }
 
-    // Lot + seller
-    const { data: lot } = await supabaseAdmin
+    // Lots — must all belong to the same seller and be active.
+    const { data: lots } = await supabaseAdmin
       .from("lots")
       .select("id, title, price, units, seller_id, status, images")
-      .eq("id", lotId)
-      .single();
-    if (!lot || lot.status !== "active") {
-      return new Response(JSON.stringify({ error: "Lot not available" }), {
+      .in("id", lotIdsRaw);
+    if (!lots || lots.length !== lotIdsRaw.length || lots.some((l) => l.status !== "active")) {
+      return new Response(JSON.stringify({ error: "One or more lots are not available" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const sellerIds = Array.from(new Set(lots.map((l) => l.seller_id)));
+    if (sellerIds.length > 1) {
+      return new Response(
+        JSON.stringify({ error: "All lots in a single checkout must come from the same seller." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const sellerProfileId = sellerIds[0];
 
     const { data: sellerProfile } = await supabaseAdmin
       .from("profiles")
       .select("id, stripe_account_id, email")
-      .eq("id", lot.seller_id)
+      .eq("id", sellerProfileId)
       .single();
 
     if (!sellerProfile?.stripe_account_id) {
