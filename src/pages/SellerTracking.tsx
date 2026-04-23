@@ -56,7 +56,7 @@ const SellerTracking = () => {
         .from("orders")
         .select("*, lots(title, brand, images), profiles!orders_buyer_id_fkey(id, full_name, company_name)")
         .eq("seller_id", profile.id)
-        .in("status", ["paid", "preparing", "shipped", "delivered", "confirmed"])
+        .in("status", ["paid", "preparing", "shipped", "delivered", "disputed"])
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return data || [];
@@ -64,15 +64,15 @@ const SellerTracking = () => {
     enabled: !!profile?.id,
   });
 
-  const { data: disputes = [], isLoading: disputesLoading } = useQuery({
-    queryKey: ["seller-disputes", profile?.id],
+  const { data: completedOrders = [], isLoading: completedLoading } = useQuery({
+    queryKey: ["seller-completed", profile?.id],
     queryFn: async () => {
       if (!profile?.id) return [];
       const { data, error } = await supabase
         .from("orders")
         .select("*, lots(title, brand, images), profiles!orders_buyer_id_fkey(id, full_name, company_name)")
         .eq("seller_id", profile.id)
-        .in("status", ["disputed", "refunded"])
+        .in("status", ["confirmed", "refunded"])
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return data || [];
