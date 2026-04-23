@@ -443,30 +443,29 @@ const Orders = () => {
                         onSubmitted={() => {
                           setDisputingId(null);
                           refetch();
-                          refetchDisputes();
-                          setActiveTab("disputes");
+                          queryClient.invalidateQueries({ queryKey: ["buyer-dispute-records"] });
                         }}
                       />
                     </div>
                   )}
 
-                  {/* CONFIRMED — leave a review */}
-                  {activeTab === "active" && order.status === "confirmed" && profile?.id && (
-                    <ReviewBlock order={order} buyerProfileId={profile.id} onSaved={() => refetch()} />
+                  {/* CONFIRMED — leave a review (in completed tab) */}
+                  {activeTab === "completed" && order.status === "confirmed" && profile?.id && (
+                    <ReviewBlock order={order} buyerProfileId={profile.id} onSaved={() => refetchCompleted()} />
                   )}
 
-                  {/* Dispute details (disputes tab) */}
-                  {activeTab === "disputes" && order.status === "disputed" && (
+                  {/* Dispute in progress — visible inside "En cours" on the order card */}
+                  {activeTab === "active" && order.status === "disputed" && (
                     <div className="mt-3 space-y-2">
                       <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
                         <div className="flex items-start gap-2">
                           <AlertTriangle className="h-4 w-4 text-amber-700 flex-shrink-0 mt-0.5" />
                           <div className="min-w-0">
                             <p className="text-xs font-bold text-amber-800">
-                              {t("buyerTracking.disputeInReview")}{dispute?.reason ? ` — ${dispute.reason}` : ""}
+                              {t("buyerTracking.disputeInReview", "Litige en cours")}{dispute?.reason ? ` — ${dispute.reason}` : ""}
                             </p>
                             <p className="text-[11px] text-amber-700 mt-0.5">
-                              {t("buyerTracking.disputeFundsHeld")}
+                              {t("buyerTracking.disputeFundsHeld", "Les fonds sont bloqués jusqu'à résolution.")}
                               {dispute?.opened_at && ` ${t("buyerTracking.disputeOpenedOn", { date: new Date(dispute.opened_at).toLocaleString() })}`}
                             </p>
                           </div>
@@ -483,10 +482,10 @@ const Orders = () => {
                     </div>
                   )}
 
-                  {activeTab === "disputes" && order.status === "refunded" && (
+                  {activeTab === "completed" && order.status === "refunded" && (
                     <div className="mt-3 rounded-xl bg-muted/50 border border-border p-3">
-                      <p className="text-xs font-semibold text-foreground">{t("buyerTracking.refundedTitle")}</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">{t("buyerTracking.refundedDesc")}</p>
+                      <p className="text-xs font-semibold text-foreground">{t("buyerTracking.refundedTitle", "Commande remboursée")}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{t("buyerTracking.refundedDesc", "Le remboursement a été traité.")}</p>
                     </div>
                   )}
                 </motion.div>
