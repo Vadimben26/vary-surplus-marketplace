@@ -200,48 +200,105 @@ export type Database = {
           },
         ]
       }
+      dispute_items: {
+        Row: {
+          created_at: string
+          defective_quantity: number
+          dispute_id: string
+          id: string
+          lot_item_id: string
+          photo_url: string
+          retail_price_unit: number
+        }
+        Insert: {
+          created_at?: string
+          defective_quantity: number
+          dispute_id: string
+          id?: string
+          lot_item_id: string
+          photo_url: string
+          retail_price_unit?: number
+        }
+        Update: {
+          created_at?: string
+          defective_quantity?: number
+          dispute_id?: string
+          id?: string
+          lot_item_id?: string
+          photo_url?: string
+          retail_price_unit?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_items_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispute_items_lot_item_id_fkey"
+            columns: ["lot_item_id"]
+            isOneToOne: false
+            referencedRelation: "lot_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       disputes: {
         Row: {
           buyer_id: string
+          defect_percentage: number | null
           details: string | null
+          dispute_type: string
           evidence_urls: string[] | null
           id: string
           opened_at: string
           order_id: string
           reason: string
+          refund_amount: number | null
           resolution_note: string | null
           resolved_at: string | null
           resolved_by: string | null
           seller_id: string
           status: string
+          zone: string | null
         }
         Insert: {
           buyer_id: string
+          defect_percentage?: number | null
           details?: string | null
+          dispute_type?: string
           evidence_urls?: string[] | null
           id?: string
           opened_at?: string
           order_id: string
           reason: string
+          refund_amount?: number | null
           resolution_note?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
           seller_id: string
           status?: string
+          zone?: string | null
         }
         Update: {
           buyer_id?: string
+          defect_percentage?: number | null
           details?: string | null
+          dispute_type?: string
           evidence_urls?: string[] | null
           id?: string
           opened_at?: string
           order_id?: string
           reason?: string
+          refund_amount?: number | null
           resolution_note?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
           seller_id?: string
           status?: string
+          zone?: string | null
         }
         Relationships: [
           {
@@ -606,6 +663,7 @@ export type Database = {
           phone: string | null
           siret: string | null
           stripe_account_id: string | null
+          suspended_until: string | null
           updated_at: string
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"]
@@ -621,6 +679,7 @@ export type Database = {
           phone?: string | null
           siret?: string | null
           stripe_account_id?: string | null
+          suspended_until?: string | null
           updated_at?: string
           user_id: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -636,6 +695,7 @@ export type Database = {
           phone?: string | null
           siret?: string | null
           stripe_account_id?: string | null
+          suspended_until?: string | null
           updated_at?: string
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -700,6 +760,53 @@ export type Database = {
             columns: ["seller_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_appeals: {
+        Row: {
+          admin_decision: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          dispute_id: string | null
+          evidence_urls: string[]
+          id: string
+          message: string
+          seller_id: string
+          status: string
+        }
+        Insert: {
+          admin_decision?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          dispute_id?: string | null
+          evidence_urls?: string[]
+          id?: string
+          message: string
+          seller_id: string
+          status?: string
+        }
+        Update: {
+          admin_decision?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          dispute_id?: string | null
+          evidence_urls?: string[]
+          id?: string
+          message?: string
+          seller_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_appeals_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
             referencedColumns: ["id"]
           },
         ]
@@ -1005,6 +1112,59 @@ export type Database = {
           },
         ]
       }
+      transport_claims: {
+        Row: {
+          buyer_id: string
+          claim_amount: number | null
+          description: string
+          evidence_urls: string[]
+          id: string
+          opened_at: string
+          order_id: string
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          seller_id: string
+          status: string
+        }
+        Insert: {
+          buyer_id: string
+          claim_amount?: number | null
+          description: string
+          evidence_urls?: string[]
+          id?: string
+          opened_at?: string
+          order_id: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seller_id: string
+          status?: string
+        }
+        Update: {
+          buyer_id?: string
+          claim_amount?: number | null
+          description?: string
+          evidence_urls?: string[]
+          id?: string
+          opened_at?: string
+          order_id?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seller_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transport_claims_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1023,6 +1183,7 @@ export type Database = {
           phone: string | null
           siret: string | null
           stripe_account_id: string | null
+          suspended_until: string | null
           updated_at: string
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"]

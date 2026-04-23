@@ -4,14 +4,11 @@
  *
  * Formula:
  *   shipping_cost = nb_pallets × cost_per_pallet(category) × pallet_coefficient(nb_pallets)
- *   minimum_basket = MAX(FLOOR_PRICE, MULTIPLE × shipping_cost)
  *
- * A buyer in country X can purchase a lot from country Y only if
- *   lot_price >= MULTIPLE × shipping_cost(Y → X, lot.pallets)
+ * Note: A flat minimum lot price of 500 € is enforced at the database level
+ * via a CHECK constraint on `lots.price`. The marketplace no longer filters
+ * lots by shipping coverage — sellers reach all 24 supported EU countries.
  */
-
-export const FLOOR_PRICE = 300;
-export const PRICE_TO_SHIPPING_MULTIPLE = 11;
 
 export interface ShippingRoute {
   origin_country: string;
@@ -77,59 +74,57 @@ export const computeShippingCost = (
   return { cost: pallets * costPerPallet * coef, category: route.category, route };
 };
 
-/** Compute the minimum lot price required to ship from origin to destination. */
-export const computeMinimumPrice = (
-  origin: string,
-  destination: string,
-  pallets: number,
-  matrix: ShippingMatrix,
-): number | null => {
-  const result = computeShippingCost(origin, destination, pallets, matrix);
-  if (!result) return null;
-  return Math.max(FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE * result.cost);
-};
-
-/** For a given origin + price + pallets, return the list of accessible/blocked countries. */
-export interface CountryReach {
-  country: string;
-  accessible: boolean;
-  shippingCost: number;
-  minPrice: number;
-  category: string;
-}
-
-export const computeCountryReach = (
-  origin: string,
-  lotPrice: number,
-  pallets: number,
-  matrix: ShippingMatrix,
-): CountryReach[] => {
-  // All distinct destination countries from the matrix
-  const allCountries = Array.from(
-    new Set(matrix.routes.map((r) => r.destination_country)),
-  ).sort();
-
-  return allCountries.map((country) => {
-    const result = computeShippingCost(origin, country, pallets, matrix);
-    if (!result) {
-      return {
-        country,
-        accessible: false,
-        shippingCost: 0,
-        minPrice: 0,
-        category: "—",
-      };
-    }
-    const minPrice = Math.max(FLOOR_PRICE, PRICE_TO_SHIPPING_MULTIPLE * result.cost);
-    return {
-      country,
-      accessible: lotPrice > 0 && lotPrice >= minPrice,
-      shippingCost: Math.round(result.cost),
-      minPrice: Math.round(minPrice),
-      category: result.category,
-    };
-  });
-};
-
 /** Format a number as EUR with FR locale. */
 export const fmtEur = (n: number) => `${Math.round(n).toLocaleString("fr-FR")} €`;
+
+/**
+ * Group cart lots by seller and compute one shipping cost per seller group.
+ * Each group is shipped from the seller's location to the buyer country, using
+ * the SUM of pallets across all the seller's lots in the cart.
+ */
+export interface SellerShippingGroup {
+  sellerId: string;
+  sellerLocation: string;
+  totalPallets: number;
+  shippingCost: number;
+  category: string | null;
+  lotIds: string[];
+}
+
+export const computeMultiLotShipping = (
+  lots: Array<{ id: string; seller_id: string; location?: string | null; pallets?: number | null }>,
+  destinationCountry: string,
+  matrix: ShippingMatrix,
+): SellerShippingGroup[] => {
+  const bySeller = new Map<string, SellerShippingGroup>();
+  for (const lot of lots) {
+    const key = lot.seller_id;
+    const existing = bySeller.get(key);
+    const pallets = Math.max(1, lot.pallets || 1);
+    if (existing) {
+      existing.totalPallets += pallets;
+      existing.lotIds.push(lot.id);
+    } else {
+      bySeller.set(key, {
+        sellerId: key,
+        sellerLocation: lot.location || "",
+        totalPallets: pallets,
+        shippingCost: 0,
+        category: null,
+        lotIds: [lot.id],
+      });
+    }
+  }
+  // Compute one shipping cost per group from seller location → destination.
+  for (const group of bySeller.values()) {
+    const result = computeShippingCost(
+      group.sellerLocation,
+      destinationCountry,
+      group.totalPallets,
+      matrix,
+    );
+    group.shippingCost = result?.cost ?? 0;
+    group.category = result?.category ?? null;
+  }
+  return Array.from(bySeller.values());
+};
