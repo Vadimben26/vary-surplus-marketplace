@@ -14,13 +14,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useBuyerMatching } from "@/hooks/useBuyerMatching";
 import { useBuyerPrefs } from "@/hooks/useBuyerPrefs";
+import { useBuyerFilterProfile } from "@/hooks/useBuyerFilterProfile";
 import { sortLotsByMatch } from "@/lib/buyerMatching";
+import { hasAnyFilter, isBuyerEligible, type BuyerFilters } from "@/lib/buyerFilters";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const Marketplace = () => {
   const { t } = useTranslation();
   const { profile } = useAuth();
   const { isVerifiedPro } = useBuyerPrefs();
+  const { profile: buyerFilterProfile } = useBuyerFilterProfile();
 
   usePageMeta({
     title: "Marketplace — Lots de déstock vérifiés",
@@ -60,25 +63,17 @@ const Marketplace = () => {
     return Array.from(ids);
   }, [dbLots]);
 
-  // Map seller user_id → "filtered" | "all" based on whether buyer_filters
-  // contains any active rule. Used to mark restricted lots on the card.
-  const { data: visibilityMap = {} } = useQuery({
+  const { data: sellerFilterMap = {} } = useQuery({
     queryKey: ["marketplace-seller-filters", sellerUserIds],
     queryFn: async () => {
-      if (sellerUserIds.length === 0) return {} as Record<string, string>;
+      if (sellerUserIds.length === 0) return {} as Record<string, BuyerFilters | null>;
       const { data } = await supabase
         .from("seller_preferences")
         .select("user_id, buyer_filters")
         .in("user_id", sellerUserIds);
-      const map: Record<string, string> = {};
+      const map: Record<string, BuyerFilters | null> = {};
       (data || []).forEach((row: any) => {
-        const f = row.buyer_filters || {};
-        const isFiltered =
-          (f.countries?.length ?? 0) > 0 ||
-          (f.min_revenue && f.min_revenue !== "none") ||
-          (f.channels?.length ?? 0) > 0 ||
-          (f.categories?.length ?? 0) > 0;
-        if (row.user_id) map[row.user_id] = isFiltered ? "filtered" : "all";
+        map[row.user_id] = (row.buyer_filters as BuyerFilters | null) ?? null;
       });
       return map;
     },
@@ -180,10 +175,10 @@ const Marketplace = () => {
     const totalTTC = Math.round(lot.price * 1.19);
     const ppu = lot.units > 0 ? (lot.price * 1.19 / lot.units).toFixed(2) : null;
     const sellerUserId = (lot.profiles as any)?.user_id;
-    const sellerVisibility = sellerUserId ? visibilityMap[sellerUserId] : null;
-    // Mark as restricted only when the lot belongs to a "filtered" seller
-    // AND the current viewer is not yet a verified Level 2 buyer.
-    const restricted = sellerVisibility === "filtered" && !isVerifiedPro;
+    const sellerFilters = sellerUserId ? sellerFilterMap[sellerUserId] ?? null : null;
+    const hasSellerRestrictions = hasAnyFilter(sellerFilters);
+    const eligibleForLot = !hasSellerRestrictions || (isVerifiedPro && isBuyerEligible(sellerFilters, buyerFilterProfile, lot.category));
+    const restricted = hasSellerRestrictions && !eligibleForLot;
     return (
       <LotCard
         key={`${keyPrefix}${lot.id}`}

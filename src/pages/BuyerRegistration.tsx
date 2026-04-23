@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { RESALE_CHANNELS } from "@/lib/buyerFilters";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import LegalFooter from "@/components/LegalFooter";
@@ -47,6 +48,7 @@ interface FormData {
   categories: string[];
   deliveryCountries: string[];
   annualRevenue: string;
+  resaleChannels: string[];
   termsAccepted: boolean;
   infoCertified: boolean;
   alertsConsent: boolean;
@@ -60,6 +62,7 @@ const initialForm: FormData = {
   categories: [],
   deliveryCountries: [],
   annualRevenue: "none",
+  resaleChannels: [],
   termsAccepted: false, infoCertified: false, alertsConsent: false,
 };
 
@@ -126,7 +129,8 @@ const BuyerRegistration = () => {
         shippingCountry: data.shipping_country || "France",
         categories: data.categories || [],
         deliveryCountries: data.delivery_countries || [],
-        annualRevenue: data.annual_revenue || "none",
+        annualRevenue: data.annual_revenue_range || data.annual_revenue || "none",
+        resaleChannels: data.resale_channels || [],
         termsAccepted: data.terms_accepted ?? false,
         infoCertified: data.info_certified ?? false,
         alertsConsent: data.alerts_consent ?? false,
@@ -191,6 +195,15 @@ const BuyerRegistration = () => {
         : [...prev.categories, cat],
     }));
     setErrors(prev => { const n = { ...prev }; delete n.categories; return n; });
+  };
+
+  const toggleResaleChannel = (channel: string) => {
+    setForm(prev => ({
+      ...prev,
+      resaleChannels: prev.resaleChannels.includes(channel)
+        ? prev.resaleChannels.filter(c => c !== channel)
+        : [...prev.resaleChannels, channel],
+    }));
   };
 
   const addDeliveryCountry = (country: string) => {
@@ -276,11 +289,12 @@ const BuyerRegistration = () => {
       shipping_city: form.sameShipping ? form.billingCity : form.shippingCity,
       shipping_postal_code: form.sameShipping ? form.billingPostalCode : form.shippingPostalCode,
       shipping_country: form.sameShipping ? form.billingCountry : form.shippingCountry,
-      // Phase 6: explicit field used by the marketplace transport-reach filter.
       shipping_country_for_filter: form.sameShipping ? form.billingCountry : form.shippingCountry,
       categories: form.categories,
       delivery_countries: form.deliveryCountries,
       annual_revenue: form.annualRevenue,
+      annual_revenue_range: form.annualRevenue,
+      resale_channels: form.resaleChannels,
       revenue_document_url: docUrl,
       terms_accepted: form.termsAccepted,
       info_certified: form.infoCertified,
@@ -632,7 +646,6 @@ const BuyerRegistration = () => {
                 )}
               </div>
 
-              {/* Annual revenue */}
               <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">{t("buyerReg.annualRevenueTitle")}</h3>
@@ -661,7 +674,39 @@ const BuyerRegistration = () => {
                 </div>
               </div>
 
-              {/* Revenue document */}
+              <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {t("buyerReg.resaleChannelsTitle", "Canaux de revente")}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {t("buyerReg.resaleChannelsSubtitle", "Sélectionnez tous les canaux sur lesquels vous revendez aujourd'hui.")}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {RESALE_CHANNELS.map((channel) => {
+                    const selected = form.resaleChannels.includes(channel.key);
+                    return (
+                      <label
+                        key={channel.key}
+                        className={`flex items-start gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${
+                          selected ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
+                        }`}
+                      >
+                        <Checkbox
+                          checked={selected}
+                          onCheckedChange={() => toggleResaleChannel(channel.key)}
+                          className="mt-0.5"
+                        />
+                        <span className="text-sm text-foreground">
+                          {t(`buyerReg.resaleChannelOptions.${channel.key}`, channel.label)}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
               {form.annualRevenue !== "none" && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
