@@ -395,12 +395,7 @@ const Profile = () => {
                       <PrefField label={t("profile.prefWarehouse")} value={sellerPrefs.warehouse_location} />
                       <PrefField label={t("profile.prefYearsInBusiness")} value={sellerPrefs.years_in_business} />
                       <PrefField label={t("profile.prefClientTypes")} value={sellerPrefs.client_types} />
-                      <PrefField label={t("profile.prefBuyerTypes")} value={sellerPrefs.buyer_types} />
-                      <PrefField label={t("profile.prefBuyerBudget")} value={sellerPrefs.buyer_budget} />
                       <PrefField label={t("profile.prefMinOrderSize")} value={sellerPrefs.min_order_size} />
-                      <PrefField label={t("profile.prefTargetMarket")} value={sellerPrefs.target_market} />
-                      <PrefField label={t("profile.prefTargetCountries")} value={sellerPrefs.target_countries} />
-                      <PrefField label={t("profile.prefVisibility")} value={sellerPrefs.visibility_mode} />
                       <PrefField label={t("profile.prefCountry")} value={sellerPrefs.country} />
                       <PrefField label={t("profile.prefCity")} value={sellerPrefs.city} />
                       <PrefField label={t("profile.prefReferralSource")} value={sellerPrefs.referral_source} />

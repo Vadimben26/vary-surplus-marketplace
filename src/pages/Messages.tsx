@@ -242,24 +242,26 @@ const Messages = () => {
       if (!prof?.user_id) return null;
       const isSellerProfile =
         prof.user_type === "seller" || prof.user_type === "both";
-      if (!isSellerProfile) return { visibility_mode: null, isSeller: false };
+      if (!isSellerProfile) return { hasFilters: false, isSeller: false };
       const { data: prefs } = await supabase
         .from("seller_preferences")
-        .select("visibility_mode")
+        .select("buyer_filters")
         .eq("user_id", prof.user_id)
         .maybeSingle();
-      return {
-        visibility_mode: prefs?.visibility_mode ?? null,
-        isSeller: true,
-      };
+      const f = (prefs?.buyer_filters as any) ?? {};
+      const hasFilters =
+        (f.countries?.length ?? 0) > 0 ||
+        (f.min_revenue && f.min_revenue !== "none") ||
+        (f.channels?.length ?? 0) > 0 ||
+        (f.categories?.length ?? 0) > 0;
+      return { hasFilters, isSeller: true };
     },
     enabled: !!selectedConversation,
     staleTime: 60_000,
   });
 
   const recipientIsFilteredSeller =
-    !!recipientSellerInfo?.isSeller &&
-    recipientSellerInfo.visibility_mode === "filtered";
+    !!recipientSellerInfo?.isSeller && recipientSellerInfo.hasFilters;
 
   const handleSend = async () => {
     if (!newMessage.trim() || !selectedConversation || !profile?.id || sending) return;
