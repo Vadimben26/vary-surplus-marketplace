@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Users, Package, ShoppingCart, ShieldCheck, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Package, ShoppingCart, ShieldCheck, Gavel, Truck, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -18,6 +18,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { to: "/admin/lots", label: t("admin.nav.lots"), icon: Package },
     { to: "/admin/commandes", label: t("admin.nav.orders"), icon: ShoppingCart },
     { to: "/admin/kyb", label: t("admin.nav.kyb", "KYB acheteurs"), icon: ShieldCheck },
+    { to: "/admin/appels", label: t("admin.nav.appeals", "Appels vendeurs"), icon: Gavel },
+    { to: "/admin/transport", label: t("admin.nav.transport", "Transport"), icon: Truck },
   ];
 
   const handleLogout = async () => {

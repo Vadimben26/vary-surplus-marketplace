@@ -41,6 +41,8 @@ import AdminSellers from "./pages/admin/AdminSellers.tsx";
 import AdminLots from "./pages/admin/AdminLots.tsx";
 import AdminOrders from "./pages/admin/AdminOrders.tsx";
 import AdminKyb from "./pages/admin/AdminKyb.tsx";
+import AdminAppeals from "./pages/admin/AdminAppeals.tsx";
+import AdminTransportClaims from "./pages/admin/AdminTransportClaims.tsx";
 import SellerProfile from "./pages/SellerProfile.tsx";
 
 const queryClient = new QueryClient();
@@ -143,6 +145,8 @@ const App = () => (
                 <Route path="/admin/lots" element={<AdminRoute><AdminLots /></AdminRoute>} />
                 <Route path="/admin/commandes" element={<AdminRoute><AdminOrders /></AdminRoute>} />
                 <Route path="/admin/kyb" element={<AdminRoute><AdminKyb /></AdminRoute>} />
+                <Route path="/admin/appels" element={<AdminRoute><AdminAppeals /></AdminRoute>} />
+                <Route path="/admin/transport" element={<AdminRoute><AdminTransportClaims /></AdminRoute>} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
