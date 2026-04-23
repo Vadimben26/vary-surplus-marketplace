@@ -17,7 +17,7 @@ const SellerTracking = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"active" | "disputes">("active");
+  const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
 
