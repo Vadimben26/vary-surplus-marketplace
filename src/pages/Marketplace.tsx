@@ -60,17 +60,25 @@ const Marketplace = () => {
     return Array.from(ids);
   }, [dbLots]);
 
+  // Map seller user_id → "filtered" | "all" based on whether buyer_filters
+  // contains any active rule. Used to mark restricted lots on the card.
   const { data: visibilityMap = {} } = useQuery({
-    queryKey: ["marketplace-seller-visibility", sellerUserIds],
+    queryKey: ["marketplace-seller-filters", sellerUserIds],
     queryFn: async () => {
       if (sellerUserIds.length === 0) return {} as Record<string, string>;
       const { data } = await supabase
         .from("seller_preferences")
-        .select("user_id, visibility_mode")
+        .select("user_id, buyer_filters")
         .in("user_id", sellerUserIds);
       const map: Record<string, string> = {};
       (data || []).forEach((row: any) => {
-        if (row.user_id) map[row.user_id] = row.visibility_mode || "all";
+        const f = row.buyer_filters || {};
+        const isFiltered =
+          (f.countries?.length ?? 0) > 0 ||
+          (f.min_revenue && f.min_revenue !== "none") ||
+          (f.channels?.length ?? 0) > 0 ||
+          (f.categories?.length ?? 0) > 0;
+        if (row.user_id) map[row.user_id] = isFiltered ? "filtered" : "all";
       });
       return map;
     },

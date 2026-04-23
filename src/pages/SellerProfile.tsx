@@ -79,7 +79,7 @@ const SellerProfile = () => {
       if (!profileRow?.user_id) return null;
       const { data } = await supabase
         .from("seller_preferences")
-        .select("validation_status, categories, target_countries, years_in_business, monthly_volume")
+        .select("validation_status, categories, years_in_business, monthly_volume, buyer_filters")
         .eq("user_id", profileRow.user_id)
         .maybeSingle();
       return data;
@@ -244,39 +244,47 @@ const SellerProfile = () => {
         </section>
 
         {/* About */}
-        {(seller.company_description || (prefs?.categories?.length ?? 0) > 0 || (prefs?.target_countries?.length ?? 0) > 0) && (
-          <section className="space-y-4">
-            <h2 className="font-heading text-lg font-bold text-foreground">À propos</h2>
-            {seller.company_description && (
-              <p className="text-sm text-muted-foreground leading-relaxed">{seller.company_description}</p>
-            )}
-            {(prefs?.categories?.length ?? 0) > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Catégories</p>
-                <div className="flex flex-wrap gap-2">
-                  {prefs!.categories!.map((c: string) => (
-                    <span key={c} className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                      {c}
-                    </span>
-                  ))}
+        {(() => {
+          const allowedCountries = ((prefs as any)?.buyer_filters?.countries ?? []) as string[];
+          const showAbout =
+            !!seller.company_description ||
+            (prefs?.categories?.length ?? 0) > 0 ||
+            allowedCountries.length > 0;
+          if (!showAbout) return null;
+          return (
+            <section className="space-y-4">
+              <h2 className="font-heading text-lg font-bold text-foreground">À propos</h2>
+              {seller.company_description && (
+                <p className="text-sm text-muted-foreground leading-relaxed">{seller.company_description}</p>
+              )}
+              {(prefs?.categories?.length ?? 0) > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Catégories</p>
+                  <div className="flex flex-wrap gap-2">
+                    {prefs!.categories!.map((c: string) => (
+                      <span key={c} className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                        {c}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-            {(prefs?.target_countries?.length ?? 0) > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Pays livrés</p>
-                <div className="flex flex-wrap gap-2">
-                  {prefs!.target_countries!.map((c: string) => (
-                    <span key={c} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-foreground text-xs font-medium">
-                      <MapPin className="h-3 w-3" />
-                      {c}
-                    </span>
-                  ))}
+              )}
+              {allowedCountries.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Pays livrés</p>
+                  <div className="flex flex-wrap gap-2">
+                    {allowedCountries.map((c: string) => (
+                      <span key={c} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-foreground text-xs font-medium">
+                        <MapPin className="h-3 w-3" />
+                        {c}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-          </section>
-        )}
+              )}
+            </section>
+          );
+        })()}
 
         {/* Active lots */}
         <section>

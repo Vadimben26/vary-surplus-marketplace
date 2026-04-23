@@ -60,16 +60,22 @@ const Checkout = () => {
     new Set(cartLots.map((l: any) => (l.profiles as any)?.user_id).filter(Boolean))
   );
   const { data: sellerPrefsMap = {} } = useQuery({
-    queryKey: ["checkout-seller-visibility-multi", sellerUserIds],
+    queryKey: ["checkout-seller-filters-multi", sellerUserIds],
     queryFn: async () => {
       if (sellerUserIds.length === 0) return {};
       const { data } = await supabase
         .from("seller_preferences")
-        .select("user_id, visibility_mode")
+        .select("user_id, buyer_filters")
         .in("user_id", sellerUserIds);
       const map: Record<string, string | null> = {};
       (data || []).forEach((row: any) => {
-        map[row.user_id] = row.visibility_mode;
+        const f = row.buyer_filters || {};
+        const isFiltered =
+          (f.countries?.length ?? 0) > 0 ||
+          (f.min_revenue && f.min_revenue !== "none") ||
+          (f.channels?.length ?? 0) > 0 ||
+          (f.categories?.length ?? 0) > 0;
+        map[row.user_id] = isFiltered ? "filtered" : null;
       });
       return map;
     },

@@ -61,12 +61,12 @@ const LotDetail = () => {
   // must complete the questionnaire before contacting / adding to cart.
   const sellerUserId = (lot?.profiles as any)?.user_id ?? null;
   const { data: sellerPrefs } = useQuery({
-    queryKey: ["lot-seller-visibility", sellerUserId],
+    queryKey: ["lot-seller-filters", sellerUserId],
     queryFn: async () => {
       if (!sellerUserId) return null;
       const { data } = await supabase
         .from("seller_preferences")
-        .select("visibility_mode")
+        .select("buyer_filters")
         .eq("user_id", sellerUserId)
         .maybeSingle();
       return data;
@@ -74,7 +74,18 @@ const LotDetail = () => {
     enabled: !!sellerUserId,
     staleTime: 60_000,
   });
-  const isFilteredLot = sellerPrefs?.visibility_mode === "filtered";
+  // A lot is "restricted" when its seller has set at least one buyer filter.
+  // Eligibility is enforced server-side via the buyer_preferences match,
+  // but for the UX gate we only need to know whether the seller has any rule.
+  const sellerBuyerFilters = (sellerPrefs?.buyer_filters as any) ?? null;
+  const isFilteredLot =
+    !!sellerBuyerFilters &&
+    (
+      (sellerBuyerFilters.countries?.length ?? 0) > 0 ||
+      (sellerBuyerFilters.min_revenue && sellerBuyerFilters.min_revenue !== "none") ||
+      (sellerBuyerFilters.channels?.length ?? 0) > 0 ||
+      (sellerBuyerFilters.categories?.length ?? 0) > 0
+    );
   // For filtered lots: buyer must (a) have completed questionnaire AND (b) be a verified pro (Level 2).
   const requiresPrefs = isFilteredLot && !!user && !prefsLoading && !hasBuyerPrefs;
   const requiresVerifiedPro = isFilteredLot && !!user && !prefsLoading && hasBuyerPrefs && !isVerifiedPro;

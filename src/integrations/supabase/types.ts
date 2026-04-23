@@ -20,6 +20,7 @@ export type Database = {
           address: string | null
           alerts_consent: boolean | null
           annual_revenue: string | null
+          annual_revenue_range: string | null
           billing_address_line2: string | null
           budget: string | null
           categories: string[] | null
@@ -44,7 +45,9 @@ export type Database = {
           pieces_per_lot: string | null
           postal_code: string | null
           price_per_piece: string | null
+          profile_type: string | null
           referral_source: string | null
+          resale_channels: string[] | null
           revenue: string | null
           revenue_document_url: string | null
           same_shipping_address: boolean | null
@@ -69,6 +72,7 @@ export type Database = {
           address?: string | null
           alerts_consent?: boolean | null
           annual_revenue?: string | null
+          annual_revenue_range?: string | null
           billing_address_line2?: string | null
           budget?: string | null
           categories?: string[] | null
@@ -93,7 +97,9 @@ export type Database = {
           pieces_per_lot?: string | null
           postal_code?: string | null
           price_per_piece?: string | null
+          profile_type?: string | null
           referral_source?: string | null
+          resale_channels?: string[] | null
           revenue?: string | null
           revenue_document_url?: string | null
           same_shipping_address?: boolean | null
@@ -118,6 +124,7 @@ export type Database = {
           address?: string | null
           alerts_consent?: boolean | null
           annual_revenue?: string | null
+          annual_revenue_range?: string | null
           billing_address_line2?: string | null
           budget?: string | null
           categories?: string[] | null
@@ -142,7 +149,9 @@ export type Database = {
           pieces_per_lot?: string | null
           postal_code?: string | null
           price_per_piece?: string | null
+          profile_type?: string | null
           referral_source?: string | null
+          resale_channels?: string[] | null
           revenue?: string | null
           revenue_document_url?: string | null
           same_shipping_address?: boolean | null
@@ -825,11 +834,7 @@ export type Database = {
           billing_postal_code: string | null
           brands_text: string | null
           business_type: string | null
-          buyer_budget: string | null
-          buyer_categories: string[] | null
-          buyer_geography: string | null
-          buyer_min_revenue: string | null
-          buyer_types: string[] | null
+          buyer_filters: Json
           categories: string[] | null
           city: string | null
           client_types: string[] | null
@@ -853,8 +858,6 @@ export type Database = {
           same_pickup_address: boolean | null
           seller_certified: boolean | null
           sells_unbranded: string | null
-          target_countries: string[] | null
-          target_market: string | null
           terms_accepted: boolean | null
           updated_at: string
           user_id: string
@@ -863,7 +866,6 @@ export type Database = {
           validation_note: string | null
           validation_status: string | null
           vat_code: string | null
-          visibility_mode: string | null
           warehouse_location: string | null
           website: string | null
           years_in_business: string | null
@@ -881,11 +883,7 @@ export type Database = {
           billing_postal_code?: string | null
           brands_text?: string | null
           business_type?: string | null
-          buyer_budget?: string | null
-          buyer_categories?: string[] | null
-          buyer_geography?: string | null
-          buyer_min_revenue?: string | null
-          buyer_types?: string[] | null
+          buyer_filters?: Json
           categories?: string[] | null
           city?: string | null
           client_types?: string[] | null
@@ -909,8 +907,6 @@ export type Database = {
           same_pickup_address?: boolean | null
           seller_certified?: boolean | null
           sells_unbranded?: string | null
-          target_countries?: string[] | null
-          target_market?: string | null
           terms_accepted?: boolean | null
           updated_at?: string
           user_id: string
@@ -919,7 +915,6 @@ export type Database = {
           validation_note?: string | null
           validation_status?: string | null
           vat_code?: string | null
-          visibility_mode?: string | null
           warehouse_location?: string | null
           website?: string | null
           years_in_business?: string | null
@@ -937,11 +932,7 @@ export type Database = {
           billing_postal_code?: string | null
           brands_text?: string | null
           business_type?: string | null
-          buyer_budget?: string | null
-          buyer_categories?: string[] | null
-          buyer_geography?: string | null
-          buyer_min_revenue?: string | null
-          buyer_types?: string[] | null
+          buyer_filters?: Json
           categories?: string[] | null
           city?: string | null
           client_types?: string[] | null
@@ -965,8 +956,6 @@ export type Database = {
           same_pickup_address?: boolean | null
           seller_certified?: boolean | null
           sells_unbranded?: string | null
-          target_countries?: string[] | null
-          target_market?: string | null
           terms_accepted?: boolean | null
           updated_at?: string
           user_id?: string
@@ -975,7 +964,6 @@ export type Database = {
           validation_note?: string | null
           validation_status?: string | null
           vat_code?: string | null
-          visibility_mode?: string | null
           warehouse_location?: string | null
           website?: string | null
           years_in_business?: string | null
