@@ -13,6 +13,8 @@ interface Profile {
   user_type: "buyer" | "seller" | "both";
   siret: string | null;
   stripe_account_id: string | null;
+  buyer_access_level?: number | null;
+  suspended_until?: string | null;
   created_at: string;
   updated_at: string;
 }
