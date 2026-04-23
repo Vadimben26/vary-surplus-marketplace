@@ -634,6 +634,7 @@ const SellerDashboard = () => {
       <TopNav />
       <main className="px-4 md:px-8 py-6 pb-24 max-w-[1400px] mx-auto">
         <SellerApprovalBanner />
+        <SellerSuspensionBanner />
 
         {/* Stripe Connect onboarding banner */}
         {stripeStatus && !stripeStatus.chargesEnabled && (
