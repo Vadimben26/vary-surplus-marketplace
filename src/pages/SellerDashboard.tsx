@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import SellerSuspensionBanner from "@/components/seller/SellerSuspensionBanner";
 import SellerApprovalBanner from "@/components/seller/SellerApprovalBanner";
+import { SellerAppealPanel } from "@/components/seller/SellerAppealPanel";
 import { useSellerApproval } from "@/hooks/useSellerApproval";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
@@ -635,6 +636,7 @@ const SellerDashboard = () => {
       <main className="px-4 md:px-8 py-6 pb-24 max-w-[1400px] mx-auto">
         <SellerApprovalBanner />
         <SellerSuspensionBanner />
+        <SellerAppealPanel />
 
         {/* Stripe Connect onboarding banner */}
         {stripeStatus && !stripeStatus.chargesEnabled && (
