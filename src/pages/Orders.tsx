@@ -185,7 +185,7 @@ const Orders = () => {
   const { profile, user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"active" | "disputes">("active");
+  const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [disputingId, setDisputingId] = useState<string | null>(null);
 
