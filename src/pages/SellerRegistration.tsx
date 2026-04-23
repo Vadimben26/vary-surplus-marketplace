@@ -11,10 +11,19 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import LegalFooter from "@/components/LegalFooter";
+import {
+  EU_COUNTRIES_24,
+  REVENUE_MIN_OPTIONS,
+  RESALE_CHANNELS,
+  CATEGORY_KEYS,
+  type BuyerFilters,
+  type ResaleChannel,
+  type RevenueMinKey,
+  type CategoryKey,
+} from "@/lib/buyerFilters";
 
 const STORAGE_KEY = "vary_seller_reg_draft";
-const EU_COUNTRIES = ["Allemagne","Autriche","Belgique","Bulgarie","Croatie","Danemark","Espagne","Estonie","Finlande","France","Grèce","Hongrie","Italie","Lettonie","Lituanie","Luxembourg","Pays-Bas","Pologne","Portugal","République tchèque","Roumanie","Slovaquie","Slovénie","Suède"];
-const CATEGORIES = ["Vêtements", "Sneakers", "Accessoires"];
+const EU_COUNTRIES = [...EU_COUNTRIES_24];
 const BUSINESS_TYPES = ["brand","wholesaler","distributor","liquidator","marketplace_seller","other"];
 
 const RadioCard = ({ value, selected, onSelect, label, description, icon }: { value: string; selected: string; onSelect: (v: string) => void; label: string; description?: string; icon?: React.ReactNode }) => (
@@ -27,14 +36,14 @@ const RadioCard = ({ value, selected, onSelect, label, description, icon }: { va
   </label>
 );
 
-const ChipSelect = ({ options, selected, onToggle }: { options: string[]; selected: string[]; onToggle: (v: string) => void }) => (
+const ChipSelect = ({ options, selected, onToggle, getLabel }: { options: readonly string[]; selected: readonly string[]; onToggle: (v: string) => void; getLabel?: (v: string) => string }) => (
   <div className="flex flex-wrap gap-2 mt-2">
     {options.map((o) => {
       const isActive = selected.includes(o);
       return (
         <button key={o} type="button" onClick={() => onToggle(o)}
           className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${isActive ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:border-primary/40"}`}>
-          {o}
+          {getLabel ? getLabel(o) : o}
         </button>
       );
     })}
@@ -86,6 +95,12 @@ const FileUploadZone = ({ state, onFile, onRemove, label, examples }: { state: U
   );
 };
 
+const CATEGORY_LABELS: Record<CategoryKey, string> = {
+  clothing: "Vêtements",
+  sneakers: "Sneakers",
+  accessories: "Accessoires",
+};
+
 const SellerRegistration = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -115,12 +130,11 @@ const SellerRegistration = () => {
   const [certifiedDocs, setCertifiedDocs] = useState(draft?.certifiedDocs ?? false);
   const [termsAccepted, setTermsAccepted] = useState(draft?.termsAccepted ?? false);
 
-  // Step 3
-  const [buyerGeography, setBuyerGeography] = useState(draft?.buyerGeography ?? "all_verified");
-  const [targetCountries, setTargetCountries] = useState<string[]>(draft?.targetCountries ?? []);
-  const [buyerCategories, setBuyerCategories] = useState<string[]>(draft?.buyerCategories ?? []);
-  const [buyerMinRevenue, setBuyerMinRevenue] = useState(draft?.buyerMinRevenue ?? "all");
-  const [visibilityMode, setVisibilityMode] = useState<"filtered" | "all">(draft?.visibilityMode ?? "all");
+  // Step 3 — buyer_filters (4 new filters)
+  const [filterCountries, setFilterCountries] = useState<string[]>(draft?.filterCountries ?? []);
+  const [filterMinRevenue, setFilterMinRevenue] = useState<RevenueMinKey>(draft?.filterMinRevenue ?? "none");
+  const [filterChannels, setFilterChannels] = useState<ResaleChannel[]>(draft?.filterChannels ?? []);
+  const [filterCategories, setFilterCategories] = useState<CategoryKey[]>(draft?.filterCategories ?? []);
   const [countrySearch, setCountrySearch] = useState("");
 
   useEffect(() => { if (user?.email) setFormData((p: any) => ({ ...p, email: user.email || "" })); }, [user]);
@@ -129,9 +143,9 @@ const SellerRegistration = () => {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       formData, businessType, samePickupAddress, certifiedSeller, certifiedDocs, termsAccepted,
-      buyerGeography, targetCountries, buyerCategories, buyerMinRevenue, visibilityMode, step,
+      filterCountries, filterMinRevenue, filterChannels, filterCategories, step,
     }));
-  }, [formData, businessType, samePickupAddress, certifiedSeller, certifiedDocs, termsAccepted, buyerGeography, targetCountries, buyerCategories, buyerMinRevenue, visibilityMode, step]);
+  }, [formData, businessType, samePickupAddress, certifiedSeller, certifiedDocs, termsAccepted, filterCountries, filterMinRevenue, filterChannels, filterCategories, step]);
 
   useEffect(() => { if (draft?.step && draft.step <= totalSteps) setStep(draft.step); }, []);
 
@@ -146,7 +160,7 @@ const SellerRegistration = () => {
     setDoc(prev => ({ ...prev, file, uploading: true, error: "" }));
     const userId = user?.id || "temp";
     const path = `${userId}/${folder}-${Date.now()}-${file.name}`;
-    const { error, data } = await supabase.storage.from("seller-documents").upload(path, file);
+    const { error } = await supabase.storage.from("seller-documents").upload(path, file);
     if (error) {
       setDoc(prev => ({ ...prev, uploading: false, error: "Erreur d'upload" }));
     } else {
@@ -172,11 +186,16 @@ const SellerRegistration = () => {
       if (!certifiedDocs) return t("sellerReg.validation.certifyDocs");
       if (!termsAccepted) return t("sellerReg.validation.terms");
     }
-    if (step === 3) {
-      if (buyerCategories.length === 0) return t("sellerReg.validation.categories");
-    }
+    // Step 3 — all filters are optional, no validation
     return null;
   };
+
+  const buildBuyerFilters = (): BuyerFilters => ({
+    countries: filterCountries,
+    min_revenue: filterMinRevenue,
+    channels: filterChannels,
+    categories: filterCategories,
+  });
 
   const saveSellerPreferences = async (userId: string) => {
     await supabase.from("seller_preferences" as any).upsert({
@@ -198,11 +217,7 @@ const SellerRegistration = () => {
       auth_document_url: authDoc.url || null,
       seller_certified: certifiedSeller,
       terms_accepted: termsAccepted,
-      buyer_geography: buyerGeography,
-      target_countries: buyerGeography === "specific" ? targetCountries : [],
-      buyer_categories: buyerCategories,
-      buyer_min_revenue: buyerMinRevenue,
-      visibility_mode: "filtered",
+      buyer_filters: buildBuyerFilters() as any,
     } as any, { onConflict: "user_id" } as any);
   };
 
@@ -234,11 +249,11 @@ const SellerRegistration = () => {
       setSubmitting(false);
       setStep(totalSteps + 1);
     } else {
-      setStep((s) => s + 1);
+      setStep((s: number) => s + 1);
     }
   };
 
-  const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+  const prevStep = () => setStep((s: number) => Math.max(s - 1, 1));
 
   const stepTitles = [
     t("sellerReg.stepTitles.info"),
@@ -254,7 +269,11 @@ const SellerRegistration = () => {
 
   const progressPercent = Math.round((step / totalSteps) * 100);
 
-  const filteredCountries = EU_COUNTRIES.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase()) && !targetCountries.includes(c));
+  const filteredCountries = EU_COUNTRIES.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase()) && !filterCountries.includes(c));
+
+  const toggleArrayItem = <T extends string>(arr: T[], item: T, setter: (v: T[]) => void) => {
+    setter(arr.includes(item) ? arr.filter(x => x !== item) : [...arr, item]);
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -265,13 +284,11 @@ const SellerRegistration = () => {
 
       <div className="flex-1 flex items-start justify-center py-8 px-4">
         <div className="w-full max-w-2xl">
-          {/* Title */}
           <div className="text-center mb-8">
             <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">{t("sellerReg.title")}</h1>
             {step <= totalSteps && <p className="text-muted-foreground text-sm max-w-lg mx-auto">{stepSubtitles[step - 1]}</p>}
           </div>
 
-          {/* Progress */}
           {step <= totalSteps && (
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-4">
@@ -294,7 +311,6 @@ const SellerRegistration = () => {
             {/* ── STEP 1: Contact + Company + Addresses ── */}
             {step === 1 && (
               <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-                {/* Contact */}
                 <div>
                   <h3 className="font-heading text-base font-bold text-foreground mb-4">👤 {t("sellerReg.contactTitle")}</h3>
                   <div className="space-y-4">
@@ -330,7 +346,6 @@ const SellerRegistration = () => {
                   </div>
                 </div>
 
-                {/* Company */}
                 <div>
                   <h3 className="font-heading text-base font-bold text-foreground mb-4">🏢 {t("sellerReg.companyTitle")}</h3>
                   <div className="space-y-4">
@@ -359,7 +374,6 @@ const SellerRegistration = () => {
                   </div>
                 </div>
 
-                {/* Billing Address */}
                 <div>
                   <h3 className="font-heading text-base font-bold text-foreground mb-4">📍 {t("sellerReg.billingAddressTitle")}</h3>
                   <div className="space-y-4">
@@ -393,7 +407,6 @@ const SellerRegistration = () => {
                   </div>
                 </div>
 
-                {/* Pickup Address */}
                 <div>
                   <h3 className="font-heading text-base font-bold text-foreground mb-4">🚚 {t("sellerReg.pickupAddressTitle")}</h3>
                   <label className="flex items-center gap-3 cursor-pointer mb-4">
@@ -475,86 +488,105 @@ const SellerRegistration = () => {
               </motion.div>
             )}
 
-            {/* ── STEP 3: Access Control ── */}
+            {/* ── STEP 3: Buyer filters (4 new) ── */}
             {step === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-                {/* Intro note */}
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-                  <p className="text-sm text-foreground">{t("sellerReg.accessIntro")}</p>
+                  <p className="text-sm text-foreground">
+                    Définissez vos filtres acheteur. Les 4 filtres sont optionnels et combinables —
+                    laissez-les vides pour rester ouvert à tous les acheteurs vérifiés.
+                  </p>
                 </div>
 
-                {/* Geography */}
+                {/* Filter 1 — Allowed delivery countries */}
                 <div>
-                  <h3 className="font-heading text-base font-bold text-foreground mb-1">🌍 {t("sellerReg.geographyTitle")}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">{t("sellerReg.geographyHelp")}</p>
-                  <div className="space-y-3">
-                    <RadioCard value="all_verified" selected={buyerGeography} onSelect={setBuyerGeography} label={t("sellerReg.allVerifiedBuyers")} icon={<Globe className="h-4 w-4 text-primary" />} />
-                    <RadioCard value="specific" selected={buyerGeography} onSelect={setBuyerGeography} label={t("sellerReg.specificCountries")} icon={<Filter className="h-4 w-4 text-primary" />} />
-                  </div>
-                  {buyerGeography === "specific" && (
-                    <div className="mt-4 space-y-3">
-                      <Input placeholder={t("sellerReg.addCountriesPlaceholder")} value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} />
-                      {targetCountries.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {targetCountries.map(c => (
-                            <span key={c} className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
-                              {c}
-                              <button type="button" onClick={() => setTargetCountries(prev => prev.filter(x => x !== c))} className="hover:text-primary/70"><X className="h-3 w-3" /></button>
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-                        {filteredCountries.map(c => (
-                          <button key={c} type="button" onClick={() => { setTargetCountries(prev => [...prev, c]); setCountrySearch(""); }} className="px-3 py-1.5 rounded-full text-sm border border-border bg-card text-foreground hover:border-primary/40 transition-all">{c}</button>
-                        ))}
-                      </div>
+                  <h3 className="font-heading text-base font-bold text-foreground mb-1">🌍 Pays de livraison autorisés</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Multi-sélection. Vide = tous les pays autorisés.</p>
+                  <Input placeholder="Rechercher un pays…" value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} />
+                  {filterCountries.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {filterCountries.map(c => (
+                        <span key={c} className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+                          {c}
+                          <button type="button" onClick={() => setFilterCountries(prev => prev.filter(x => x !== c))} className="hover:text-primary/70">
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
                     </div>
                   )}
+                  <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto mt-3">
+                    {filteredCountries.map(c => (
+                      <button key={c} type="button"
+                        onClick={() => { setFilterCountries(prev => [...prev, c]); setCountrySearch(""); }}
+                        className="px-3 py-1.5 rounded-full text-sm border border-border bg-card text-foreground hover:border-primary/40 transition-all">
+                        {c}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Categories */}
+                {/* Filter 2 — Min annual revenue */}
                 <div>
-                  <h3 className="font-heading text-base font-bold text-foreground mb-1">🏷️ {t("sellerReg.buyerCategoriesTitle")}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">{t("sellerReg.buyerCategoriesHelp")}</p>
-                  <ChipSelect options={CATEGORIES} selected={buyerCategories} onToggle={(c) => setBuyerCategories(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])} />
-                </div>
-
-                {/* Buyer min revenue */}
-                <div>
-                  <h3 className="font-heading text-base font-bold text-foreground mb-1">💰 {t("sellerReg.buyerMinRevenueTitle")}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">{t("sellerReg.buyerMinRevenueHelp")}</p>
+                  <h3 className="font-heading text-base font-bold text-foreground mb-1">💰 Chiffre d'affaires annuel minimum</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Sélection unique.</p>
                   <div className="space-y-2">
-                    {["all", "under100k", "100k_500k", "500k_1m", "1m_plus"].map(v => (
-                      <label key={v} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${buyerMinRevenue === v ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"}`} onClick={() => setBuyerMinRevenue(v)}>
-                        <input type="radio" name="buyerMinRevenue" checked={buyerMinRevenue === v} onChange={() => setBuyerMinRevenue(v)} className="accent-primary w-4 h-4" />
-                        <span className="text-sm text-foreground">{t(`sellerReg.revenueOptions.${v}`)}</span>
+                    {REVENUE_MIN_OPTIONS.map(opt => (
+                      <label key={opt.key} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${filterMinRevenue === opt.key ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"}`}>
+                        <input type="radio" name="filterMinRevenue" checked={filterMinRevenue === opt.key} onChange={() => setFilterMinRevenue(opt.key)} className="accent-primary w-4 h-4" />
+                        <span className="text-sm text-foreground">{opt.label}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
+                {/* Filter 3 — Resale channels */}
+                <div>
+                  <h3 className="font-heading text-base font-bold text-foreground mb-1">🛍️ Canal de revente</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Multi-sélection. Vide = tous les canaux. Désélectionnez « Plateformes tierces »
+                    pour exclure les revendeurs particuliers et protéger votre image de marque.
+                  </p>
+                  <div className="space-y-2">
+                    {RESALE_CHANNELS.map(c => (
+                      <label key={c.key} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${filterChannels.includes(c.key) ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"}`}>
+                        <Checkbox
+                          checked={filterChannels.includes(c.key)}
+                          onCheckedChange={() => toggleArrayItem(filterChannels, c.key, setFilterChannels)}
+                          className="mt-0.5"
+                        />
+                        <span className="text-sm text-foreground">{c.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Filter 4 — Categories */}
+                <div>
+                  <h3 className="font-heading text-base font-bold text-foreground mb-1">🏷️ Catégories d'achat</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Multi-sélection. Vide = toutes catégories.</p>
+                  <ChipSelect
+                    options={CATEGORY_KEYS}
+                    selected={filterCategories}
+                    onToggle={(c) => toggleArrayItem(filterCategories, c as CategoryKey, setFilterCategories)}
+                    getLabel={(c) => CATEGORY_LABELS[c as CategoryKey] || c}
+                  />
+                </div>
+
                 {/* Recap */}
                 <div className="p-5 rounded-xl border border-border bg-muted/30 space-y-2">
-                  <p className="text-sm font-semibold text-foreground">{t("sellerReg.recapTitle")}</p>
+                  <p className="text-sm font-semibold text-foreground">Récap. de vos filtres</p>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>
-                      🌍 {buyerGeography === "specific" && targetCountries.length > 0
-                        ? t("sellerReg.recapGeoSpecific", { countries: targetCountries.join(", ") })
-                        : t("sellerReg.recapGeoAll")}
-                    </li>
-                    <li>
-                      🏷️ {t("sellerReg.recapCategories", { list: buyerCategories.length > 0 ? buyerCategories.join(", ") : t("sellerReg.recapNone") })}
-                    </li>
-                    <li>
-                      💰 {t("sellerReg.recapMinRevenue", { value: t(`sellerReg.revenueOptions.${buyerMinRevenue}`) })}
-                    </li>
+                    <li>🌍 {filterCountries.length > 0 ? filterCountries.join(", ") : "Tous les pays"}</li>
+                    <li>💰 {REVENUE_MIN_OPTIONS.find(o => o.key === filterMinRevenue)?.label}</li>
+                    <li>🛍️ {filterChannels.length > 0 ? filterChannels.map(c => RESALE_CHANNELS.find(r => r.key === c)?.label).join(" · ") : "Tous les canaux"}</li>
+                    <li>🏷️ {filterCategories.length > 0 ? filterCategories.map(c => CATEGORY_LABELS[c]).join(", ") : "Toutes catégories"}</li>
                   </ul>
                 </div>
               </motion.div>
             )}
 
-            {/* ── SUCCESS — preview de l'impact du profil ── */}
+            {/* SUCCESS */}
             {step === totalSteps + 1 && (
               <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="py-8">
                 <div className="text-center mb-8">
@@ -565,54 +597,45 @@ const SellerRegistration = () => {
                   <p className="text-muted-foreground max-w-md mx-auto text-sm">{t("sellerReg.thanksDesc")}</p>
                 </div>
 
-                {/* Impact preview block */}
                 <div className="bg-card border border-border rounded-2xl p-5 md:p-6 mb-6 space-y-4">
                   <h3 className="font-heading text-base font-bold text-foreground flex items-center gap-2">
                     <Eye className="h-4 w-4 text-primary" />
-                    {t("sellerReg.previewTitle", "Voici ce que votre profil va déclencher")}
+                    Voici ce que vos filtres vont déclencher
                   </h3>
-
                   <div className="space-y-3 text-sm">
                     <div className="flex items-start gap-3 p-3 bg-muted/40 rounded-xl">
                       <Globe className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-semibold text-foreground">{t("sellerReg.previewVisible", "Vos lots seront visibles par")}</p>
+                        <p className="font-semibold text-foreground">Pays</p>
                         <p className="text-muted-foreground text-xs mt-0.5">
-                          {buyerGeography === "specific" && targetCountries.length > 0
-                            ? t("sellerReg.previewVisibleSpecific", { countries: targetCountries.join(", ") })
-                            : t("sellerReg.previewVisibleAll", "tous les acheteurs vérifiés en Europe")}
+                          {filterCountries.length > 0 ? filterCountries.join(", ") : "Tous les pays UE"}
                         </p>
                       </div>
                     </div>
-
                     <div className="flex items-start gap-3 p-3 bg-muted/40 rounded-xl">
                       <Filter className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-semibold text-foreground">{t("sellerReg.previewMatch", "Vous recevrez des demandes d'acheteurs")}</p>
+                        <p className="font-semibold text-foreground">Profil acheteur</p>
                         <p className="text-muted-foreground text-xs mt-0.5">
-                          {buyerCategories.length > 0
-                            ? t("sellerReg.previewMatchCats", { list: buyerCategories.join(", ") })
-                            : t("sellerReg.previewMatchAll", "intéressés par toutes vos catégories")}
-                          {" · "}
-                          {t(`sellerReg.revenueOptions.${buyerMinRevenue}`)}
+                          {REVENUE_MIN_OPTIONS.find(o => o.key === filterMinRevenue)?.label}
+                          {filterChannels.length > 0 && " · " + filterChannels.length + " canal(aux)"}
+                          {filterCategories.length > 0 && " · " + filterCategories.length + " catégorie(s)"}
                         </p>
                       </div>
                     </div>
-
                     <div className="flex items-start gap-3 p-3 bg-muted/40 rounded-xl">
                       <Shield className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-semibold text-foreground">{t("sellerReg.previewSecure", "Vary sécurise chaque transaction")}</p>
+                        <p className="font-semibold text-foreground">Vary sécurise chaque transaction</p>
                         <p className="text-muted-foreground text-xs mt-0.5">
-                          {t("sellerReg.previewSecureDesc", "Paiement en escrow, transport intégré, gestion des litiges incluse.")}
+                          Paiement en escrow, transport intégré, gestion des litiges incluse.
                         </p>
                       </div>
                     </div>
                   </div>
-
                   <div className="border-t border-border pt-4">
                     <p className="text-xs text-muted-foreground italic">
-                      {t("sellerReg.previewValidation", "Notre équipe valide votre profil sous 24h. Vos brouillons de lots seront publiés automatiquement après validation.")}
+                      Notre équipe valide votre profil sous 24h. Vos brouillons seront publiés après validation.
                     </p>
                   </div>
                 </div>
@@ -626,7 +649,6 @@ const SellerRegistration = () => {
             )}
           </AnimatePresence>
 
-          {/* Navigation */}
           {step <= totalSteps && (
             <div className="flex items-center gap-4 mt-10">
               {step > 1 && (
