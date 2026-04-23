@@ -2,9 +2,10 @@
 // - STRIPE_SECRET_KEY (sk_live_... or sk_test_...)
 // - SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (auto)
 //
-// NOTE: STRIPE_PLATFORM_COMMISSION_RATE is no longer used. The commission
-// grid lives in supabase/functions/_shared/commission.ts (mirrored from
-// src/lib/commission.ts).
+// NOTE: Multi-lot checkout (same seller). Creates ONE Stripe checkout session
+// covering all the lots and ONE pending order per lot. Shipping cost is a single
+// charge for the whole group; we split it across orders proportionally to each
+// lot's price so confirmation/release flows remain per-order.
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14?target=deno";
@@ -62,7 +63,6 @@ serve(async (req) => {
     }
 
     const body = await req.json().catch(() => ({}));
-    // Backward-compatible: accept either `lotId` (single) or `lotIds` (multi from same seller)
     const lotIdsRaw: string[] = Array.isArray(body?.lotIds)
       ? body.lotIds
       : body?.lotId
@@ -130,69 +130,50 @@ serve(async (req) => {
     }
 
     // -------------------------------------------------------------------------
-    // Commission grid — server-authoritative computation.
-    // Counts must match the client (useCommissionPreview) for UX consistency.
+    // Commission grid — server-authoritative, computed on the SUM of lot prices.
     // -------------------------------------------------------------------------
     const monthStart = startOfMonthISO();
-
     const [
       buyerMonthRes,
       sellerMonthRes,
       sellerLifetimeRes,
       buyerLifetimeRes,
     ] = await Promise.all([
-      supabaseAdmin
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .eq("buyer_id", buyerProfile.id)
-        .in("status", ACTIVE_ORDER_STATUSES)
-        .gte("created_at", monthStart),
-      supabaseAdmin
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .eq("seller_id", sellerProfile.id)
-        .in("status", ACTIVE_ORDER_STATUSES)
-        .gte("created_at", monthStart),
-      supabaseAdmin
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .eq("seller_id", sellerProfile.id)
-        .in("status", ACTIVE_ORDER_STATUSES),
-      supabaseAdmin
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .eq("buyer_id", buyerProfile.id)
-        .in("status", ACTIVE_ORDER_STATUSES),
+      supabaseAdmin.from("orders").select("id", { count: "exact", head: true })
+        .eq("buyer_id", buyerProfile.id).in("status", ACTIVE_ORDER_STATUSES).gte("created_at", monthStart),
+      supabaseAdmin.from("orders").select("id", { count: "exact", head: true })
+        .eq("seller_id", sellerProfile.id).in("status", ACTIVE_ORDER_STATUSES).gte("created_at", monthStart),
+      supabaseAdmin.from("orders").select("id", { count: "exact", head: true })
+        .eq("seller_id", sellerProfile.id).in("status", ACTIVE_ORDER_STATUSES),
+      supabaseAdmin.from("orders").select("id", { count: "exact", head: true })
+        .eq("buyer_id", buyerProfile.id).in("status", ACTIVE_ORDER_STATUSES),
     ]);
 
-    const lotPrice = Number(lot.price);
+    const lotsPriceSum = lots.reduce((acc, l) => acc + Number(l.price), 0);
     const commission = computeCommission({
-      lotPrice,
+      lotPrice: lotsPriceSum,
       buyerOrderCountThisMonth: buyerMonthRes.count ?? 0,
       sellerSaleCountThisMonth: sellerMonthRes.count ?? 0,
       sellerLifetimeSaleCount: sellerLifetimeRes.count ?? 0,
       isBuyerFirstEverPurchase: (buyerLifetimeRes.count ?? 0) === 0,
     });
 
-    // Pricing model B: shipping is billed to the buyer at cost, no margin.
-    // The buyer pays:  lot price + buyer commission + shipping
-    // Vary keeps:      buyer commission + seller commission   (- Stripe fees)
-    // Seller receives: lot price - seller commission           (+ shipping passthrough)
     const buyerTotal =
-      Math.round((lotPrice + commission.buyerCommission + shippingCost) * 100) / 100;
+      Math.round((lotsPriceSum + commission.buyerCommission + shippingCost) * 100) / 100;
     const stripeFee = computeStripeFee(buyerTotal);
 
-    // Stripe Connect application_fee_amount is what Vary keeps. Shipping flows
-    // through to the seller (handled by including it in the seller's line item
-    // and NOT adding it to the application_fee).
     const applicationFeeCents = Math.round(
       (commission.buyerCommission + commission.sellerCommission) * 100
     );
 
     const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
 
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
-      {
+    // One Stripe line per lot (price + per-lot share of buyer commission), plus
+    // a single shipping line for the whole group.
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = lots.map((lot) => {
+      const share = lotsPriceSum > 0 ? Number(lot.price) / lotsPriceSum : 1 / lots.length;
+      const buyerComForLot = commission.buyerCommission * share;
+      return {
         price_data: {
           currency: "eur",
           product_data: {
@@ -200,18 +181,21 @@ serve(async (req) => {
             description: `${lot.units} unités — commission acheteur ${(commission.buyerRate * 100).toFixed(1)}% incluse`,
             images: lot.images?.slice(0, 1) || [],
           },
-          // Lot price + buyer commission, charged as a single line.
-          unit_amount: Math.round((lotPrice + commission.buyerCommission) * 100),
+          unit_amount: Math.round((Number(lot.price) + buyerComForLot) * 100),
         },
         quantity: 1,
-      },
-    ];
+      };
+    });
 
     if (shippingCost > 0) {
       lineItems.push({
         price_data: {
           currency: "eur",
-          product_data: { name: "Transport (au coût réel)" },
+          product_data: {
+            name: lots.length > 1
+              ? `Transport groupé (${lots.length} lots)`
+              : "Transport (au coût réel)",
+          },
           unit_amount: Math.round(shippingCost * 100),
         },
         quantity: 1,
@@ -230,7 +214,7 @@ serve(async (req) => {
         application_fee_amount: applicationFeeCents,
         transfer_data: { destination: sellerProfile.stripe_account_id },
         metadata: {
-          lotId: lot.id,
+          lotIds: lots.map((l) => l.id).join(","),
           buyerUserId: user.id,
           sellerProfileId: sellerProfile.id,
           tier: commission.tier,
@@ -240,7 +224,7 @@ serve(async (req) => {
         },
       },
       metadata: {
-        lotId: lot.id,
+        lotIds: lots.map((l) => l.id).join(","),
         buyerUserId: user.id,
         sellerProfileId: sellerProfile.id,
         tier: commission.tier,
@@ -249,26 +233,31 @@ serve(async (req) => {
       cancel_url: `${origin}/panier`,
     });
 
-    // Pre-create pending order (service role bypasses RLS).
-    // `amount` = what the buyer pays in total.
-    // `commission` = what Vary keeps (gross, before Stripe fees).
-    await supabaseAdmin.from("orders").insert({
-      buyer_id: buyerProfile.id,
-      seller_id: sellerProfile.id,
-      lot_id: lot.id,
-      status: "pending_payment",
-      amount: buyerTotal,
-      commission:
-        Math.round((commission.buyerCommission + commission.sellerCommission) * 100) / 100,
-      stripe_checkout_session_id: session.id,
+    // Pre-create ONE pending order per lot. Split shipping & commission
+    // proportionally to each lot's price so per-order accounting is consistent.
+    const orderRows = lots.map((lot) => {
+      const share = lotsPriceSum > 0 ? Number(lot.price) / lotsPriceSum : 1 / lots.length;
+      const buyerComForLot = commission.buyerCommission * share;
+      const sellerComForLot = commission.sellerCommission * share;
+      const shippingForLot = shippingCost * share;
+      return {
+        buyer_id: buyerProfile.id,
+        seller_id: sellerProfile.id,
+        lot_id: lot.id,
+        status: "pending_payment",
+        amount: Math.round((Number(lot.price) + buyerComForLot + shippingForLot) * 100) / 100,
+        commission: Math.round((buyerComForLot + sellerComForLot) * 100) / 100,
+        stripe_checkout_session_id: session.id,
+      };
     });
+    await supabaseAdmin.from("orders").insert(orderRows);
 
     return new Response(
       JSON.stringify({
         sessionId: session.id,
         url: session.url,
         breakdown: {
-          lotPrice,
+          lotsPriceSum,
           buyerCommission: commission.buyerCommission,
           sellerCommission: commission.sellerCommission,
           shippingCost,

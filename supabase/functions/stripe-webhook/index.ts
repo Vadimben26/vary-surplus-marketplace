@@ -34,38 +34,43 @@ serve(async (req) => {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        const lotId = session.metadata?.lotId;
+        // Multi-lot: lotIds is a comma-separated list. Fall back to legacy lotId.
+        const lotIdsCsv = session.metadata?.lotIds || session.metadata?.lotId || "";
+        const lotIds = lotIdsCsv.split(",").map((s) => s.trim()).filter(Boolean);
         const paymentIntentId = session.payment_intent as string;
 
-        // Update pending order created at checkout time
-        const { data: updatedOrder } = await supabaseAdmin
+        // Update ALL pending orders attached to this session
+        const { data: updatedOrders } = await supabaseAdmin
           .from("orders")
           .update({
             status: "paid",
             stripe_payment_intent_id: paymentIntentId,
           })
           .eq("stripe_checkout_session_id", session.id)
-          .select("id")
-          .maybeSingle();
+          .select("id");
 
-        // Mark lot as sold
-        if (lotId) {
-          await supabaseAdmin.from("lots").update({ status: "sold" }).eq("id", lotId);
+        // Mark all lots as sold
+        if (lotIds.length > 0) {
+          await supabaseAdmin.from("lots").update({ status: "sold" }).in("id", lotIds);
         }
 
-        // Fire-and-forget transactional emails
-        if (updatedOrder?.id) {
+        // Fire-and-forget transactional emails (one per order)
+        if (updatedOrders && updatedOrders.length > 0) {
           const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
           const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
           const headers = {
             Authorization: `Bearer ${serviceKey}`,
             "Content-Type": "application/json",
           };
-          const orderBody = JSON.stringify({ orderId: updatedOrder.id });
-          await Promise.allSettled([
-            fetch(`${supabaseUrl}/functions/v1/send-order-confirmation`, { method: "POST", headers, body: orderBody }),
-            fetch(`${supabaseUrl}/functions/v1/send-seller-order-notification`, { method: "POST", headers, body: orderBody }),
-          ]);
+          await Promise.allSettled(
+            updatedOrders.flatMap((o: any) => {
+              const orderBody = JSON.stringify({ orderId: o.id });
+              return [
+                fetch(`${supabaseUrl}/functions/v1/send-order-confirmation`, { method: "POST", headers, body: orderBody }),
+                fetch(`${supabaseUrl}/functions/v1/send-seller-order-notification`, { method: "POST", headers, body: orderBody }),
+              ];
+            })
+          );
         }
         break;
       }

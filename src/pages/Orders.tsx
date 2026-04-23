@@ -75,23 +75,16 @@ const ReviewBlock = ({
   const [saving, setSaving] = useState(false);
 
   const startNew = () => { setRating(0); setComment(""); setEditing(true); };
-  const startEdit = () => { setRating(review?.rating || 0); setComment(review?.comment || ""); setEditing(true); };
 
   const submit = async () => {
     if (!rating) return;
     setSaving(true);
     try {
-      if (review) {
-        const { error } = await (supabase as any).from("reviews")
-          .update({ rating, comment: comment.trim() || null }).eq("id", review.id);
-        if (error) throw error;
-      } else {
-        const { error } = await (supabase as any).from("reviews").insert({
-          order_id: order.id, lot_id: order.lot_id, buyer_id: buyerProfileId,
-          seller_id: order.seller_id, rating, comment: comment.trim() || null,
-        });
-        if (error) throw error;
-      }
+      const { error } = await (supabase as any).from("reviews").insert({
+        order_id: order.id, lot_id: order.lot_id, buyer_id: buyerProfileId,
+        seller_id: order.seller_id, rating, comment: comment.trim() || null,
+      });
+      if (error) throw error;
       toast.success("Merci pour votre avis !");
       setEditing(false);
       await refetch();
@@ -104,7 +97,12 @@ const ReviewBlock = ({
   };
 
   if (isLoading) return null;
-  const within48h = review ? Date.now() - new Date(review.created_at).getTime() < 48 * 3600 * 1000 : false;
+
+  // The rating prompt window opens at confirmed_at and closes 7 days later.
+  // Past that window, if the buyer never rated, the prompt simply disappears.
+  const ratingWindowOpen = order.confirmed_at
+    ? Date.now() - new Date(order.confirmed_at).getTime() < 7 * 24 * 3600 * 1000
+    : true;
 
   if (editing) {
     return (
@@ -138,22 +136,22 @@ const ReviewBlock = ({
   }
 
   if (review) {
+    // Ratings cannot be edited after submission.
     return (
       <div className="mt-4 p-4 rounded-xl border border-border bg-muted/30">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <StarRow value={review.rating} readOnly />
-            {review.comment && <p className="text-sm text-foreground mt-2 leading-relaxed">{review.comment}</p>}
-          </div>
-          {within48h && (
-            <button onClick={startEdit} className="text-xs font-semibold text-primary hover:underline flex-shrink-0">
-              Modifier
-            </button>
-          )}
+        <div className="flex items-center gap-2">
+          <StarRow value={review.rating} readOnly />
+          <span className="text-xs text-muted-foreground">
+            {new Date(review.created_at).toLocaleDateString("fr-FR")}
+          </span>
         </div>
+        {review.comment && <p className="text-sm text-foreground mt-2 leading-relaxed">{review.comment}</p>}
       </div>
     );
   }
+
+  // Prompt only visible during the 7-day rating window.
+  if (!ratingWindowOpen) return null;
 
   return (
     <button onClick={startNew}
