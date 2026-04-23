@@ -206,7 +206,7 @@ const Orders = () => {
         .from("orders")
         .select("*, lots(title, brand, images, units), profiles!orders_seller_id_fkey(id, full_name, company_name)")
         .eq("buyer_id", profile.id)
-        .in("status", ["paid", "preparing", "shipped", "delivered", "confirmed"])
+        .in("status", ["paid", "preparing", "shipped", "delivered", "disputed"])
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return data || [];
@@ -214,15 +214,15 @@ const Orders = () => {
     enabled: !!profile?.id,
   });
 
-  const { data: disputes = [], isLoading: disputesLoading, refetch: refetchDisputes } = useQuery({
-    queryKey: ["buyer-disputes", profile?.id],
+  const { data: completedOrders = [], isLoading: completedLoading, refetch: refetchCompleted } = useQuery({
+    queryKey: ["buyer-completed", profile?.id],
     queryFn: async () => {
       if (!profile?.id) return [];
       const { data, error } = await supabase
         .from("orders")
         .select("*, lots(title, brand, images, units), profiles!orders_seller_id_fkey(id, full_name, company_name)")
         .eq("buyer_id", profile.id)
-        .in("status", ["disputed", "refunded"])
+        .in("status", ["confirmed", "refunded"])
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return data || [];
