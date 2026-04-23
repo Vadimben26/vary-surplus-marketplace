@@ -185,7 +185,7 @@ const Orders = () => {
   const { profile, user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"active" | "disputes">("active");
+  const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [disputingId, setDisputingId] = useState<string | null>(null);
 
@@ -206,7 +206,7 @@ const Orders = () => {
         .from("orders")
         .select("*, lots(title, brand, images, units), profiles!orders_seller_id_fkey(id, full_name, company_name)")
         .eq("buyer_id", profile.id)
-        .in("status", ["paid", "preparing", "shipped", "delivered", "confirmed"])
+        .in("status", ["paid", "preparing", "shipped", "delivered", "disputed"])
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return data || [];
@@ -214,15 +214,15 @@ const Orders = () => {
     enabled: !!profile?.id,
   });
 
-  const { data: disputes = [], isLoading: disputesLoading, refetch: refetchDisputes } = useQuery({
-    queryKey: ["buyer-disputes", profile?.id],
+  const { data: completedOrders = [], isLoading: completedLoading, refetch: refetchCompleted } = useQuery({
+    queryKey: ["buyer-completed", profile?.id],
     queryFn: async () => {
       if (!profile?.id) return [];
       const { data, error } = await supabase
         .from("orders")
         .select("*, lots(title, brand, images, units), profiles!orders_seller_id_fkey(id, full_name, company_name)")
         .eq("buyer_id", profile.id)
-        .in("status", ["disputed", "refunded"])
+        .in("status", ["confirmed", "refunded"])
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return data || [];
@@ -290,8 +290,8 @@ const Orders = () => {
 
   const getStepIndex = (status: string) => statusSteps.indexOf(status as any);
 
-  const currentList = activeTab === "active" ? orders : disputes;
-  const loading = activeTab === "active" ? isLoading : disputesLoading;
+  const currentList = activeTab === "active" ? orders : completedOrders;
+  const loading = activeTab === "active" ? isLoading : completedLoading;
 
   return (
     <div className="min-h-screen bg-background">
@@ -301,24 +301,19 @@ const Orders = () => {
           {t("buyerTracking.title")}
         </h1>
 
-        {/* Internal tabs */}
+        {/* Internal tabs: En cours / Terminées */}
         <div className="flex gap-1 mb-6 bg-muted rounded-xl p-1">
           <button
             onClick={() => setActiveTab("active")}
             className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${activeTab === "active" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
           >
-            {t("buyerTracking.tabActive")}
+            {t("buyerTracking.tabActive", "En cours")}
           </button>
           <button
-            onClick={() => setActiveTab("disputes")}
-            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors relative ${activeTab === "disputes" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+            onClick={() => setActiveTab("completed")}
+            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${activeTab === "completed" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
           >
-            {t("buyerTracking.tabDisputes")}
-            {disputes.length > 0 && (
-              <span className="ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold">
-                {disputes.length}
-              </span>
-            )}
+            {t("buyerTracking.tabCompleted", "Terminées")}
           </button>
         </div>
 
@@ -333,9 +328,9 @@ const Orders = () => {
               </>
             ) : (
               <>
-                <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground font-medium">{t("buyerTracking.disputesEmpty")}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t("buyerTracking.disputesEmptyDesc")}</p>
+                <CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground font-medium">{t("buyerTracking.completedEmpty", "Aucune commande terminée")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("buyerTracking.completedEmptyDesc", "Les commandes terminées apparaîtront ici.")}</p>
               </>
             )}
           </div>
@@ -448,30 +443,29 @@ const Orders = () => {
                         onSubmitted={() => {
                           setDisputingId(null);
                           refetch();
-                          refetchDisputes();
-                          setActiveTab("disputes");
+                          queryClient.invalidateQueries({ queryKey: ["buyer-dispute-records"] });
                         }}
                       />
                     </div>
                   )}
 
-                  {/* CONFIRMED — leave a review */}
-                  {activeTab === "active" && order.status === "confirmed" && profile?.id && (
-                    <ReviewBlock order={order} buyerProfileId={profile.id} onSaved={() => refetch()} />
+                  {/* CONFIRMED — leave a review (in completed tab) */}
+                  {activeTab === "completed" && order.status === "confirmed" && profile?.id && (
+                    <ReviewBlock order={order} buyerProfileId={profile.id} onSaved={() => refetchCompleted()} />
                   )}
 
-                  {/* Dispute details (disputes tab) */}
-                  {activeTab === "disputes" && order.status === "disputed" && (
+                  {/* Dispute in progress — visible inside "En cours" on the order card */}
+                  {activeTab === "active" && order.status === "disputed" && (
                     <div className="mt-3 space-y-2">
                       <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
                         <div className="flex items-start gap-2">
                           <AlertTriangle className="h-4 w-4 text-amber-700 flex-shrink-0 mt-0.5" />
                           <div className="min-w-0">
                             <p className="text-xs font-bold text-amber-800">
-                              {t("buyerTracking.disputeInReview")}{dispute?.reason ? ` — ${dispute.reason}` : ""}
+                              {t("buyerTracking.disputeInReview", "Litige en cours")}{dispute?.reason ? ` — ${dispute.reason}` : ""}
                             </p>
                             <p className="text-[11px] text-amber-700 mt-0.5">
-                              {t("buyerTracking.disputeFundsHeld")}
+                              {t("buyerTracking.disputeFundsHeld", "Les fonds sont bloqués jusqu'à résolution.")}
                               {dispute?.opened_at && ` ${t("buyerTracking.disputeOpenedOn", { date: new Date(dispute.opened_at).toLocaleString() })}`}
                             </p>
                           </div>
@@ -488,10 +482,10 @@ const Orders = () => {
                     </div>
                   )}
 
-                  {activeTab === "disputes" && order.status === "refunded" && (
+                  {activeTab === "completed" && order.status === "refunded" && (
                     <div className="mt-3 rounded-xl bg-muted/50 border border-border p-3">
-                      <p className="text-xs font-semibold text-foreground">{t("buyerTracking.refundedTitle")}</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">{t("buyerTracking.refundedDesc")}</p>
+                      <p className="text-xs font-semibold text-foreground">{t("buyerTracking.refundedTitle", "Commande remboursée")}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{t("buyerTracking.refundedDesc", "Le remboursement a été traité.")}</p>
                     </div>
                   )}
                 </motion.div>

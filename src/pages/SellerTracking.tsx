@@ -17,7 +17,7 @@ const SellerTracking = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"active" | "disputes">("active");
+  const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
 
@@ -56,7 +56,7 @@ const SellerTracking = () => {
         .from("orders")
         .select("*, lots(title, brand, images), profiles!orders_buyer_id_fkey(id, full_name, company_name)")
         .eq("seller_id", profile.id)
-        .in("status", ["paid", "preparing", "shipped", "delivered", "confirmed"])
+        .in("status", ["paid", "preparing", "shipped", "delivered", "disputed"])
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return data || [];
@@ -64,15 +64,15 @@ const SellerTracking = () => {
     enabled: !!profile?.id,
   });
 
-  const { data: disputes = [], isLoading: disputesLoading } = useQuery({
-    queryKey: ["seller-disputes", profile?.id],
+  const { data: completedOrders = [], isLoading: completedLoading } = useQuery({
+    queryKey: ["seller-completed", profile?.id],
     queryFn: async () => {
       if (!profile?.id) return [];
       const { data, error } = await supabase
         .from("orders")
         .select("*, lots(title, brand, images), profiles!orders_buyer_id_fkey(id, full_name, company_name)")
         .eq("seller_id", profile.id)
-        .in("status", ["disputed", "refunded"])
+        .in("status", ["confirmed", "refunded"])
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return data || [];
@@ -173,8 +173,9 @@ const SellerTracking = () => {
 
   const getStepIndex = (status: string) => statusSteps.indexOf(status as any);
 
-  const currentList = activeTab === "active" ? orders : disputes;
-  const loading = activeTab === "active" ? isLoading : disputesLoading;
+  const currentList = activeTab === "active" ? orders : completedOrders;
+  const loading = activeTab === "active" ? isLoading : completedLoading;
+  const disputedCount = orders.filter((o: any) => o.status === "disputed").length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -184,24 +185,24 @@ const SellerTracking = () => {
           {t("sellerTracking.title")}
         </h1>
 
-        {/* Internal tabs */}
+        {/* Internal tabs: En cours / Terminées */}
         <div className="flex gap-1 mb-6 bg-muted rounded-xl p-1">
           <button
             onClick={() => setActiveTab("active")}
-            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${activeTab === "active" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors relative ${activeTab === "active" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
           >
-            {t("sellerTracking.tabActive")}
-          </button>
-          <button
-            onClick={() => setActiveTab("disputes")}
-            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors relative ${activeTab === "disputes" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
-          >
-            {t("sellerTracking.tabDisputes")}
-            {disputes.length > 0 && (
+            {t("sellerTracking.tabActive", "En cours")}
+            {disputedCount > 0 && (
               <span className="ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold">
-                {disputes.length}
+                {disputedCount}
               </span>
             )}
+          </button>
+          <button
+            onClick={() => setActiveTab("completed")}
+            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${activeTab === "completed" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+          >
+            {t("sellerTracking.tabCompleted", "Terminées")}
           </button>
         </div>
 
@@ -216,9 +217,9 @@ const SellerTracking = () => {
               </>
             ) : (
               <>
-                <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground font-medium">{t("sellerDisputes.empty")}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t("sellerDisputes.emptyDesc")}</p>
+                <CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground font-medium">{t("sellerTracking.completedEmpty", "Aucune commande terminée")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("sellerTracking.completedEmptyDesc", "Les commandes terminées apparaîtront ici.")}</p>
               </>
             )}
           </div>
@@ -271,8 +272,8 @@ const SellerTracking = () => {
                     </>
                   )}
 
-                  {/* Dispute alert + details for disputed orders */}
-                  {activeTab === "disputes" && order.status === "disputed" && (() => {
+                  {/* Dispute alert + details — disputed orders live in "En cours" */}
+                  {order.status === "disputed" && (() => {
                     const dispute = (disputeRecords as any)[order.id];
                     return (
                       <div className="mt-3 space-y-2">
@@ -355,7 +356,7 @@ const SellerTracking = () => {
                     );
                   })()}
 
-                  {activeTab === "disputes" && order.status === "refunded" && (
+                  {activeTab === "completed" && order.status === "refunded" && (
                     <button
                       onClick={() => navigate(`/messages?with=${buyer?.id}&lot=${order.lot_id}`)}
                       className="mt-3 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
