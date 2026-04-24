@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { sendEmail } from "../_shared/sendEmail.ts";
 import { baseLayout, buttonHtml, appUrl } from "../_shared/emailTemplates.ts";
+import { hasAnyFilter, isBuyerEligible, type BuyerFilters } from "../_shared/buyerFilters.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -52,7 +53,7 @@ serve(async (req) => {
     // Fetch lot
     const { data: lot, error: lotErr } = await supabase
       .from("lots")
-      .select("id, title, brand, category, price, units, location, rating, status")
+      .select("id, title, brand, category, price, units, location, rating, status, seller_id")
       .eq("id", lotId)
       .single();
 
@@ -69,10 +70,27 @@ serve(async (req) => {
       });
     }
 
-    // Fetch eligible buyers (certified + opted-in)
+    // Fetch seller's buyer_filters (so we don't email buyers excluded by the seller).
+    const { data: sellerProfile } = await supabase
+      .from("profiles")
+      .select("user_id")
+      .eq("id", lot.seller_id)
+      .maybeSingle();
+    let sellerFilters: BuyerFilters | null = null;
+    if (sellerProfile?.user_id) {
+      const { data: sp } = await supabase
+        .from("seller_preferences")
+        .select("buyer_filters")
+        .eq("user_id", sellerProfile.user_id)
+        .maybeSingle();
+      sellerFilters = (sp?.buyer_filters as BuyerFilters | null) ?? null;
+    }
+    const enforceSellerFilters = hasAnyFilter(sellerFilters);
+
+    // Fetch eligible buyers (certified + opted-in) — pull all filter fields too.
     const { data: prefs } = await supabase
       .from("buyer_preferences")
-      .select("user_id, categories, budget, info_certified, alerts_consent")
+      .select("user_id, categories, budget, info_certified, alerts_consent, shipping_country_for_filter, annual_revenue, annual_revenue_range, resale_channels")
       .eq("info_certified", true)
       .eq("alerts_consent", true);
 
@@ -88,6 +106,7 @@ serve(async (req) => {
       if (!matchesCategory(lot.category, p.categories)) return false;
       const ceiling = budgetCeiling(p.budget);
       if (ceiling !== null && lotPrice > ceiling) return false;
+      if (enforceSellerFilters && !isBuyerEligible(sellerFilters, p, lot.category)) return false;
       return true;
     }).slice(0, MAX_EMAILS);
 
