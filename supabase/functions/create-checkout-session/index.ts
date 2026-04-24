@@ -15,6 +15,7 @@ import {
   computeStripeFee,
   startOfMonthISO,
 } from "../_shared/commission.ts";
+import { hasAnyFilter, isBuyerEligible, type BuyerFilters } from "../_shared/buyerFilters.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -100,7 +101,7 @@ serve(async (req) => {
     // Lots — must all belong to the same seller and be active.
     const { data: lots } = await supabaseAdmin
       .from("lots")
-      .select("id, title, price, units, seller_id, status, images")
+      .select("id, title, price, units, seller_id, status, images, category")
       .in("id", lotIdsRaw);
     if (!lots || lots.length !== lotIdsRaw.length || lots.some((l) => l.status !== "active")) {
       return new Response(JSON.stringify({ error: "One or more lots are not available" }), {
@@ -118,7 +119,7 @@ serve(async (req) => {
 
     const { data: sellerProfile } = await supabaseAdmin
       .from("profiles")
-      .select("id, stripe_account_id, email")
+      .select("id, stripe_account_id, email, user_id")
       .eq("id", sellerProfileId)
       .single();
 
@@ -127,6 +128,32 @@ serve(async (req) => {
         JSON.stringify({ error: "Ce vendeur n'a pas encore configuré son compte de paiement" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // -----------------------------------------------------------------------
+    // Buyer eligibility — enforce seller buyer_filters server-side.
+    // -----------------------------------------------------------------------
+    const { data: sellerPrefs } = await supabaseAdmin
+      .from("seller_preferences")
+      .select("buyer_filters")
+      .eq("user_id", sellerProfile.user_id)
+      .maybeSingle();
+    const sellerFilters = (sellerPrefs?.buyer_filters as BuyerFilters | null) ?? null;
+
+    if (hasAnyFilter(sellerFilters)) {
+      const { data: buyerPrefs } = await supabaseAdmin
+        .from("buyer_preferences")
+        .select("shipping_country_for_filter, annual_revenue, annual_revenue_range, resale_channels, categories")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      const ineligible = lots.find((l) => !isBuyerEligible(sellerFilters, buyerPrefs ?? null, (l as any).category));
+      if (ineligible) {
+        return new Response(
+          JSON.stringify({ error: "Vous ne correspondez pas aux critères définis par ce vendeur." }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // -------------------------------------------------------------------------
