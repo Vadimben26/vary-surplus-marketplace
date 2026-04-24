@@ -10,6 +10,8 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBuyerPrefs } from "@/hooks/useBuyerPrefs";
+import { useBuyerFilterProfile } from "@/hooks/useBuyerFilterProfile";
+import { hasAnyFilter, isBuyerEligible, type BuyerFilters } from "@/lib/buyerFilters";
 import LotCard from "@/components/LotCard";
 import BuyerPrefsGate from "@/components/BuyerPrefsGate";
 import GuestGate from "@/components/GuestGate";
@@ -28,6 +30,7 @@ const LotDetail = () => {
   const { isInCart, addToCart } = useCart();
   const { profile, user } = useAuth();
   const { hasBuyerPrefs, isVerifiedPro, loading: prefsLoading } = useBuyerPrefs();
+  const { profile: buyerFilterProfile } = useBuyerFilterProfile();
   const [activeImage, setActiveImage] = useState(0);
   const [selectedProductImage, setSelectedProductImage] = useState<string | null>(null);
   const [showGate, setShowGate] = useState(false);
@@ -77,18 +80,19 @@ const LotDetail = () => {
   // A lot is "restricted" when its seller has set at least one buyer filter.
   // Eligibility is enforced server-side via the buyer_preferences match,
   // but for the UX gate we only need to know whether the seller has any rule.
-  const sellerBuyerFilters = (sellerPrefs?.buyer_filters as any) ?? null;
-  const isFilteredLot =
-    !!sellerBuyerFilters &&
-    (
-      (sellerBuyerFilters.countries?.length ?? 0) > 0 ||
-      (sellerBuyerFilters.min_revenue && sellerBuyerFilters.min_revenue !== "none") ||
-      (sellerBuyerFilters.channels?.length ?? 0) > 0 ||
-      (sellerBuyerFilters.categories?.length ?? 0) > 0
-    );
+  const sellerBuyerFilters = (sellerPrefs?.buyer_filters as BuyerFilters | null) ?? null;
+  const isFilteredLot = hasAnyFilter(sellerBuyerFilters);
   // For filtered lots: buyer must (a) have completed questionnaire AND (b) be a verified pro (Level 2).
   const requiresPrefs = isFilteredLot && !!user && !prefsLoading && !hasBuyerPrefs;
   const requiresVerifiedPro = isFilteredLot && !!user && !prefsLoading && hasBuyerPrefs && !isVerifiedPro;
+  // Real eligibility check: even verified pros may be excluded by filters (country/channel/revenue).
+  const isIneligibleByFilters =
+    isFilteredLot &&
+    !!user &&
+    !prefsLoading &&
+    hasBuyerPrefs &&
+    isVerifiedPro &&
+    !isBuyerEligible(sellerBuyerFilters, buyerFilterProfile, (lot as any)?.category);
 
   // Reachability is no longer gated by shipping cost — flat 500 € minimum
   // applies to every published lot, and sellers reach all 24 EU countries.
