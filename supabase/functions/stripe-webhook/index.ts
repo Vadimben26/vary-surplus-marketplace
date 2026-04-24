@@ -36,7 +36,7 @@ serve(async (req) => {
         const session = event.data.object as Stripe.Checkout.Session;
         // Multi-lot: lotIds is a comma-separated list. Fall back to legacy lotId.
         const lotIdsCsv = session.metadata?.lotIds || session.metadata?.lotId || "";
-        const lotIds = lotIdsCsv.split(",").map((s) => s.trim()).filter(Boolean);
+        const lotIds = lotIdsCsv.split(",").map((s: string) => s.trim()).filter(Boolean);
         const paymentIntentId = session.payment_intent as string;
 
         // Update ALL pending orders attached to this session

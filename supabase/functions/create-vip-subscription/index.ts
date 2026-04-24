@@ -74,7 +74,7 @@ serve(async (req) => {
     // Find or create the price for the VIP plan (299€/month)
     const productName = plan === "buyer_vip" ? "Vary Buyer VIP" : "Vary Seller VIP";
     const products = await stripe.products.list({ limit: 100 });
-    let product = products.data.find(p => p.name === productName && p.active);
+    let product = products.data.find((p: any) => p.name === productName && p.active);
     
     if (!product) {
       product = await stripe.products.create({
@@ -87,7 +87,7 @@ serve(async (req) => {
 
     const priceAmount = plan === "seller_vip" ? 9900 : 29900; // seller 99€, buyer 299€
     const prices = await stripe.prices.list({ product: product.id, active: true });
-    let price = prices.data.find(p => p.unit_amount === priceAmount && p.recurring?.interval === "month");
+    let price = prices.data.find((p: any) => p.unit_amount === priceAmount && p.recurring?.interval === "month");
     
     if (!price) {
       price = await stripe.prices.create({
