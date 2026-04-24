@@ -187,6 +187,10 @@ const LotDetail = () => {
       setShowGate(true);
       return;
     }
+    if (isIneligibleByFilters) {
+      toast.error(t("lotDetail.ineligible", "Ce vendeur a défini des critères auxquels votre profil ne correspond pas."));
+      return;
+    }
     addToCart(lot.id);
     toast.success(t("lotDetail.addedToCart"));
   };
@@ -204,6 +208,10 @@ const LotDetail = () => {
     if (requiresVerifiedPro) {
       setGateMode("verifyPro");
       setShowGate(true);
+      return;
+    }
+    if (isIneligibleByFilters) {
+      toast.error(t("lotDetail.ineligible", "Ce vendeur a défini des critères auxquels votre profil ne correspond pas."));
       return;
     }
     navigate(`/messages?lot=${lot.id}`);
